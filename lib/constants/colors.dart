@@ -1,0 +1,45 @@
+import 'package:flutter/material.dart';
+
+const kOrangeColor = Color(0xFFC85250);
+const kPinkColor = Color(0xFFBF5378); //Register Page Topic
+const kPeachColor = Color(0xFFFF9191);
+const kPurpleColor = Color(0xFF954582);
+const kDarkPinkColor = Color(0xFFCA1F4B);
+const kRedColor = Color(0xFFC23030);
+const kCreamColor = Color(0xFFFF8D8D);
+const kMainButtonColor = Color(0xFFC85250); //Main Buttons and App Name
+const kButtonColor2 = Color(0xFFDD4040); //Matches page buttons
+
+//Home Page Red Color Types
+const kHomeColor1 = Color(0xFFFF0000); //Left Top Widget
+const kHomeColor2 = Color(0xFFC23030); //Right Top Widget
+const kHomeColor3 = Color(0xFFBB2121); // Sub Topic for Home and Matches Pages
+const kHomeColor4 = Color(0xFFC41F16); //Dates
+
+// Login and SignUp
+const kGradientLS = LinearGradient(
+  colors: [kOrangeColor, kPinkColor],
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+);
+
+// Register Page
+const kGradientR = LinearGradient(
+  colors: [kPinkColor, kPeachColor],
+  begin: Alignment.centerLeft,
+  end: Alignment.centerRight,
+);
+
+// Home Page Top
+const kGradientH = LinearGradient(
+  colors: [kPurpleColor, kDarkPinkColor],
+  begin: Alignment.centerLeft,
+  end: Alignment.centerRight,
+);
+
+// Bottom Nav Bar
+const kGradientB = LinearGradient(
+  colors: [kPurpleColor, kOrangeColor],
+  begin: Alignment.centerLeft,
+  end: Alignment.centerRight,
+);
