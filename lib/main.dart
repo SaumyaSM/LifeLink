@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/screens/login_screen.dart';
+import 'package:life_link/screens/main_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: LoginScreen(),
+      home: MainScreen(),
     );
   }
 }

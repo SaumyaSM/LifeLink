@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.5,
                 decoration: const BoxDecoration(
-                  gradient: kGradientB,
+                  gradient: kGradientLogin,
                   borderRadius: BorderRadius.only(
                     topRight: Radius.circular(35),
                     topLeft: Radius.circular(35),

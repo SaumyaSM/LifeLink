@@ -16,29 +16,25 @@ const kHomeColor2 = Color(0xFFC23030); //Right Top Widget
 const kHomeColor3 = Color(0xFFBB2121); // Sub Topic for Home and Matches Pages
 const kHomeColor4 = Color(0xFFC41F16); //Dates
 
-// Login and SignUp
-const kGradientLS = LinearGradient(
+const kGradientLogin = LinearGradient(
   colors: [kOrangeColor, kPinkColor],
   begin: Alignment.topCenter,
   end: Alignment.bottomCenter,
 );
 
-// Register Page
-const kGradientR = LinearGradient(
+const kGradientRegister = LinearGradient(
   colors: [kPinkColor, kPeachColor],
   begin: Alignment.centerLeft,
   end: Alignment.centerRight,
 );
 
-// Home Page Top
-const kGradientH = LinearGradient(
+const kGradientHome = LinearGradient(
   colors: [kPurpleColor, kDarkPinkColor],
   begin: Alignment.centerLeft,
   end: Alignment.centerRight,
 );
 
-// Bottom Nav Bar
-const kGradientB = LinearGradient(
+const kGradientNavBar = LinearGradient(
   colors: [kPurpleColor, kOrangeColor],
   begin: Alignment.centerLeft,
   end: Alignment.centerRight,
