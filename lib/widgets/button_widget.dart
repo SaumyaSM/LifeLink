@@ -12,8 +12,8 @@ class ButtonWidget extends StatelessWidget {
       onPressed: () => onTap(),
       style: TextButton.styleFrom(splashFactory: NoSplash.splashFactory),
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.4,
-        padding: const EdgeInsets.all(10),
+        width: MediaQuery.of(context).size.width * 0.40,
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: kOrangeColor,
           borderRadius: BorderRadius.circular(50),
@@ -25,6 +25,7 @@ class ButtonWidget extends StatelessWidget {
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 18,
             ),
           ),
         ),

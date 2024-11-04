@@ -34,7 +34,7 @@ class TextInputWidget extends StatelessWidget {
       maxLines: maxLines,
       decoration: InputDecoration(
         hintText: title,
-        //hintStyle: const TextStyle(color: kColorGoldLight),
+        hintStyle: const TextStyle(color: Colors.grey),
         counterStyle: const TextStyle(color: Colors.white24),
         enabledBorder: const UnderlineInputBorder(
             //borderSide: BorderSide(color: kColorGoldLight),
@@ -42,7 +42,12 @@ class TextInputWidget extends StatelessWidget {
         focusedBorder: const UnderlineInputBorder(
             //borderSide: BorderSide(color: kColorGoldLight),
             ),
-        prefixIcon: icon,
+        prefixIcon: icon != null
+            ? Icon(
+                icon!.icon,
+                color: Colors.grey,
+              )
+            : null,
       ),
     );
   }

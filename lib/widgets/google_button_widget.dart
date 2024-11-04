@@ -21,7 +21,7 @@ class GoogleButtonWidget extends StatelessWidget {
           children: [
             Image.asset(
               'assets/images/google.png',
-              width: 35,
+              width: 25,
             ),
             const SizedBox(width: 10),
             const Text(
