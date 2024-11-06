@@ -126,6 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
                     ButtonWidget(
                       onTap: () async {
+                        setState(() => isLoading = true);
                         await AuthService.loginUser(
                           email: emailTEC.text.trim(),
                           password: passwordTEC.text.trim(),
@@ -148,7 +149,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 10),
                     GoogleButtonWidget(
-                      onTap: () {},
+                      onTap: () async {
+                        setState(() => isLoading = true);
+                        await AuthService.loginUserWithGoogle();
+                      },
                     ),
                   ],
                 ),

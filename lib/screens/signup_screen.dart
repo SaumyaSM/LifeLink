@@ -176,7 +176,14 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 10),
                     GoogleButtonWidget(
-                      onTap: () {},
+                      onTap: () async {
+                        setState(() => isLoading = true);
+                        await AuthService.signupUserWithGoogle();
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PersonalInfoScreen()));
+                      },
                     ),
                   ],
                 ),
