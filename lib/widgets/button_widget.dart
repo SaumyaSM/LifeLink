@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
+import 'package:life_link/widgets/font_types.dart';
 
 class ButtonWidget extends StatelessWidget {
   Function onTap;
@@ -22,11 +23,7 @@ class ButtonWidget extends StatelessWidget {
           child: Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
+            style: FontStyles.semiboldTextFieldStyle(),
           ),
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:life_link/widgets/font_types.dart';
 
 class TextInputWidget extends StatelessWidget {
   TextEditingController controller;
@@ -34,7 +35,7 @@ class TextInputWidget extends StatelessWidget {
       maxLines: maxLines,
       decoration: InputDecoration(
         hintText: title,
-        hintStyle: const TextStyle(color: Colors.grey),
+        hintStyle: FontStyles.hintTextFieldStyle(),
         counterStyle: const TextStyle(color: Colors.white24),
         enabledBorder: const UnderlineInputBorder(
             //borderSide: BorderSide(color: kColorGoldLight),

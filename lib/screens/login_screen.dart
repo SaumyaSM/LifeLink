@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
+import 'package:life_link/screens/donation_history_screen.dart';
+import 'package:life_link/screens/main_screen.dart';
 import 'package:life_link/screens/signup_screen.dart';
+import 'package:life_link/services/auth_service.dart';
+import 'package:life_link/services/toast_service.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
 import 'package:life_link/widgets/button_widget.dart';
 import 'package:life_link/widgets/card_widget.dart';
+import 'package:life_link/widgets/font_types.dart';
 import 'package:life_link/widgets/google_button_widget.dart';
 import 'package:life_link/widgets/loading_widget.dart';
 import 'package:life_link/widgets/text_input_widget.dart';
@@ -74,13 +79,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: MediaQuery.of(context).size.width * 0.2,
                 ),
                 const SizedBox(width: 10),
-                const Text(
+                Text(
                   'LifeLink',
-                  style: TextStyle(
-                    color: kOrangeColor,
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: FontStyles.headLIneTextFieldStyle(),
                 ),
               ],
             ),
@@ -94,12 +95,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'LOGIN',
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: FontStyles.boldTextFieldStyle(),
                     ),
                     const SizedBox(height: 30),
                     TextInputWidget(
@@ -127,7 +125,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
                     ButtonWidget(
-                      onTap: () {},
+                      onTap: () async {
+                        await AuthService.loginUser(
+                          email: emailTEC.text.trim(),
+                          password: passwordTEC.text.trim(),
+                        );
+                        ToastService.displaySuccessMotionToast(
+                            context: context, description: 'Login Successful!');
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DonationHistoryScreen()));
+                      },
                       title: 'LOGIN',
                     ),
                     const SizedBox(height: 10),
@@ -147,21 +156,27 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.04),
-          Column(
-            children: [
-              const Text(
-                'Don\'t have an account?',
-                style: TextStyle(color: Colors.white),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => SignupScreen())),
-                child: const Text(
-                  'Sign Up',
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => SignupScreen()));
+            },
+            child: Column(
+              children: [
+                const Text(
+                  'Don\'t have an account?',
                   style: TextStyle(color: Colors.white),
                 ),
-              ),
-            ],
+                GestureDetector(
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SignupScreen())),
+                  child: const Text(
+                    'Sign Up',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/screens/login_screen.dart';
+import 'package:life_link/screens/personal_info_screen.dart';
+import 'package:life_link/services/auth_service.dart';
 import 'package:life_link/services/toast_service.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
 import 'package:life_link/widgets/button_widget.dart';
 import 'package:life_link/widgets/card_widget.dart';
+import 'package:life_link/widgets/font_types.dart';
 import 'package:life_link/widgets/google_button_widget.dart';
 import 'package:life_link/widgets/loading_widget.dart';
 import 'package:life_link/widgets/text_input_widget.dart';
@@ -24,19 +27,23 @@ class _SignupScreenState extends State<SignupScreen> {
   TextEditingController passwordConfirmTEC = TextEditingController();
 
   void validateForm() {
-    if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+    if (!RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(emailTEC.text.trim())) {
-      ToastService.displayErrorMotionToast(context: context, description: 'Invalid Email!');
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Invalid Email!');
       return;
     }
 
     if (passwordTEC.text.trim().length < 6) {
-      ToastService.displayErrorMotionToast(context: context, description: 'Password is too short!');
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Password is too short!');
       return;
     }
 
     if (passwordTEC.text.trim() != passwordConfirmTEC.text.trim()) {
-      ToastService.displayErrorMotionToast(context: context, description: 'Passwords not match!');
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Passwords dont match!');
       return;
     }
 
@@ -45,6 +52,18 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void signup() async {
     setState(() => isLoading = true);
+    bool result = await AuthService.signupUser(
+        email: emailTEC.text.trim(), password: passwordTEC.text.trim());
+    if (!mounted) return;
+    if (result) {
+      ToastService.displaySuccessMotionToast(
+          context: context, description: 'SignUp Successful!');
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => PersonalInfoScreen()));
+    } else {
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Signup Failed! Please Try Again!');
+    }
   }
 
   @override
@@ -91,7 +110,7 @@ class _SignupScreenState extends State<SignupScreen> {
         children: [
           SizedBox(height: MediaQuery.of(context).size.height * 0.06),
           Padding(
-            padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.025),
+            padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.01),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -100,13 +119,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   width: MediaQuery.of(context).size.width * 0.2,
                 ),
                 const SizedBox(width: 10),
-                const Text(
+                Text(
                   'LifeLink',
-                  style: TextStyle(
-                    color: kOrangeColor,
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: FontStyles.headLIneTextFieldStyle(),
                 ),
               ],
             ),
@@ -120,12 +135,9 @@ class _SignupScreenState extends State<SignupScreen> {
                 width: double.infinity,
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'SIGN UP',
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: FontStyles.boldTextFieldStyle(),
                     ),
                     const SizedBox(height: 30),
                     TextInputWidget(
@@ -143,14 +155,16 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 20),
                     TextInputWidget(
-                      controller: passwordTEC,
+                      controller: passwordConfirmTEC,
                       obscureText: true,
                       title: 'Confirm Password',
                       icon: const Icon(Icons.lock_outline),
                     ),
                     const SizedBox(height: 20),
                     ButtonWidget(
-                      onTap: () {},
+                      onTap: () {
+                        validateForm();
+                      },
                       title: 'SIGN UP',
                     ),
                     const SizedBox(height: 10),
@@ -169,22 +183,28 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ),
           ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.04),
-          Column(
-            children: [
-              const Text(
-                'Already have an account?',
-                style: TextStyle(color: Colors.white),
-              ),
-              GestureDetector(
-                onTap: () =>
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())),
-                child: const Text(
-                  'Log In',
+          SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()));
+            },
+            child: Column(
+              children: [
+                const Text(
+                  'Already have an account?',
                   style: TextStyle(color: Colors.white),
                 ),
-              ),
-            ],
+                GestureDetector(
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => LoginScreen())),
+                  child: const Text(
+                    'Log In',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
