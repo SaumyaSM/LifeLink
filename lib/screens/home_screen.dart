@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/models/events_model.dart';
 import 'package:life_link/screens/event_screen.dart';
+import 'package:life_link/screens/make_a_donation.dart';
 import 'package:life_link/services/events_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -104,11 +105,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 // Banner
-                Image.asset(
-                  widget.isDonor
-                      ? 'assets/images/make_donation.png'
-                      : 'assets/images/find_donation.png',
-                  width: MediaQuery.of(context).size.width * 0.9,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => MakeADonation()));
+                  },
+                  child: Image.asset(
+                    widget.isDonor
+                        ? 'assets/images/make_donation.png'
+                        : 'assets/images/find_donation.png',
+                    width: MediaQuery.of(context).size.width * 0.9,
+                  ),
                 ),
                 // Upcoming Events
                 _upcomingEvents(),
@@ -143,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
-            'assets/images/logo.png',
+            'assets/images/LifeLink-Logo.PNG',
             width: 50,
           ),
           const SizedBox(width: 10),
@@ -213,21 +222,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 eventModel: EventModel(
                   date: '12 December 2024',
                   title: 'Donation Awarness Webinar',
-                  description: 'Donation Awarness Webinar Organised by the governement',
+                  description:
+                      'Donation Awarness Webinar Organised by the governement',
                 ),
               ),
               _upcomingEventCard(
                 eventModel: EventModel(
                   date: '12 December 2024',
                   title: 'Donation Awarness Webinar',
-                  description: 'Donation Awarness Webinar Organised by the governement',
+                  description:
+                      'Donation Awarness Webinar Organised by the governement',
                 ),
               ),
               _upcomingEventCard(
                 eventModel: EventModel(
                   date: '12 December 2024',
                   title: 'Donation Awarness Webinar',
-                  description: 'Donation Awarness Webinar Organised by the governement',
+                  description:
+                      'Donation Awarness Webinar Organised by the governement',
                 ),
               ),
             ],
@@ -241,7 +253,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => EventScreen(eventModel: eventModel)));
+            context,
+            MaterialPageRoute(
+                builder: (context) => EventScreen(eventModel: eventModel)));
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),

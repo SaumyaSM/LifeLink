@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:life_link/screens/home_screen.dart';
 import 'package:life_link/screens/login_screen.dart';
 import 'package:life_link/screens/main_screen.dart';
 import 'package:life_link/screens/profile_screen.dart';
@@ -24,12 +25,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDonor = true; // Replace with dynamic logic if necessary
+    int organCount = 2;
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: SignupScreen(),
+      home: HomeScreen(isDonor: isDonor, organCount: organCount),
     );
   }
 }
