@@ -118,7 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => FindADonation()),
+                            builder: (context) => FindADonation(
+                                  isDonor: true,
+                                )),
                       );
                     }
                   },

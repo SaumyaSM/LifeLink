@@ -21,7 +21,7 @@ class CustomTextBox extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Text(
             label,
-            style: TextStyle(fontSize: 15),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
         ),
         SizedBox(height: 10),

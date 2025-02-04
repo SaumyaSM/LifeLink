@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:life_link/screens/find_a_donation.dart';
 import 'package:life_link/screens/login_screen.dart';
 import 'package:life_link/screens/main_screen.dart';
 import 'package:life_link/screens/personal_info_screen.dart';
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: PersonalInfoScreen(isDonor: isDonor),
+      home: FindADonation(isDonor: isDonor),
     );
   }
 }

@@ -67,7 +67,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
             alignment: Alignment.centerLeft,
             child: Text(
               'Date of Birth',
-              style: TextStyle(fontSize: 15),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
           ),
           SizedBox(
@@ -103,7 +103,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
             alignment: Alignment.centerLeft,
             child: Text(
               'Gender',
-              style: TextStyle(fontSize: 15),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
           ),
           SizedBox(
