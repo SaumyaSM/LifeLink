@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class MatchesScreen extends StatefulWidget {
-  MatchesScreen({super.key, required isDonor});
+  MatchesScreen({super.key, required this.isDonor});
+
+  bool isDonor;
 
   @override
   State<MatchesScreen> createState() => _MatchesScreenState();
@@ -10,6 +12,6 @@ class MatchesScreen extends StatefulWidget {
 class _MatchesScreenState extends State<MatchesScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold();
   }
 }

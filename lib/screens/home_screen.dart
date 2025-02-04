@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/models/events_model.dart';
 import 'package:life_link/screens/event_screen.dart';
+import 'package:life_link/screens/find_a_donation.dart';
 import 'package:life_link/screens/make_a_donation.dart';
 import 'package:life_link/services/events_service.dart';
 
@@ -105,12 +106,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 // Banner
-                GestureDetector(
+                InkWell(
                   onTap: () {
-                    Navigator.push(
+                    if (widget.isDonor) {
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => MakeADonation()));
+                            builder: (context) => MakeADonation()),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FindADonation()),
+                      );
+                    }
                   },
                   child: Image.asset(
                     widget.isDonor
@@ -119,6 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: MediaQuery.of(context).size.width * 0.9,
                   ),
                 ),
+
                 // Upcoming Events
                 _upcomingEvents(),
               ],

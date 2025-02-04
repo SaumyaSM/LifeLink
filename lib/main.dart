@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:life_link/screens/home_screen.dart';
 import 'package:life_link/screens/login_screen.dart';
 import 'package:life_link/screens/main_screen.dart';
+import 'package:life_link/screens/personal_info_screen.dart';
 import 'package:life_link/screens/profile_screen.dart';
 import 'package:life_link/screens/signup_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,24 +16,24 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  bool isDonor = true;
+
   // Run the app after Firebase is initialized
-  runApp(const MyApp());
+  runApp(MyApp(isDonor: isDonor));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isDonor;
+  const MyApp({super.key, required this.isDonor});
 
   @override
   Widget build(BuildContext context) {
-    bool isDonor = true; // Replace with dynamic logic if necessary
-    int organCount = 2;
-
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: HomeScreen(isDonor: isDonor, organCount: organCount),
+      home: PersonalInfoScreen(isDonor: isDonor),
     );
   }
 }

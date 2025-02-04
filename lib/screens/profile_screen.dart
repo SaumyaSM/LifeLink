@@ -28,7 +28,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _profilePageButton(
               onTap: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => PersonalInfoScreen()));
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PersonalInfoScreen(
+                              isDonor: true,
+                            )));
               },
               icon: Icons.person_outline,
               title: 'Personal Info',
@@ -36,7 +40,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _profilePageButton(
               onTap: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => PersonalInfoScreen()));
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PersonalInfoScreen(
+                              isDonor: true,
+                            )));
               },
               icon: Icons.medical_information_outlined,
               title: 'Medical Info',
@@ -44,7 +52,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _profilePageButton(
               onTap: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => DonationStatusScreen()));
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DonationStatusScreen()));
               },
               icon: Icons.person_outline,
               title: 'Donation Status',
@@ -52,14 +62,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _profilePageButton(
               onTap: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => DonationHistoryScreen()));
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DonationHistoryScreen()));
               },
               icon: Icons.history_outlined,
               title: 'Donation History',
             ),
             _profilePageButton(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => SettingsScreen()));
               },
               icon: Icons.settings_outlined,
               title: 'Settings',

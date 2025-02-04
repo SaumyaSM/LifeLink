@@ -58,8 +58,12 @@ class _SignupScreenState extends State<SignupScreen> {
     if (result) {
       ToastService.displaySuccessMotionToast(
           context: context, description: 'SignUp Successful!');
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => PersonalInfoScreen()));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => PersonalInfoScreen(
+                    isDonor: true,
+                  )));
     } else {
       ToastService.displayErrorMotionToast(
           context: context, description: 'Signup Failed! Please Try Again!');
@@ -182,7 +186,9 @@ class _SignupScreenState extends State<SignupScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => PersonalInfoScreen()));
+                                builder: (context) => PersonalInfoScreen(
+                                      isDonor: false,
+                                    )));
                       },
                     ),
                   ],
