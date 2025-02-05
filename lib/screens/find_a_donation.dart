@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:life_link/screens/find_a_donation-tests.dart';
 import 'package:life_link/widgets/medical_tests_widget.dart';
 
 import '../constants/colors.dart';
@@ -20,6 +21,14 @@ class _FindADonationState extends State<FindADonation> {
   TextEditingController medications = TextEditingController();
   TextEditingController allergies = TextEditingController();
 
+  String? selectOrganType;
+  final List<String> organTypes = [
+    'Kideny',
+    'Lung',
+    'Part of Liver',
+    'Part of Intestine',
+    'Paret of Pancrease'
+  ];
   String? selectedBloodType; // Selected value
   final List<String> bloodTypes = [
     'A+',
@@ -33,7 +42,6 @@ class _FindADonationState extends State<FindADonation> {
   ];
 
   String? _fileName;
-  bool isTestCompleted = false;
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
@@ -79,7 +87,7 @@ class _FindADonationState extends State<FindADonation> {
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: 10),
                 Container(
                   width: MediaQuery.of(context).size.width * 0.9,
                   padding: EdgeInsets.symmetric(
@@ -104,6 +112,49 @@ class _FindADonationState extends State<FindADonation> {
                       });
                     },
                     items: bloodTypes.map((type) {
+                      return DropdownMenuItem<String>(
+                        value: type,
+                        child: Text(type),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  padding: EdgeInsets.only(left: 21),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Donating Organ',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButton<String>(
+                    value: selectOrganType,
+                    isExpanded: true,
+                    underline: SizedBox(), // Remove the default underline
+                    hint: Text(
+                      'Select Organ Type',
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                    icon: Icon(Icons.arrow_drop_down),
+                    onChanged: (value) {
+                      setState(() {
+                        selectOrganType = value;
+                      });
+                    },
+                    items: organTypes.map((type) {
                       return DropdownMenuItem<String>(
                         value: type,
                         child: Text(type),
@@ -158,116 +209,14 @@ class _FindADonationState extends State<FindADonation> {
                 SizedBox(
                   height: 30,
                 ),
-                Text(
-                  'Test status',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                      color: kPinkColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Instruction: Please confirm if the following tests have been completed. If completed, upload the relevant reports for validation.',
-                    style: TextStyle(fontSize: 14, color: Colors.redAccent),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Immunological Tests',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                MedicalTestsWidget(statusLabel: 'ABO Blood Typing'),
-                MedicalTestsWidget(statusLabel: 'Tissue Typing (HLA Antigens)'),
-                MedicalTestsWidget(statusLabel: 'Family Analysis'),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Laboratory Tests',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                MedicalTestsWidget(
-                    statusLabel: 'Hematological System Assessment'),
-                MedicalTestsWidget(
-                    statusLabel: 'Clotting Mechanism Assessment'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'Kidney Function\n(Glomerular Filtration Rate - GFR)'),
-                MedicalTestsWidget(
-                    statusLabel: 'Electrolyte Balance Screening'),
-                MedicalTestsWidget(
-                    statusLabel: 'Glucose Intolerance Screening'),
-                MedicalTestsWidget(statusLabel: 'Venereal Disease Screening'),
-                MedicalTestsWidget(statusLabel: 'Pancreatitis Screening'),
-                MedicalTestsWidget(statusLabel: 'Liver Function Tests'),
-                MedicalTestsWidget(statusLabel: 'Hepatitis B Screening'),
-                MedicalTestsWidget(
-                    statusLabel: 'Viral Activity Screening\n(CMV, HIV)'),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Urine Tests',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                MedicalTestsWidget(
-                    statusLabel: 'Kidney Disease Screening (ACR)'),
-                MedicalTestsWidget(
-                    statusLabel: 'Urinary Tract Infection Screening'),
-                MedicalTestsWidget(
-                    statusLabel: 'Protein Excretion &\nCreatinine Clearance'),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Other Tests',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                MedicalTestsWidget(
-                    statusLabel: 'Medical History & Physical Examination'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'EKG (Electrocardiogram)\n-Heart Function Assessment'),
-                MedicalTestsWidget(
-                    statusLabel: 'Chest X-Ray - Lung Assessment'),
-                MedicalTestsWidget(statusLabel: 'Psychological Evaluation'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'Gynecological Exam & Mammography\n(For Female Donors)'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'Intravenous Pyelography (IVP)\n-Kidney Structure Assessment'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'Helical CT Scan\n-Kidney Internal Structure Evaluation'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'Renal Arteriogram\n-Kidney Blood Vessel &\nVascular Disease Assessment'),
-                MedicalTestsWidget(statusLabel: 'Financial Consultation'),
+                ButtonWidget(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FindADonationTests(
+                                  isDonor: true,
+                                ))),
+                    title: 'Next'),
               ],
             ),
           ))
