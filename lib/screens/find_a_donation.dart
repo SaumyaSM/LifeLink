@@ -184,18 +184,6 @@ class _FindADonationState extends State<FindADonation> {
                   padding: EdgeInsets.only(left: 21),
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Medical History & Physical Examination',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                MedicalTestsWidget(statusLabel: 'Completed'),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
                     'Immunological Tests',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
@@ -231,6 +219,55 @@ class _FindADonationState extends State<FindADonation> {
                 MedicalTestsWidget(statusLabel: 'Hepatitis B Screening'),
                 MedicalTestsWidget(
                     statusLabel: 'Viral Activity Screening\n(CMV, HIV)'),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  padding: EdgeInsets.only(left: 21),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Urine Tests',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                MedicalTestsWidget(
+                    statusLabel: 'Kidney Disease Screening (ACR)'),
+                MedicalTestsWidget(
+                    statusLabel: 'Urinary Tract Infection Screening'),
+                MedicalTestsWidget(
+                    statusLabel: 'Protein Excretion &\nCreatinine Clearance'),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  padding: EdgeInsets.only(left: 21),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Other Tests',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                MedicalTestsWidget(
+                    statusLabel: 'Medical History & Physical Examination'),
+                MedicalTestsWidget(
+                    statusLabel:
+                        'EKG (Electrocardiogram)\n-Heart Function Assessment'),
+                MedicalTestsWidget(
+                    statusLabel: 'Chest X-Ray - Lung Assessment'),
+                MedicalTestsWidget(statusLabel: 'Psychological Evaluation'),
+                MedicalTestsWidget(
+                    statusLabel:
+                        'Gynecological Exam & Mammography\n(For Female Donors)'),
+                MedicalTestsWidget(
+                    statusLabel:
+                        'Intravenous Pyelography (IVP)\n-Kidney Structure Assessment'),
+                MedicalTestsWidget(
+                    statusLabel:
+                        'Helical CT Scan\n-Kidney Internal Structure Evaluation'),
+                MedicalTestsWidget(
+                    statusLabel:
+                        'Renal Arteriogram\n-Kidney Blood Vessel &\nVascular Disease Assessment'),
+                MedicalTestsWidget(statusLabel: 'Financial Consultation'),
               ],
             ),
           ))
