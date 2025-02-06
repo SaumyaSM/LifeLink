@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:life_link/screens/explore_screen.dart';
 import 'package:life_link/screens/medical_info.dart';
 import 'package:life_link/screens/login_screen.dart';
 import 'package:life_link/screens/main_screen.dart';
@@ -6,6 +7,7 @@ import 'package:life_link/screens/personal_info_screen.dart';
 import 'package:life_link/screens/profile_screen.dart';
 import 'package:life_link/screens/signup_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:life_link/screens/start_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -35,7 +37,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home: MedicalInfo(isDonor: false),
-      home: ProfileScreen(isDonor: isDonor),
+      // home: ProfileScreen(isDonor: isDonor),
+      // home: ExploreScreen(isDonor: isDonor),
+      home: StartScreen(),
     );
   }
 }
