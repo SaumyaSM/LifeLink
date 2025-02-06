@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
-import 'package:life_link/screens/donation_history_screen.dart';
+import 'package:life_link/screens/home_screen.dart';
 import 'package:life_link/screens/main_screen.dart';
 import 'package:life_link/screens/signup_screen.dart';
 import 'package:life_link/services/auth_service.dart';
@@ -136,7 +136,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => DonationHistoryScreen()));
+                                builder: (context) =>
+                                    HomeScreen(isDonor: true, organCount: 2)));
                       },
                       title: 'LOGIN',
                     ),

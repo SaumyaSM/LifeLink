@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
-import 'package:life_link/screens/donation_history_screen.dart';
-import 'package:life_link/screens/donation_status_screen.dart';
+import 'package:life_link/screens/Account/donation_history.dart';
+import 'package:life_link/screens/Account/donation_status.dart';
+import 'package:life_link/screens/Account/medical_collection.dart';
+import 'package:life_link/screens/login_screen.dart';
 import 'package:life_link/screens/medical_info.dart';
 import 'package:life_link/screens/personal_info_screen.dart';
-import 'package:life_link/screens/settings_screen.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String _imageURL =
-      "https://media.licdn.com/dms/image/v2/D5635AQFu-7sYsDo5-A/profile-framedphoto-shrink_400_400/profile-framedphoto-shrink_400_400/0/1714317463688?e=1731333600&v=beta&t=kTI4Jcgf1Vr7AwFEqMv1hCeFGWkasIhj4WaLL8tDvkE";
+      "https://i.pinimg.com/736x/25/1c/e1/251ce139d8c07cbcc9daeca832851719.jpg";
 
   @override
   Widget build(BuildContext context) {
@@ -43,29 +44,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => MedicalInfo(
-                              isDonor: true,
-                            )));
+                        builder: (context) => MedicalCollection()));
               },
               icon: Icons.medical_information,
               title: 'Medical Info',
             ),
             _profilePageButton(
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => DonationStatusScreen()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => DonationStatus()));
               },
               icon: Icons.check_circle,
               title: 'Donation Status',
             ),
             _profilePageButton(
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => DonationHistoryScreen()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => DonationHistory()));
               },
               icon: Icons.history,
               title: 'Donation History',
@@ -73,11 +68,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _profilePageButton(
               onTap: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SettingsScreen()));
+                    MaterialPageRoute(builder: (context) => LoginScreen()));
               },
-              icon: Icons.settings,
-              title: 'Settings',
+              icon: Icons.password,
+              title: 'Change Password',
             ),
+            _profilePageButton(
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()));
+                },
+                icon: Icons.logout,
+                title: 'Logout')
           ],
         ),
       ),
@@ -137,8 +139,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return GestureDetector(
       onTap: () => onTap(),
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 5),
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        margin: EdgeInsets.symmetric(vertical: 7),
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         width: double.infinity,
         decoration: BoxDecoration(
           gradient: kProfilePage,
