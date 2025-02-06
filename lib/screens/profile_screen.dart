@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/screens/donation_history_screen.dart';
 import 'package:life_link/screens/donation_status_screen.dart';
+import 'package:life_link/screens/medical_info.dart';
 import 'package:life_link/screens/personal_info_screen.dart';
 import 'package:life_link/screens/settings_screen.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
@@ -34,7 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               isDonor: true,
                             )));
               },
-              icon: Icons.person_outline,
+              icon: Icons.person,
               title: 'Personal Info',
             ),
             _profilePageButton(
@@ -42,11 +43,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => PersonalInfoScreen(
+                        builder: (context) => MedicalInfo(
                               isDonor: true,
                             )));
               },
-              icon: Icons.medical_information_outlined,
+              icon: Icons.medical_information,
               title: 'Medical Info',
             ),
             _profilePageButton(
@@ -56,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     MaterialPageRoute(
                         builder: (context) => DonationStatusScreen()));
               },
-              icon: Icons.person_outline,
+              icon: Icons.check_circle,
               title: 'Donation Status',
             ),
             _profilePageButton(
@@ -66,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     MaterialPageRoute(
                         builder: (context) => DonationHistoryScreen()));
               },
-              icon: Icons.history_outlined,
+              icon: Icons.history,
               title: 'Donation History',
             ),
             _profilePageButton(
@@ -74,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => SettingsScreen()));
               },
-              icon: Icons.settings_outlined,
+              icon: Icons.settings,
               title: 'Settings',
             ),
           ],
@@ -134,17 +135,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String title,
   }) {
     return GestureDetector(
-      onTap: () => onTap,
+      onTap: () => onTap(),
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 5),
         padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         width: double.infinity,
         decoration: BoxDecoration(
-          gradient: kGradientHome,
+          gradient: kProfilePage,
         ),
         child: Row(
           children: [
-            Icon(icon, color: kRedColor, size: 35),
+            Icon(icon, color: kProfileIcon, size: 35),
             const SizedBox(width: 10),
             Text(
               title,

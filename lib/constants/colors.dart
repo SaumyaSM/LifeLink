@@ -9,6 +9,7 @@ const kRedColor = Color(0xFFC23030);
 const kCreamColor = Color(0xFFFF8D8D);
 const kMainButtonColor = Color(0xFFC85250); //Main Buttons and App Name
 const kButtonColor2 = Color(0xFFDD4040); //Matches page buttons
+const kProfileIcon = Color(0xFF8C1A11);
 
 //Home Page Red Color Types
 const kHomeColor1 = Color(0xFFFF0000); //Left Top Widget
@@ -36,6 +37,12 @@ const kGradientHome = LinearGradient(
 
 const kGradientNavBar = LinearGradient(
   colors: [kPurpleColor, kOrangeColor],
+  begin: Alignment.centerLeft,
+  end: Alignment.centerRight,
+);
+
+const kProfilePage = LinearGradient(
+  colors: [kPeachColor, kRedColor],
   begin: Alignment.centerLeft,
   end: Alignment.centerRight,
 );

@@ -34,7 +34,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: MedicalInfo(isDonor: false),
+      // home: MedicalInfo(isDonor: false),
+      home: ProfileScreen(isDonor: isDonor),
     );
   }
 }
