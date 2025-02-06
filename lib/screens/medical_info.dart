@@ -1,6 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:life_link/screens/find_a_donation-tests.dart';
+import 'package:life_link/screens/medical_info-tests.dart';
 import 'package:life_link/widgets/medical_tests_widget.dart';
 
 import '../constants/colors.dart';
@@ -8,15 +8,15 @@ import '../widgets/button_widget.dart';
 import '../widgets/textbox_widget.dart';
 import 'home_screen.dart';
 
-class FindADonation extends StatefulWidget {
-  FindADonation({super.key, required this.isDonor});
+class MedicalInfo extends StatefulWidget {
+  MedicalInfo({super.key, required this.isDonor});
   bool isDonor;
 
   @override
-  State<FindADonation> createState() => _FindADonationState();
+  State<MedicalInfo> createState() => _MedicalInfoState();
 }
 
-class _FindADonationState extends State<FindADonation> {
+class _MedicalInfoState extends State<MedicalInfo> {
   TextEditingController medicalConditions = TextEditingController();
   TextEditingController medications = TextEditingController();
   TextEditingController allergies = TextEditingController();
@@ -126,7 +126,7 @@ class _FindADonationState extends State<FindADonation> {
                   padding: EdgeInsets.only(left: 21),
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Donating Organ',
+                    widget.isDonor ? ' Donating Organ' : ' Organ Needed',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -213,8 +213,8 @@ class _FindADonationState extends State<FindADonation> {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => FindADonationTests(
-                                  isDonor: true,
+                            builder: (context) => MedicalInfoTests(
+                                  isDonor: false,
                                 ))),
                     title: 'Next'),
               ],

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/models/events_model.dart';
 import 'package:life_link/screens/event_screen.dart';
-import 'package:life_link/screens/find_a_donation.dart';
-import 'package:life_link/screens/make_a_donation.dart';
+import 'package:life_link/screens/medical_info.dart';
 import 'package:life_link/services/events_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -108,21 +107,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Banner
                 InkWell(
                   onTap: () {
-                    if (widget.isDonor) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MakeADonation()),
-                      );
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => FindADonation(
-                                  isDonor: true,
-                                )),
-                      );
-                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MedicalInfo(isDonor: false)),
+                    );
                   },
                   child: Image.asset(
                     widget.isDonor

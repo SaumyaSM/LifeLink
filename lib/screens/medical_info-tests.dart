@@ -5,15 +5,15 @@ import '../constants/colors.dart';
 import '../widgets/button_widget.dart';
 import '../widgets/medical_tests_widget.dart';
 
-class FindADonationTests extends StatefulWidget {
-  FindADonationTests({super.key, required this.isDonor});
+class MedicalInfoTests extends StatefulWidget {
+  MedicalInfoTests({super.key, required this.isDonor});
   bool isDonor;
 
   @override
-  State<FindADonationTests> createState() => _FindADonationTestsState();
+  State<MedicalInfoTests> createState() => _MedicalInfoTestsState();
 }
 
-class _FindADonationTestsState extends State<FindADonationTests> {
+class _MedicalInfoTestsState extends State<MedicalInfoTests> {
   String? _fileName;
   bool isTestCompleted = false;
 
@@ -159,7 +159,7 @@ class _FindADonationTestsState extends State<FindADonationTests> {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => FindADonationTests(
+                            builder: (context) => MedicalInfoTests(
                                   isDonor: true,
                                 ))),
                     title: 'Submit'),
