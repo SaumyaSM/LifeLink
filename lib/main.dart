@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:life_link/screens/Account/password_reset.dart';
 import 'package:life_link/screens/loading_screen.dart';
 import 'package:life_link/screens/explore_screen.dart';
 import 'package:life_link/screens/medical_info.dart';
@@ -37,8 +38,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      // home: LoadingScreen(),
-      home: PersonalInfoScreen(isDonor: isDonor),
+      home: LoadingScreen(),
+      // home: PersonalInfoScreen(isDonor: isDonor),
+      // home: ForgotPassword(),
     );
   }
 }

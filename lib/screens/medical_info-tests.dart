@@ -14,18 +14,6 @@ class MedicalInfoTests extends StatefulWidget {
 }
 
 class _MedicalInfoTestsState extends State<MedicalInfoTests> {
-  String? _fileName;
-  bool isTestCompleted = false;
-
-  Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      setState(() {
-        _fileName = result.files.single.name;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

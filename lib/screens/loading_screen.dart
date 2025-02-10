@@ -20,9 +20,11 @@ class _LoadingScreenState extends State<LoadingScreen> {
   getCurrentUser() {
     Future.delayed(const Duration(seconds: 2), () {
       if (AuthService.isUserLogged()) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => MainScreen()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => MainScreen()));
       } else {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => LoginScreen()));
       }
     });
   }
@@ -34,7 +36,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
       height: double.infinity,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/find_donation.png'),
+          image: AssetImage('assets/images/loading-screen.png'),
           fit: BoxFit.cover,
         ),
       ),

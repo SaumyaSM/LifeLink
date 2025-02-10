@@ -30,7 +30,16 @@ class _MedicalInfoState extends State<MedicalInfo> {
     'Paret of Pancrease'
   ];
   String? selectedBloodType; // Selected value
-  final List<String> bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  final List<String> bloodTypes = [
+    'A+',
+    'A-',
+    'B+',
+    'B-',
+    'AB+',
+    'AB-',
+    'O+',
+    'O-'
+  ];
 
   String? _fileName;
 
@@ -41,6 +50,51 @@ class _MedicalInfoState extends State<MedicalInfo> {
         _fileName = result.files.single.name;
       });
     }
+  }
+
+  void _validateAndProceed() {
+    if (selectedBloodType == null) {
+      _showErrorMessage('Please select a blood type.');
+      return;
+    }
+
+    if (selectOrganType == null) {
+      _showErrorMessage('Please select an organ type.');
+      return;
+    }
+
+    if (medicalConditions.text.isEmpty) {
+      _showErrorMessage('Please enter your current medical conditions.');
+      return;
+    }
+
+    if (medications.text.isEmpty) {
+      _showErrorMessage('Please enter your list of medications.');
+      return;
+    }
+
+    if (allergies.text.isEmpty) {
+      _showErrorMessage('Please enter your allergies.');
+      return;
+    }
+
+    if (_fileName == null) {
+      _showErrorMessage('Please upload a medical report.');
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MedicalInfoTests(isDonor: widget.isDonor),
+      ),
+    );
+  }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -63,7 +117,10 @@ class _MedicalInfoState extends State<MedicalInfo> {
                   Text(
                     'Fill in your medical details',
                     textAlign: TextAlign.left,
-                    style: TextStyle(color: kPinkColor, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: kPinkColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
                   SizedBox(
                     height: 20,
@@ -73,7 +130,8 @@ class _MedicalInfoState extends State<MedicalInfo> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       'Blood Type',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ),
                   SizedBox(height: 10),
@@ -116,7 +174,8 @@ class _MedicalInfoState extends State<MedicalInfo> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       widget.isDonor ? ' Donating Organ' : ' Organ Needed',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ),
                   SizedBox(height: 10),
@@ -154,15 +213,19 @@ class _MedicalInfoState extends State<MedicalInfo> {
                   SizedBox(
                     height: 10,
                   ),
-                  CustomTextBox(label: 'Current Medical Conditions', controller: medicalConditions),
-                  CustomTextBox(label: 'List of Medications', controller: medications),
+                  CustomTextBox(
+                      label: 'Current Medical Conditions',
+                      controller: medicalConditions),
+                  CustomTextBox(
+                      label: 'List of Medications', controller: medications),
                   CustomTextBox(label: 'Allergies', controller: allergies),
                   Container(
                     padding: EdgeInsets.only(left: 21),
                     alignment: Alignment.centerLeft,
                     child: Text(
                       'Medical Reports',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                   ),
                   SizedBox(
@@ -172,7 +235,8 @@ class _MedicalInfoState extends State<MedicalInfo> {
                     onTap: _pickFile,
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.9,
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                       decoration: BoxDecoration(
                         color: Colors.grey[200],
                         borderRadius: BorderRadius.circular(8),
@@ -183,7 +247,9 @@ class _MedicalInfoState extends State<MedicalInfo> {
                           Text(
                             _fileName ?? 'Select File',
                             style: TextStyle(
-                              color: _fileName == null ? Colors.grey : Colors.black,
+                              color: _fileName == null
+                                  ? Colors.grey
+                                  : Colors.black,
                             ),
                           ),
                           Icon(Icons.folder_open),
@@ -194,14 +260,7 @@ class _MedicalInfoState extends State<MedicalInfo> {
                   SizedBox(
                     height: 30,
                   ),
-                  ButtonWidget(
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => MedicalInfoTests(
-                                    isDonor: false,
-                                  ))),
-                      title: 'Next'),
+                  ButtonWidget(onTap: _validateAndProceed, title: 'Next'),
                 ],
               ),
             ))
@@ -245,7 +304,9 @@ class _MedicalInfoState extends State<MedicalInfo> {
             height: 5,
           ),
           Image.asset(
-            widget.isDonor ? 'assets/images/donator.png' : 'assets/images/recipient.png',
+            widget.isDonor
+                ? 'assets/images/donator.png'
+                : 'assets/images/recipient.png',
             height: MediaQuery.of(context).size.width * 0.2,
           ),
         ],
