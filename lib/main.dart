@@ -38,9 +38,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: MedicalInfo(isDonor: isDonor),
+      // home: MedicalInfo(isDonor: isDonor),
       // home: PersonalInfoScreen(isDonor: isDonor),
       // home: ForgotPassword(),
+      home: LoadingScreen(),
     );
   }
 }

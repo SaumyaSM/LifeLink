@@ -5,6 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/screens/signup_screen.dart';
 
+import '../../services/auth_service.dart';
+
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
 
@@ -17,26 +19,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   TextEditingController emailController = TextEditingController();
 
   final _formkey = GlobalKey<FormState>();
-
-  resetPassword() async {
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      ScaffoldMessenger.of(context).showSnackBar((SnackBar(
-          backgroundColor: Colors.blueAccent,
-          content: Text(
-            "Password reset email has been sent",
-            style: TextStyle(fontSize: 15.0),
-          ))));
-    } on FirebaseException catch (e) {
-      if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-          "No user found for that Email",
-          style: TextStyle(fontSize: 18.0, color: Colors.black),
-        )));
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +86,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   GestureDetector(
                     onTap: () {
                       if (_formkey.currentState!.validate()) {
-                        setState(() {
-                          email = emailController.text;
-                        });
-                        resetPassword();
+                        AuthService.resetPassword(emailController.text);
                       }
                     },
                     child: Container(
