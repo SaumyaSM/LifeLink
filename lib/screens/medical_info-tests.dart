@@ -14,6 +14,42 @@ class MedicalInfoTests extends StatefulWidget {
 }
 
 class _MedicalInfoTestsState extends State<MedicalInfoTests> {
+  final Map<String, String?> uploadedFiles = {};
+  final Map<String, bool> testCompletionStatus = {};
+
+  void updateTestStatus(String testName, bool isCompleted) {
+    setState(() {
+      testCompletionStatus[testName] = isCompleted;
+    });
+  }
+
+  void updateFileUpload(String testName, String? fileName) {
+    setState(() {
+      uploadedFiles[testName] = fileName;
+    });
+  }
+
+  void handleSubmit() {
+    for (var entry in testCompletionStatus.entries) {
+      if (entry.value && (uploadedFiles[entry.key] == null)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Please upload document for: ${entry.key}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MedicalInfoTests(isDonor: true),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,138 +60,92 @@ class _MedicalInfoTestsState extends State<MedicalInfoTests> {
         children: [
           _registerBanner(),
           Expanded(
-              child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  'Test status',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  Text(
+                    'Test status',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
                       color: kPinkColor,
                       fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Instruction: Please confirm if the following tests have been completed. If completed, upload the relevant reports for validation.',
-                    style: TextStyle(fontSize: 14, color: Colors.redAccent),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Immunological Tests',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  SizedBox(height: 10),
+                  Container(
+                    padding: EdgeInsets.only(left: 21),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Instruction: Please confirm if the following tests have been completed. If completed, upload the relevant reports for validation.',
+                      style: TextStyle(fontSize: 14, color: Colors.redAccent),
+                    ),
                   ),
-                ),
-                MedicalTestsWidget(statusLabel: 'ABO Blood Typing'),
-                MedicalTestsWidget(statusLabel: 'Tissue Typing (HLA Antigens)'),
-                MedicalTestsWidget(statusLabel: 'Family Analysis'),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Laboratory Tests',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                MedicalTestsWidget(
-                    statusLabel: 'Hematological System Assessment'),
-                MedicalTestsWidget(
-                    statusLabel: 'Clotting Mechanism Assessment'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'Kidney Function\n(Glomerular Filtration Rate - GFR)'),
-                MedicalTestsWidget(
-                    statusLabel: 'Electrolyte Balance Screening'),
-                MedicalTestsWidget(
-                    statusLabel: 'Glucose Intolerance Screening'),
-                MedicalTestsWidget(statusLabel: 'Venereal Disease Screening'),
-                MedicalTestsWidget(statusLabel: 'Pancreatitis Screening'),
-                MedicalTestsWidget(statusLabel: 'Liver Function Tests'),
-                MedicalTestsWidget(statusLabel: 'Hepatitis B Screening'),
-                MedicalTestsWidget(
-                    statusLabel: 'Viral Activity Screening\n(CMV, HIV)'),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Urine Tests',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                MedicalTestsWidget(
-                    statusLabel: 'Kidney Disease Screening (ACR)'),
-                MedicalTestsWidget(
-                    statusLabel: 'Urinary Tract Infection Screening'),
-                MedicalTestsWidget(
-                    statusLabel: 'Protein Excretion &\nCreatinine Clearance'),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Other Tests',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                MedicalTestsWidget(
-                    statusLabel: 'Medical History & Physical Examination'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'EKG (Electrocardiogram)\n-Heart Function Assessment'),
-                MedicalTestsWidget(
-                    statusLabel: 'Chest X-Ray - Lung Assessment'),
-                MedicalTestsWidget(statusLabel: 'Psychological Evaluation'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'Gynecological Exam & Mammography\n(For Female Donors)'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'Intravenous Pyelography (IVP)\n-Kidney Structure Assessment'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'Helical CT Scan\n-Kidney Internal Structure Evaluation'),
-                MedicalTestsWidget(
-                    statusLabel:
-                        'Renal Arteriogram\n-Kidney Blood Vessel &\nVascular Disease Assessment'),
-                MedicalTestsWidget(statusLabel: 'Financial Consultation'),
-                SizedBox(
-                  height: 10,
-                ),
-                ButtonWidget(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MedicalInfoTests(
-                                  isDonor: true,
-                                ))),
-                    title: 'Submit'),
-              ],
+                  SizedBox(height: 20),
+                  _buildTestSection('Immunological Tests', [
+                    'ABO Blood Typing',
+                    'Tissue Typing (HLA Antigens)',
+                    'Family Analysis'
+                  ]),
+                  _buildTestSection('Laboratory Tests', [
+                    'Hematological System Assessment',
+                    'Clotting Mechanism Assessment',
+                    'Kidney Function\n(Glomerular Filtration Rate - GFR)',
+                    'Electrolyte Balance Screening',
+                    'Glucose Intolerance Screening',
+                    'Venereal Disease Screening',
+                    'Pancreatitis Screening',
+                    'Liver Function Tests',
+                    'Hepatitis B Screening',
+                    'Viral Activity Screening\n(CMV, HIV)'
+                  ]),
+                  _buildTestSection('Urine Tests', [
+                    'Kidney Disease Screening (ACR)',
+                    'Urinary Tract Infection Screening',
+                    'Protein Excretion &\nCreatinine Clearance'
+                  ]),
+                  _buildTestSection('Other Tests', [
+                    'Medical History & Physical Examination',
+                    'EKG (Electrocardiogram)\n-Heart Function Assessment',
+                    'Chest X-Ray - Lung Assessment',
+                    'Psychological Evaluation',
+                    'Gynecological Exam & Mammography\n(For Female Donors)',
+                    'Intravenous Pyelography (IVP)\n-Kidney Structure Assessment',
+                    'Helical CT Scan\n-Kidney Internal Structure Evaluation',
+                    'Renal Arteriogram\n-Kidney Blood Vessel &\nVascular Disease Assessment',
+                    'Financial Consultation'
+                  ]),
+                  SizedBox(height: 10),
+                  ButtonWidget(onTap: handleSubmit, title: 'Submit'),
+                ],
+              ),
             ),
-          ))
+          )
         ],
       ),
+    );
+  }
+
+  Widget _buildTestSection(String title, List<String> tests) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.only(left: 21),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            title,
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+        ),
+        ...tests.map((test) => MedicalTestsWidget(
+              statusLabel: test,
+              onStatusChange: updateTestStatus,
+              onFileUpload: updateFileUpload,
+            )),
+        SizedBox(height: 20),
+      ],
     );
   }
 
@@ -174,7 +164,7 @@ class _MedicalInfoTestsState extends State<MedicalInfoTests> {
             color: Colors.grey,
             spreadRadius: 1,
             blurRadius: 5,
-            offset: Offset(0, 1), // changes position of shadow
+            offset: Offset(0, 1),
           ),
         ],
       ),
@@ -189,9 +179,7 @@ class _MedicalInfoTestsState extends State<MedicalInfoTests> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(
-            height: 5,
-          ),
+          SizedBox(height: 5),
           Image.asset(
             widget.isDonor
                 ? 'assets/images/donator.png'

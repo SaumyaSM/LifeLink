@@ -6,10 +6,14 @@ class MedicalTestsWidget extends StatefulWidget {
   final String statusLabel;
   final Color activeColor;
   final Color buttonColor;
+  final Function(String, bool) onStatusChange;
+  final Function(String, String?) onFileUpload;
 
   MedicalTestsWidget({
     Key? key,
     required this.statusLabel,
+    required this.onStatusChange,
+    required this.onFileUpload,
     this.activeColor = kPinkColor,
     this.buttonColor = kOrangeColor,
   }) : super(key: key);
@@ -28,6 +32,7 @@ class _MedicalTestsWidgetState extends State<MedicalTestsWidget> {
       setState(() {
         _fileName = result.files.single.name;
       });
+      widget.onFileUpload(widget.statusLabel, _fileName);
     }
   }
 
@@ -51,6 +56,7 @@ class _MedicalTestsWidgetState extends State<MedicalTestsWidget> {
                   setState(() {
                     isCompleted = value;
                   });
+                  widget.onStatusChange(widget.statusLabel, isCompleted);
                 },
                 activeColor: widget.activeColor,
               ),

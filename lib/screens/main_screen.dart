@@ -3,6 +3,7 @@ import 'package:life_link/constants/colors.dart';
 import 'package:life_link/screens/explore_screen.dart';
 import 'package:life_link/screens/home_screen.dart';
 import 'package:life_link/screens/matches_screen.dart';
+import 'package:life_link/screens/notification_screen.dart';
 import 'package:life_link/screens/profile_screen.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
 
@@ -27,6 +28,7 @@ class _MainScreenState extends State<MainScreen> {
           HomeScreen(isDonor: _isDonor, organCount: 2),
           MatchesScreen(isDonor: _isDonor),
           ExploreScreen(isDonor: _isDonor),
+          NotificationScreen(),
           ProfileScreen(isDonor: _isDonor),
         ][_currentPageIndex],
         bottomNavigationBar: _navBar(),
@@ -46,7 +48,8 @@ class _MainScreenState extends State<MainScreen> {
           _navIcon(index: 0, icon: Icons.home_outlined),
           _navIcon(index: 1, icon: Icons.favorite_outline),
           _navIcon(index: 2, icon: Icons.search_outlined),
-          _navIcon(index: 3, icon: Icons.person_outline_outlined),
+          _navIcon(index: 3, icon: Icons.notifications_none_outlined),
+          _navIcon(index: 4, icon: Icons.person_outline_outlined),
         ],
       ),
     );
