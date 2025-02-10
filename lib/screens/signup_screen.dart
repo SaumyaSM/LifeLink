@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/screens/login_screen.dart';
 import 'package:life_link/screens/personal_info_screen.dart';
+import 'package:life_link/screens/start_screen.dart';
 import 'package:life_link/services/auth_service.dart';
 import 'package:life_link/services/toast_service.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
@@ -27,23 +28,19 @@ class _SignupScreenState extends State<SignupScreen> {
   TextEditingController passwordConfirmTEC = TextEditingController();
 
   void validateForm() {
-    if (!RegExp(
-            r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+    if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(emailTEC.text.trim())) {
-      ToastService.displayErrorMotionToast(
-          context: context, description: 'Invalid Email!');
+      ToastService.displayErrorMotionToast(context: context, description: 'Invalid Email!');
       return;
     }
 
     if (passwordTEC.text.trim().length < 6) {
-      ToastService.displayErrorMotionToast(
-          context: context, description: 'Password is too short!');
+      ToastService.displayErrorMotionToast(context: context, description: 'Password is too short!');
       return;
     }
 
     if (passwordTEC.text.trim() != passwordConfirmTEC.text.trim()) {
-      ToastService.displayErrorMotionToast(
-          context: context, description: 'Passwords dont match!');
+      ToastService.displayErrorMotionToast(context: context, description: 'Passwords dont match!');
       return;
     }
 
@@ -56,14 +53,8 @@ class _SignupScreenState extends State<SignupScreen> {
         email: emailTEC.text.trim(), password: passwordTEC.text.trim());
     if (!mounted) return;
     if (result) {
-      ToastService.displaySuccessMotionToast(
-          context: context, description: 'SignUp Successful!');
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => PersonalInfoScreen(
-                    isDonor: true,
-                  )));
+      ToastService.displaySuccessMotionToast(context: context, description: 'SignUp Successful!');
+      Navigator.push(context, MaterialPageRoute(builder: (context) => StartScreen()));
     } else {
       ToastService.displayErrorMotionToast(
           context: context, description: 'Signup Failed! Please Try Again!');
@@ -72,38 +63,41 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return LoadingWidget(
-      inAsyncCall: isLoading,
-      child: Stack(
-        children: [
-          Container(
-            color: Colors.white,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  decoration: const BoxDecoration(
-                    gradient: kGradientLogin,
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(35),
-                      topLeft: Radius.circular(35),
+    return PopScope(
+      canPop: false,
+      child: LoadingWidget(
+        inAsyncCall: isLoading,
+        child: Stack(
+          children: [
+            Container(
+              color: Colors.white,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    decoration: const BoxDecoration(
+                      gradient: kGradientLogin,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(35),
+                        topLeft: Radius.circular(35),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: kNoHeightAppbarWidget,
-            body: LoadingWidget(
-              inAsyncCall: isLoading,
-              child: _buildBody(),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: kNoHeightAppbarWidget,
+              body: LoadingWidget(
+                inAsyncCall: isLoading,
+                child: _buildBody(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -119,7 +113,7 @@ class _SignupScreenState extends State<SignupScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/images/logo.png',
+                  'assets/images/LifeLink-Logo.PNG',
                   width: MediaQuery.of(context).size.width * 0.2,
                 ),
                 const SizedBox(width: 10),
@@ -166,9 +160,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 20),
                     ButtonWidget(
-                      onTap: () {
-                        validateForm();
-                      },
+                      onTap: () => validateForm(),
                       title: 'SIGN UP',
                     ),
                     const SizedBox(height: 10),
@@ -199,8 +191,7 @@ class _SignupScreenState extends State<SignupScreen> {
           SizedBox(height: MediaQuery.of(context).size.height * 0.03),
           GestureDetector(
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
             },
             child: Column(
               children: [
@@ -209,8 +200,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   style: TextStyle(color: Colors.white),
                 ),
                 GestureDetector(
-                  onTap: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => LoginScreen())),
+                  onTap: () => Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => LoginScreen())),
                   child: const Text(
                     'Log In',
                     style: TextStyle(color: Colors.white),

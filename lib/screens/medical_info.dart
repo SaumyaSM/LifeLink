@@ -30,16 +30,7 @@ class _MedicalInfoState extends State<MedicalInfo> {
     'Paret of Pancrease'
   ];
   String? selectedBloodType; // Selected value
-  final List<String> bloodTypes = [
-    'A+',
-    'A-',
-    'B+',
-    'B-',
-    'AB+',
-    'AB-',
-    'O+',
-    'O-'
-  ];
+  final List<String> bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
   String? _fileName;
 
@@ -58,169 +49,164 @@ class _MedicalInfoState extends State<MedicalInfo> {
       appBar: AppBar(
         toolbarHeight: 0,
       ),
-      body: Column(
-        children: [
-          _registerBanner(),
-          Expanded(
-              child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  'Fill in your medical details',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                      color: kPinkColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Blood Type',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _registerBanner(),
+            Expanded(
+                child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 20,
                   ),
-                ),
-                SizedBox(height: 10),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12,
+                  Text(
+                    'Fill in your medical details',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(color: kPinkColor, fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(8),
+                  SizedBox(
+                    height: 20,
                   ),
-                  child: DropdownButton<String>(
-                    value: selectedBloodType,
-                    isExpanded: true,
-                    underline: SizedBox(), // Remove the default underline
-                    hint: Text(
-                      'Select Blood Type',
-                      style: TextStyle(color: Colors.grey.shade600),
+                  Container(
+                    padding: EdgeInsets.only(left: 21),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Blood Type',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
-                    icon: Icon(Icons.arrow_drop_down),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedBloodType = value;
-                      });
-                    },
-                    items: bloodTypes.map((type) {
-                      return DropdownMenuItem<String>(
-                        value: type,
-                        child: Text(type),
-                      );
-                    }).toList(),
                   ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    widget.isDonor ? ' Donating Organ' : ' Organ Needed',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: DropdownButton<String>(
-                    value: selectOrganType,
-                    isExpanded: true,
-                    underline: SizedBox(), // Remove the default underline
-                    hint: Text(
-                      'Select Organ Type',
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
-                    icon: Icon(Icons.arrow_drop_down),
-                    onChanged: (value) {
-                      setState(() {
-                        selectOrganType = value;
-                      });
-                    },
-                    items: organTypes.map((type) {
-                      return DropdownMenuItem<String>(
-                        value: type,
-                        child: Text(type),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                CustomTextBox(
-                    label: 'Current Medical Conditions',
-                    controller: medicalConditions),
-                CustomTextBox(
-                    label: 'List of Medications', controller: medications),
-                CustomTextBox(label: 'Allergies', controller: allergies),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Medical Reports',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                GestureDetector(
-                  onTap: _pickFile,
-                  child: Container(
+                  SizedBox(height: 10),
+                  Container(
                     width: MediaQuery.of(context).size.width * 0.9,
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                    ),
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _fileName ?? 'Select File',
-                          style: TextStyle(
-                            color:
-                                _fileName == null ? Colors.grey : Colors.black,
-                          ),
-                        ),
-                        Icon(Icons.folder_open),
-                      ],
+                    child: DropdownButton<String>(
+                      value: selectedBloodType,
+                      isExpanded: true,
+                      underline: SizedBox(), // Remove the default underline
+                      hint: Text(
+                        'Select Blood Type',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                      icon: Icon(Icons.arrow_drop_down),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedBloodType = value;
+                        });
+                      },
+                      items: bloodTypes.map((type) {
+                        return DropdownMenuItem<String>(
+                          value: type,
+                          child: Text(type),
+                        );
+                      }).toList(),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                ButtonWidget(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MedicalInfoTests(
-                                  isDonor: false,
-                                ))),
-                    title: 'Next'),
-              ],
-            ),
-          ))
-        ],
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 21),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      widget.isDonor ? ' Donating Organ' : ' Organ Needed',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: DropdownButton<String>(
+                      value: selectOrganType,
+                      isExpanded: true,
+                      underline: SizedBox(), // Remove the default underline
+                      hint: Text(
+                        'Select Organ Type',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                      icon: Icon(Icons.arrow_drop_down),
+                      onChanged: (value) {
+                        setState(() {
+                          selectOrganType = value;
+                        });
+                      },
+                      items: organTypes.map((type) {
+                        return DropdownMenuItem<String>(
+                          value: type,
+                          child: Text(type),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  CustomTextBox(label: 'Current Medical Conditions', controller: medicalConditions),
+                  CustomTextBox(label: 'List of Medications', controller: medications),
+                  CustomTextBox(label: 'Allergies', controller: allergies),
+                  Container(
+                    padding: EdgeInsets.only(left: 21),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Medical Reports',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  GestureDetector(
+                    onTap: _pickFile,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _fileName ?? 'Select File',
+                            style: TextStyle(
+                              color: _fileName == null ? Colors.grey : Colors.black,
+                            ),
+                          ),
+                          Icon(Icons.folder_open),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  ButtonWidget(
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MedicalInfoTests(
+                                    isDonor: false,
+                                  ))),
+                      title: 'Next'),
+                ],
+              ),
+            ))
+          ],
+        ),
       ),
     );
   }
@@ -259,9 +245,7 @@ class _MedicalInfoState extends State<MedicalInfo> {
             height: 5,
           ),
           Image.asset(
-            widget.isDonor
-                ? 'assets/images/donator.png'
-                : 'assets/images/recipient.png',
+            widget.isDonor ? 'assets/images/donator.png' : 'assets/images/recipient.png',
             height: MediaQuery.of(context).size.width * 0.2,
           ),
         ],

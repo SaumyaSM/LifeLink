@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
-import 'package:life_link/screens/signup_screen.dart';
+import 'package:life_link/screens/personal_info_screen.dart';
 import 'package:life_link/widgets/button_widget.dart';
 
 class StartScreen extends StatefulWidget {
@@ -45,14 +45,12 @@ class _StartScreenState extends State<StartScreen> {
               ),
             ),
             Container(
-              margin:
-                  EdgeInsets.only(top: MediaQuery.of(context).size.height / 3),
+              margin: EdgeInsets.only(top: MediaQuery.of(context).size.height / 3),
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(40),
-                      topLeft: Radius.circular(40))),
+                      topRight: Radius.circular(40), topLeft: Radius.circular(40))),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -77,7 +75,7 @@ class _StartScreenState extends State<StartScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => SignupScreen()));
+                                builder: (context) => PersonalInfoScreen(isDonor: true)));
                       },
                       title: 'Donator'),
                   SizedBox(
@@ -88,7 +86,7 @@ class _StartScreenState extends State<StartScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => SignupScreen()));
+                                builder: (context) => PersonalInfoScreen(isDonor: false)));
                       },
                       title: 'Recipient'),
                 ],

@@ -5,39 +5,15 @@ import 'package:life_link/services/toast_service.dart';
 
 class AuthService {
   static bool isUserLogged() {
-    return true;
+    return FirebaseAuth.instance.currentUser != null;
   }
 
-  static Future<void> loginUser({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
-    } on FirebaseAuthException catch (e) {
-      String message = 'An error occurred. Please try again.';
+  static String getLoggedUserID() {
+    return FirebaseAuth.instance.currentUser!.uid;
+  }
 
-      if (e.code == 'user-not-found') {
-        message = 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        message = 'Wrong password provided for that user.';
-      } else if (e.code == 'invalid-credential') {
-        message = 'The provided credentials are invalid.';
-      } else if (e.code == 'invalid-email') {
-        message = 'The email address is invalid.';
-      } else if (e.code == 'too-many-requests') {
-        message = 'Too many requests. Please try again later.';
-      } else if (e.code == 'network-request-failed') {
-        message = 'Network error. Please check your internet connection.';
-      }
-
-      Fluttertoast.showToast(
-        msg: message,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.SNACKBAR,
-      );
-    }
+  static Future<void> loginUser({required String email, required String password}) async {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
   }
 
   static Future<bool> signupUser({
@@ -57,8 +33,7 @@ class AuthService {
     // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
@@ -75,8 +50,7 @@ class AuthService {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(

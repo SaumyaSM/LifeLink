@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:life_link/screens/loading_screen.dart';
 import 'package:life_link/screens/explore_screen.dart';
 import 'package:life_link/screens/medical_info.dart';
 import 'package:life_link/screens/login_screen.dart';
@@ -36,10 +37,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      // home: MedicalInfo(isDonor: false),
-      // home: ProfileScreen(isDonor: isDonor),
-      // home: ExploreScreen(isDonor: isDonor),
-      home: StartScreen(),
+      // home: LoadingScreen(),
+      home: PersonalInfoScreen(isDonor: isDonor),
     );
   }
 }

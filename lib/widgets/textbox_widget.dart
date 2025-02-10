@@ -4,12 +4,14 @@ class CustomTextBox extends StatelessWidget {
   final String label;
   final double height;
   final TextEditingController? controller;
+  final TextInputType? keyboardType;
 
   const CustomTextBox({
     Key? key,
     required this.label,
     this.height = 50,
     required this.controller,
+    this.keyboardType,
   }) : super(key: key);
 
   @override
@@ -34,6 +36,7 @@ class CustomTextBox extends StatelessWidget {
             color: Color(0xFFEBEBEB),
           ),
           child: TextField(
+            keyboardType: keyboardType ?? TextInputType.text,
             controller: controller,
             decoration: InputDecoration(
               border: InputBorder.none, // Removes default underline

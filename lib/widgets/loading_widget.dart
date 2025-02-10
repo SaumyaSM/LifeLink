@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:life_link/constants/colors.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class LoadingWidget extends StatelessWidget {
   bool inAsyncCall;
@@ -12,25 +15,20 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return ModalProgressHUD(
-    //   inAsyncCall: inAsyncCall,
-    //   color: kColorGold,
-    //   opacity: 0.0,
-    //   //progressIndicator: Lottie.asset('assets/images/nsbm.json'),
-    //   // progressIndicator: LoadingAnimationWidget.inkDrop(
-    //   //   color: k_color_green,
-    //   //   size: 40,
-    //   // ),
-    //   progressIndicator: LoadingAnimationWidget.staggeredDotsWave(
-    //     color: kColorGold,
-    //     size: 50,
-    //   ),
-    //   child: child,
-    // );
-    return inAsyncCall
-        ? Center(
-            child: CircularProgressIndicator(),
-          )
-        : child;
+    return ModalProgressHUD(
+      inAsyncCall: inAsyncCall,
+      color: kPinkColor,
+      opacity: 0.1,
+      progressIndicator: LoadingAnimationWidget.staggeredDotsWave(
+        color: kPurpleColor,
+        size: 50,
+      ),
+      child: child,
+    );
+    // return inAsyncCall
+    //     ? Center(
+    //         child: CircularProgressIndicator(),
+    //       )
+    //     : child;
   }
 }

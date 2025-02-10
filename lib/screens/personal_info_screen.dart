@@ -16,6 +16,7 @@ class PersonalInfoScreen extends StatefulWidget {
 
 class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
   TextEditingController fullName = TextEditingController();
+  TextEditingController nic = TextEditingController();
   TextEditingController contact = TextEditingController();
   TextEditingController address = TextEditingController();
 
@@ -38,112 +39,177 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     }
   }
 
+  bool validateNIC(String nic) {
+    RegExp nicPattern = RegExp(
+      r"^(([5,6,7,8,9]{1})([0-9]{1})([0,1,2,3,5,6,7,8]{1})([0-9]{6})([vVxX]))|(([1,2]{1})([0,9]{1})([0-9]{2})([0,1,2,3,5,6,7,8]{1})([0-9]{7}))$",
+      caseSensitive: false,
+      multiLine: false,
+    );
+
+    return nicPattern.hasMatch(nic);
+  }
+
+  bool validateForm() {
+    if (fullName.text.isEmpty) {
+      _showErrorDialog("Full Name cannot be empty");
+      return false;
+    }
+    if (selectedDate == null) {
+      _showErrorDialog("Please select a Date of Birth");
+      return false;
+    }
+    if (selectedGender == null) {
+      _showErrorDialog("Please select a Gender");
+      return false;
+    }
+    if (!validateNIC(nic.text)) {
+      _showErrorDialog("Invalid NIC format");
+      return false;
+    }
+    if (!RegExp(r'^[0-9]{10,}$').hasMatch(contact.text)) {
+      _showErrorDialog(
+          "Enter a valid Contact number (only digits, at least 10 characters)");
+      return false;
+    }
+    if (address.text.isEmpty) {
+      _showErrorDialog("Address cannot be empty");
+      return false;
+    }
+    return true;
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Validation Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
       ),
-      body: Column(
-        children: [
-          _registerBanner(),
-          SizedBox(
-            height: 20,
-          ),
-          Text(
-            'Fill in your personal details',
-            textAlign: TextAlign.left,
-            style: TextStyle(color: kPinkColor, fontSize: 20),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          CustomTextBox(
-            controller: fullName,
-            label: 'Full Name',
-          ),
-          Container(
-            padding: EdgeInsets.only(left: 21),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Date of Birth',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _registerBanner(),
+            SizedBox(
+              height: 20,
             ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          GestureDetector(
-            onTap: _pickDate,
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Color(0xFFEBEBEB),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today, color: Colors.grey),
-                  SizedBox(width: 12),
-                  Text(
-                    selectedDate ?? 'Select Date',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
+            Text(
+              'Fill in your personal details',
+              textAlign: TextAlign.left,
+              style: TextStyle(color: kPinkColor, fontSize: 20),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            CustomTextBox(
+              controller: fullName,
+              label: 'Full Name',
+            ),
+            Container(
+              padding: EdgeInsets.only(left: 21),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Date of Birth',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            padding: EdgeInsets.only(left: 21),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Gender',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            SizedBox(
+              height: 10,
             ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _genderButton(
-                gender: 'Female',
-                icon: Icons.female,
+            GestureDetector(
+              onTap: _pickDate,
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Color(0xFFEBEBEB),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today, color: Colors.grey),
+                    SizedBox(width: 12),
+                    Text(
+                      selectedDate ?? 'Select Date',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
               ),
-              _genderButton(
-                gender: 'Male',
-                icon: Icons.male,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              padding: EdgeInsets.only(left: 21),
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Gender',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
-            ],
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          CustomTextBox(
-            controller: contact,
-            label: 'Contact',
-          ),
-          CustomTextBox(
-            controller: address,
-            label: 'Address',
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          ButtonWidget(
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _genderButton(
+                  gender: 'Female',
+                  icon: Icons.female,
+                ),
+                _genderButton(
+                  gender: 'Male',
+                  icon: Icons.male,
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            CustomTextBox(label: 'NIC', controller: nic),
+            CustomTextBox(
+                controller: contact,
+                label: 'Contact',
+                keyboardType: TextInputType.number),
+            CustomTextBox(
+              controller: address,
+              label: 'Address',
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            ButtonWidget(
+              onTap: () {
+                if (validateForm()) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
                       builder: (context) =>
-                          HomeScreen(isDonor: true, organCount: 2))),
-              title: 'Register')
-        ],
+                          HomeScreen(isDonor: true, organCount: 2),
+                    ),
+                  );
+                }
+              },
+              title: 'Register',
+            )
+          ],
+        ),
       ),
     );
   }
@@ -157,7 +223,6 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
         });
       },
       child: Container(
-        height: 50,
         width: MediaQuery.of(context).size.width * 0.43,
         padding: EdgeInsets.symmetric(vertical: 15),
         decoration: BoxDecoration(

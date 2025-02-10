@@ -19,15 +19,18 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: kNoHeightAppbarWidget,
-      body: [
-        HomeScreen(isDonor: _isDonor, organCount: 2),
-        MatchesScreen(isDonor: _isDonor),
-        ExploreScreen(isDonor: _isDonor),
-        ProfileScreen(isDonor: _isDonor),
-      ][_currentPageIndex],
-      bottomNavigationBar: _navBar(),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        appBar: kNoHeightAppbarWidget,
+        body: [
+          HomeScreen(isDonor: _isDonor, organCount: 2),
+          MatchesScreen(isDonor: _isDonor),
+          ExploreScreen(isDonor: _isDonor),
+          ProfileScreen(isDonor: _isDonor),
+        ][_currentPageIndex],
+        bottomNavigationBar: _navBar(),
+      ),
     );
   }
 

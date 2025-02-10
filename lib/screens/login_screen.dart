@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
-import 'package:life_link/screens/home_screen.dart';
 import 'package:life_link/screens/main_screen.dart';
 import 'package:life_link/screens/signup_screen.dart';
 import 'package:life_link/services/auth_service.dart';
@@ -26,40 +25,65 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailTEC = TextEditingController();
   TextEditingController passwordTEC = TextEditingController();
 
+  onClickLogin() async {
+    if (emailTEC.text.trim() == '') {
+      ToastService.displayErrorMotionToast(context: context, description: 'Email is Missing!');
+      return;
+    }
+
+    if (passwordTEC.text.trim() == '') {
+      ToastService.displayErrorMotionToast(context: context, description: 'Password is Missing!');
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    await AuthService.loginUser(email: emailTEC.text.trim(), password: passwordTEC.text.trim())
+        .then((value) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => MainScreen()));
+    }).catchError((error) {
+      ToastService.displayErrorMotionToast(context: context, description: 'Invalid Login!');
+      return;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return LoadingWidget(
-      inAsyncCall: isLoading,
-      child: Stack(
-        children: [
-          Container(
-            color: Colors.white,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  decoration: const BoxDecoration(
-                    gradient: kGradientLogin,
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(35),
-                      topLeft: Radius.circular(35),
+    return PopScope(
+      canPop: false,
+      child: LoadingWidget(
+        inAsyncCall: isLoading,
+        child: Stack(
+          children: [
+            Container(
+              color: Colors.white,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    decoration: const BoxDecoration(
+                      gradient: kGradientLogin,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(35),
+                        topLeft: Radius.circular(35),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: kNoHeightAppbarWidget,
-            body: LoadingWidget(
-              inAsyncCall: isLoading,
-              child: _buildBody(),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: kNoHeightAppbarWidget,
+              body: LoadingWidget(
+                inAsyncCall: isLoading,
+                child: _buildBody(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -75,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/images/logo.png',
+                  'assets/images/LifeLink-Logo.PNG',
                   width: MediaQuery.of(context).size.width * 0.2,
                 ),
                 const SizedBox(width: 10),
@@ -125,20 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
                     ButtonWidget(
-                      onTap: () async {
-                        setState(() => isLoading = true);
-                        await AuthService.loginUser(
-                          email: emailTEC.text.trim(),
-                          password: passwordTEC.text.trim(),
-                        );
-                        ToastService.displaySuccessMotionToast(
-                            context: context, description: 'Login Successful!');
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    HomeScreen(isDonor: true, organCount: 2)));
-                      },
+                      onTap: () => onClickLogin(),
                       title: 'LOGIN',
                     ),
                     const SizedBox(height: 10),
@@ -163,8 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
           SizedBox(height: MediaQuery.of(context).size.height * 0.04),
           GestureDetector(
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SignupScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen()));
             },
             child: Column(
               children: [
@@ -173,8 +183,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(color: Colors.white),
                 ),
                 GestureDetector(
-                  onTap: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SignupScreen())),
+                  onTap: () => Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => SignupScreen())),
                   child: const Text(
                     'Sign Up',
                     style: TextStyle(color: Colors.white),
