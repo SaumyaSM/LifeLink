@@ -35,7 +35,7 @@ class _MedicalInfoTestsState extends State<MedicalInfoTests> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Please upload document for: ${entry.key}'),
-            backgroundColor: Colors.red,
+            backgroundColor: kPinkColor,
           ),
         );
         return;

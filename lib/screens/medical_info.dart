@@ -93,7 +93,10 @@ class _MedicalInfoState extends State<MedicalInfo> {
 
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: kPinkColor,
+      ),
     );
   }
 

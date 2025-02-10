@@ -79,17 +79,11 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
   }
 
   void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Validation Error"),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
         content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("OK"),
-          ),
-        ],
+        duration: Duration(seconds: 3),
+        backgroundColor: kRedColor,
       ),
     );
   }
