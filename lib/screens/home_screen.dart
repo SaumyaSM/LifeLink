@@ -29,9 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _getUpcomingEvents() async {
-    // EventService.getEventList().then((value) {
-    //   setState(() => _upcomingEventsList = value);
-    // });
+    EventService.getEventList().then((value) {
+      setState(() => _upcomingEventsList = value);
+    });
   }
 
   @override
@@ -109,8 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => MedicalInfo(isDonor: false)),
+                      MaterialPageRoute(builder: (context) => MedicalInfo(isDonor: false)),
                     );
                   },
                   child: Image.asset(
@@ -200,9 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _upcomingEvents() {
     return AnimatedOpacity(
-      opacity: _upcomingEventsList.isNotEmpty
-          ? 1.0
-          : 1.0, // opacity: _upcomingEventsList.isNotEmpty ? 1.0 : 0.0,
+      opacity: _upcomingEventsList.isNotEmpty ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 700),
       child: Column(
         children: [
@@ -218,33 +215,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Column(
-            //children: _upcomingEventsList.map((eventModel) => Container(eventModel)).toList(),
-            children: [
-              _upcomingEventCard(
-                eventModel: EventModel(
-                  date: '12 December 2024',
-                  title: 'Donation Awarness Webinar',
-                  description:
-                      'Donation Awarness Webinar Organised by the governement',
-                ),
-              ),
-              _upcomingEventCard(
-                eventModel: EventModel(
-                  date: '12 December 2024',
-                  title: 'Donation Awarness Webinar',
-                  description:
-                      'Donation Awarness Webinar Organised by the governement',
-                ),
-              ),
-              _upcomingEventCard(
-                eventModel: EventModel(
-                  date: '12 December 2024',
-                  title: 'Donation Awarness Webinar',
-                  description:
-                      'Donation Awarness Webinar Organised by the governement',
-                ),
-              ),
-            ],
+            children: _upcomingEventsList
+                .map((eventModel) => _upcomingEventCard(eventModel: eventModel))
+                .toList(),
           ),
         ],
       ),
@@ -255,9 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => EventScreen(eventModel: eventModel)));
+            context, MaterialPageRoute(builder: (context) => EventScreen(eventModel: eventModel)));
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),

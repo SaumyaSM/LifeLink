@@ -17,6 +17,7 @@ class UserModel {
   late String allergies;
   late List<String> medicalReports;
   late bool isTestsCompleted;
+  late List<String> likes;
 
   UserModel({
     required this.id,
@@ -34,6 +35,7 @@ class UserModel {
     required this.allergies,
     required this.medicalReports,
     required this.isTestsCompleted,
+    required this.likes,
   });
 
   UserModel.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) {
@@ -51,9 +53,9 @@ class UserModel {
     medicalConditions = documentSnapshot['medicalConditions'] ?? '';
     medications = documentSnapshot['medications'] ?? '';
     allergies = documentSnapshot['allergies'] ?? '';
-    medicalReports =
-        List<String>.from(documentSnapshot['medicalReports'] ?? []);
+    medicalReports = List<String>.from(documentSnapshot['medicalReports'] ?? []);
     isTestsCompleted = documentSnapshot['isTestsCompleted'] ?? false;
+    likes = List<String>.from(documentSnapshot['likes'] ?? []);
   }
 
   Map<String, dynamic> toMap() {
@@ -72,6 +74,7 @@ class UserModel {
       'allergies': allergies,
       'medicalReports': medicalReports,
       'isTestsCompleted': isTestsCompleted,
+      'likes': likes,
     };
   }
 }
