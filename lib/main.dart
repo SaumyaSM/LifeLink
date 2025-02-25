@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:life_link/screens/Account/password_reset.dart';
-import 'package:life_link/screens/loading_screen.dart';
+import 'package:life_link/screens/Auth/password_reset.dart';
+import 'package:life_link/screens/Auth/loading_screen.dart';
 import 'package:life_link/screens/explore_screen.dart';
-import 'package:life_link/screens/medical_info-tests.dart';
-import 'package:life_link/screens/medical_info.dart';
-import 'package:life_link/screens/login_screen.dart';
+import 'package:life_link/screens/account/medical_info_tests_screen.dart';
+import 'package:life_link/screens/account/medical_info_screen.dart';
+import 'package:life_link/screens/Auth/login_screen.dart';
 import 'package:life_link/screens/main_screen.dart';
-import 'package:life_link/screens/personal_info_screen.dart';
-import 'package:life_link/screens/profile_screen.dart';
-import 'package:life_link/screens/signup_screen.dart';
+import 'package:life_link/screens/account/personal_info_form_screen.dart';
+import 'package:life_link/screens/account/profile_screen.dart';
+import 'package:life_link/screens/auth/signup_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:life_link/screens/start_screen.dart';
+import 'package:life_link/screens/account/start_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -40,9 +40,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home: MedicalInfo(isDonor: isDonor),
-      home: PersonalInfoScreen(isDonor: isDonor),
       // home: ForgotPassword(),
-      // home: LoadingScreen(),
+      home: LoadingScreen(),
       // home: MedicalInfoTests(isDonor: isDonor),
     );
   }

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
+import 'package:life_link/models/user_model.dart';
+import 'package:life_link/screens/account/ask_to_fill_medical_info_screen.dart';
 import 'package:life_link/screens/explore_screen.dart';
 import 'package:life_link/screens/home_screen.dart';
 import 'package:life_link/screens/matches_screen.dart';
 import 'package:life_link/screens/notification_screen.dart';
-import 'package:life_link/screens/profile_screen.dart';
+import 'package:life_link/screens/account/profile_screen.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  MainScreen({super.key, required this.userModel});
+
+  UserModel userModel;
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -16,7 +20,6 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentPageIndex = 0;
-  bool _isDonor = false;
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +28,15 @@ class _MainScreenState extends State<MainScreen> {
       child: Scaffold(
         appBar: kNoHeightAppbarWidget,
         body: [
-          HomeScreen(isDonor: _isDonor, organCount: 2),
-          MatchesScreen(isDonor: _isDonor),
-          ExploreScreen(isDonor: _isDonor),
+          HomeScreen(userModel: widget.userModel),
+          widget.userModel.bloodType != ''
+              ? MatchesScreen(isDonor: widget.userModel.isDonor)
+              : AskToFillMedicalInfoScreen(userModel: widget.userModel),
+          widget.userModel.bloodType != ''
+              ? ExploreScreen(isDonor: widget.userModel.isDonor)
+              : AskToFillMedicalInfoScreen(userModel: widget.userModel),
           NotificationScreen(),
-          ProfileScreen(isDonor: _isDonor),
+          ProfileScreen(isDonor: widget.userModel.isDonor),
         ][_currentPageIndex],
         bottomNavigationBar: _navBar(),
       ),

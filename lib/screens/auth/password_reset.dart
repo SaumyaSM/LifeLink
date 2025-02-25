@@ -1,9 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:life_link/constants/colors.dart';
-import 'package:life_link/screens/signup_screen.dart';
+import 'package:life_link/screens/auth/signup_screen.dart';
 
 import '../../services/auth_service.dart';
 
@@ -35,10 +34,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             alignment: Alignment.topCenter,
             child: Text(
               "Password Recovery",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.bold),
+              style: TextStyle(color: Colors.white, fontSize: 25.0, fontWeight: FontWeight.bold),
             ),
           ),
           SizedBox(
@@ -46,8 +42,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           ),
           Text(
             "Enter your email",
-            style: TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           ),
           Expanded(
               child: Form(
@@ -71,8 +66,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       style: TextStyle(color: Colors.white70),
                       decoration: InputDecoration(
                           hintText: 'Email',
-                          hintStyle:
-                              TextStyle(color: Colors.white70, fontSize: 18.0),
+                          hintStyle: TextStyle(color: Colors.white70, fontSize: 18.0),
                           prefixIcon: Icon(
                             Icons.email_outlined,
                             color: Colors.white70,
@@ -93,15 +87,12 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       width: 200,
                       padding: EdgeInsets.all(10.0),
                       decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0)),
+                          color: Colors.white, borderRadius: BorderRadius.circular(5.0)),
                       child: Center(
                         child: Text(
                           "Send Email",
                           style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold),
+                              color: Colors.black, fontSize: 18.0, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -122,14 +113,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       GestureDetector(
                         onTap: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SignupScreen()));
+                              context, MaterialPageRoute(builder: (context) => SignupScreen()));
                         },
                         child: Text(
                           "Create",
-                          style: TextStyle(
-                              fontSize: 15.0, color: Colors.lightBlueAccent),
+                          style: TextStyle(fontSize: 15.0, color: Colors.lightBlueAccent),
                         ),
                       )
                     ],

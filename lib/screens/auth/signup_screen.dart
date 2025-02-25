@@ -1,10 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
-import 'package:life_link/screens/login_screen.dart';
-import 'package:life_link/screens/personal_info_screen.dart';
-import 'package:life_link/screens/start_screen.dart';
+import 'package:life_link/models/user_model.dart';
+import 'package:life_link/screens/Auth/login_screen.dart';
+import 'package:life_link/screens/account/personal_info_form_screen.dart';
+import 'package:life_link/screens/account/start_screen.dart';
 import 'package:life_link/services/auth_service.dart';
 import 'package:life_link/services/toast_service.dart';
+import 'package:life_link/services/user_service.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
 import 'package:life_link/widgets/button_widget.dart';
 import 'package:life_link/widgets/card_widget.dart';
@@ -49,16 +52,45 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void signup() async {
     setState(() => isLoading = true);
-    bool result = await AuthService.signupUser(
-        email: emailTEC.text.trim(), password: passwordTEC.text.trim());
+
+    await AuthService.signupUser(
+      email: emailTEC.text.trim(),
+      password: passwordTEC.text.trim(),
+    ).then((UserCredential user) async {
+      UserModel userModel = UserModel(
+        id: user.user!.uid,
+        fullName: '',
+        dateOfBirth: '',
+        gender: '',
+        nic: '',
+        contact: '',
+        address: '',
+        isDonor: true,
+        bloodType: '',
+        organType: '',
+        medicalConditions: '',
+        medications: '',
+        allergies: '',
+        medicalReports: [],
+        isTestsCompleted: false,
+        likes: [],
+        history: [],
+      );
+
+      await UserService.createUser(userModel).then((value) {
+        ToastService.displaySuccessMotionToast(context: context, description: 'SignUp Successful!');
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => StartScreen(userModel: userModel)));
+      }).catchError((error) {
+        setState(() => isLoading = false);
+        ToastService.displayErrorMotionToast(context: context, description: 'Cannot Create User!');
+      });
+    }).catchError((error) {
+      setState(() => isLoading = false);
+      ToastService.displayErrorMotionToast(context: context, description: 'Cannot Create User!');
+    });
+
     if (!mounted) return;
-    if (result) {
-      ToastService.displaySuccessMotionToast(context: context, description: 'SignUp Successful!');
-      Navigator.push(context, MaterialPageRoute(builder: (context) => StartScreen()));
-    } else {
-      ToastService.displayErrorMotionToast(
-          context: context, description: 'Signup Failed! Please Try Again!');
-    }
   }
 
   @override
@@ -163,26 +195,26 @@ class _SignupScreenState extends State<SignupScreen> {
                       onTap: () => validateForm(),
                       title: 'SIGN UP',
                     ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'or continue with',
-                      style: TextStyle(
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    GoogleButtonWidget(
-                      onTap: () async {
-                        setState(() => isLoading = true);
-                        await AuthService.signupUserWithGoogle();
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PersonalInfoScreen(
-                                      isDonor: false,
-                                    )));
-                      },
-                    ),
+                    // const SizedBox(height: 10),
+                    // const Text(
+                    //   'or continue with',
+                    //   style: TextStyle(
+                    //     color: Colors.grey,
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 10),
+                    // GoogleButtonWidget(
+                    //   onTap: () async {
+                    //     setState(() => isLoading = true);
+                    //     await AuthService.signupUserWithGoogle();
+                    //     Navigator.push(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //             builder: (context) => PersonalInfoScreen(
+                    //                   isDonor: false,
+                    //                 )));
+                    //   },
+                    // ),
                   ],
                 ),
               ),

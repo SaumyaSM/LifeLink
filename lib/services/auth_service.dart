@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:life_link/services/toast_service.dart';
 
 class AuthService {
   static bool isUserLogged() {
@@ -12,31 +11,29 @@ class AuthService {
     return FirebaseAuth.instance.currentUser!.uid;
   }
 
-  static Future<void> loginUser(
-      {required String email, required String password}) async {
-    await FirebaseAuth.instance
-        .signInWithEmailAndPassword(email: email, password: password);
+  static String getLoggedUserEmail() {
+    return FirebaseAuth.instance.currentUser!.email!;
   }
 
-  static Future<bool> signupUser({
+  static Future<void> loginUser({required String email, required String password}) async {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+  }
+
+  static Future<UserCredential> signupUser({
     required String email,
     required String password,
   }) async {
-    return FirebaseAuth.instance
-        .createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        )
-        .then((userCredential) => userCredential.user != null)
-        .onError((error, stackTrace) => false);
+    return await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
   }
 
   static Future<UserCredential> signupUserWithGoogle() async {
     // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
@@ -53,8 +50,7 @@ class AuthService {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
@@ -77,5 +73,7 @@ class AuthService {
     }
   }
 
-  static void logoutUser() async {}
+  static Future<void> logoutUser() async {
+    await FirebaseAuth.instance.signOut();
+  }
 }

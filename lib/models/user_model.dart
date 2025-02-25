@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
-  String? documentID;
   late String id;
   late String fullName;
   late String dateOfBirth;
@@ -18,6 +17,7 @@ class UserModel {
   late List<String> medicalReports;
   late bool isTestsCompleted;
   late List<String> likes;
+  late List<String> history;
 
   UserModel({
     required this.id,
@@ -36,11 +36,11 @@ class UserModel {
     required this.medicalReports,
     required this.isTestsCompleted,
     required this.likes,
+    required this.history,
   });
 
   UserModel.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) {
-    documentID = documentSnapshot.id;
-    id = documentSnapshot.id;
+    id = documentSnapshot['id'];
     fullName = documentSnapshot['fullName'] ?? '';
     dateOfBirth = documentSnapshot['dateOfBirth'] ?? '';
     gender = documentSnapshot['gender'] ?? '';
@@ -56,10 +56,12 @@ class UserModel {
     medicalReports = List<String>.from(documentSnapshot['medicalReports'] ?? []);
     isTestsCompleted = documentSnapshot['isTestsCompleted'] ?? false;
     likes = List<String>.from(documentSnapshot['likes'] ?? []);
+    history = List<String>.from(documentSnapshot['history'] ?? []);
   }
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'fullName': fullName,
       'dateOfBirth': dateOfBirth,
       'gender': gender,
@@ -75,6 +77,7 @@ class UserModel {
       'medicalReports': medicalReports,
       'isTestsCompleted': isTestsCompleted,
       'likes': likes,
+      'history': history,
     };
   }
 }

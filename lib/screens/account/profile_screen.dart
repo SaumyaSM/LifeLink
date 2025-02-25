@@ -3,9 +3,8 @@ import 'package:life_link/constants/colors.dart';
 import 'package:life_link/screens/Account/donation_history.dart';
 import 'package:life_link/screens/Account/donation_status.dart';
 import 'package:life_link/screens/Account/medical_collection.dart';
-import 'package:life_link/screens/login_screen.dart';
-import 'package:life_link/screens/medical_info.dart';
-import 'package:life_link/screens/personal_info_screen.dart';
+import 'package:life_link/screens/Auth/login_screen.dart';
+import 'package:life_link/services/auth_service.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -16,8 +15,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String _imageURL =
-      "https://i.pinimg.com/736x/25/1c/e1/251ce139d8c07cbcc9daeca832851719.jpg";
+  String _imageURL = "https://i.pinimg.com/736x/25/1c/e1/251ce139d8c07cbcc9daeca832851719.jpg";
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +27,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _profileImage(),
             _profilePageButton(
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => PersonalInfoScreen(
-                              isDonor: true,
-                            )));
+                // Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) => PersonalInfoScreen(
+                //               isDonor: true,
+                //             )));
               },
               icon: Icons.person,
               title: 'Personal Info',
@@ -42,41 +40,106 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _profilePageButton(
               onTap: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MedicalCollection()));
+                    context, MaterialPageRoute(builder: (context) => MedicalCollection()));
               },
               icon: Icons.medical_information,
               title: 'Medical Info',
             ),
             _profilePageButton(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => DonationStatus()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => DonationStatus()));
               },
               icon: Icons.check_circle,
               title: 'Donation Status',
             ),
             _profilePageButton(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => DonationHistory()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => DonationHistory()));
               },
               icon: Icons.history,
               title: 'Donation History',
             ),
             _profilePageButton(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()));
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => Dialog(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(30, 30, 30, 20),
+                          child: const Text('Do you want to change your password?'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  AuthService.resetPassword(AuthService.getLoggedUserEmail());
+                                },
+                                child: const Text('YES'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('NO'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
               },
               icon: Icons.password,
               title: 'Change Password',
             ),
             _profilePageButton(
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()));
+                  showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => Dialog(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(30, 30, 30, 20),
+                            child: const Text('Do you want to Logout?'),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    AuthService.logoutUser().then((value) {
+                                      Navigator.push(context,
+                                          MaterialPageRoute(builder: (context) => LoginScreen()));
+                                    });
+                                  },
+                                  child: const Text('YES'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('NO'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 },
                 icon: Icons.logout,
                 title: 'Logout')

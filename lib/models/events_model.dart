@@ -14,6 +14,6 @@ class EventModel {
   EventModel.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) {
     title = documentSnapshot['title'] ?? '';
     description = documentSnapshot['description'] ?? '';
-    title = documentSnapshot['title'] ?? '';
+    date = documentSnapshot['date'] ?? '';
   }
 }

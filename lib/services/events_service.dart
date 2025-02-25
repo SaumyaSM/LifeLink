@@ -9,7 +9,7 @@ class EventService {
 
     await FirebaseFirestore.instance
         .collection(eventsCollection)
-        // Filter by date .where()
+        //.where('timeStamp', )
         .get()
         .then((value) {
       value.docs.forEach((snapshot) {

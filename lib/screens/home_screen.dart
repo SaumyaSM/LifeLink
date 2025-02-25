@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/models/events_model.dart';
+import 'package:life_link/models/user_model.dart';
 import 'package:life_link/screens/event_screen.dart';
-import 'package:life_link/screens/medical_info.dart';
+import 'package:life_link/screens/account/medical_info_screen.dart';
 import 'package:life_link/services/events_service.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({
-    super.key,
-    required this.isDonor,
-    required this.organCount,
-  });
+  HomeScreen({super.key, required this.userModel});
 
-  bool isDonor;
-  int organCount;
+  UserModel userModel;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -55,21 +51,21 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              widget.isDonor ? 'You saved' : 'You received',
+                              widget.userModel.isDonor ? 'You saved' : 'You received',
                               style: _homeDetailsCardTextStyle(),
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  widget.organCount.toString(),
+                                  widget.userModel.history.length.toString(),
                                   style: const TextStyle(
                                     color: kRedColor,
                                     fontSize: 25,
                                   ),
                                 ),
                                 Text(
-                                  widget.isDonor ? ' lives' : ' organs',
+                                  widget.userModel.isDonor ? ' lives' : ' organs',
                                   style: _homeDetailsCardTextStyle(),
                                 ),
                               ],
@@ -109,11 +105,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => MedicalInfo(isDonor: false)),
+                      MaterialPageRoute(
+                          builder: (context) => MedicalInfoScreen(userModel: widget.userModel)),
                     );
                   },
                   child: Image.asset(
-                    widget.isDonor
+                    widget.userModel.isDonor
                         ? 'assets/images/make_donation.png'
                         : 'assets/images/find_donation.png',
                     width: MediaQuery.of(context).size.width * 0.9,
@@ -158,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(width: 10),
           Text(
-            widget.isDonor ? 'WELCOME DONATOR!' : 'WELCOME RECIPIENT!',
+            widget.userModel.isDonor ? 'WELCOME DONATOR!' : 'WELCOME RECIPIENT!',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 20,

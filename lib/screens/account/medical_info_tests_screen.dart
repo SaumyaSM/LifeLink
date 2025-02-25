@@ -1,19 +1,20 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import '../constants/colors.dart';
-import '../widgets/button_widget.dart';
-import '../widgets/medical_tests_widget.dart';
+import '../../constants/colors.dart';
+import '../../models/user_model.dart';
+import '../../widgets/button_widget.dart';
+import '../../widgets/medical_tests_widget.dart';
 
-class MedicalInfoTests extends StatefulWidget {
-  MedicalInfoTests({super.key, required this.isDonor});
-  bool isDonor;
+class MedicalInfoTestsScreen extends StatefulWidget {
+  MedicalInfoTestsScreen({super.key, required this.userModel});
+  UserModel userModel;
 
   @override
-  State<MedicalInfoTests> createState() => _MedicalInfoTestsState();
+  State<MedicalInfoTestsScreen> createState() => _MedicalInfoTestsScreenState();
 }
 
-class _MedicalInfoTestsState extends State<MedicalInfoTests> {
+class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
   final Map<String, String?> uploadedFiles = {};
   final Map<String, bool> testCompletionStatus = {};
 
@@ -45,7 +46,7 @@ class _MedicalInfoTestsState extends State<MedicalInfoTests> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MedicalInfoTests(isDonor: true),
+        builder: (context) => MedicalInfoTestsScreen(userModel: widget.userModel),
       ),
     );
   }
@@ -83,11 +84,8 @@ class _MedicalInfoTestsState extends State<MedicalInfoTests> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  _buildTestSection('Immunological Tests', [
-                    'ABO Blood Typing',
-                    'Tissue Typing (HLA Antigens)',
-                    'Family Analysis'
-                  ]),
+                  _buildTestSection('Immunological Tests',
+                      ['ABO Blood Typing', 'Tissue Typing (HLA Antigens)', 'Family Analysis']),
                   _buildTestSection('Laboratory Tests', [
                     'Hematological System Assessment',
                     'Clotting Mechanism Assessment',
@@ -172,7 +170,7 @@ class _MedicalInfoTestsState extends State<MedicalInfoTests> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            widget.isDonor ? 'DONATOR!' : 'RECIPIENT!',
+            widget.userModel.isDonor ? 'DONATOR!' : 'RECIPIENT!',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
@@ -181,9 +179,7 @@ class _MedicalInfoTestsState extends State<MedicalInfoTests> {
           ),
           SizedBox(height: 5),
           Image.asset(
-            widget.isDonor
-                ? 'assets/images/donator.png'
-                : 'assets/images/recipient.png',
+            widget.userModel.isDonor ? 'assets/images/donator.png' : 'assets/images/recipient.png',
             height: MediaQuery.of(context).size.width * 0.2,
           ),
         ],
