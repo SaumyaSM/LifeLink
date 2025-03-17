@@ -42,6 +42,7 @@ class MyApp extends StatelessWidget {
       // home: MedicalInfo(isDonor: isDonor),
       // home: ForgotPassword(),
       home: LoadingScreen(),
+      // home: LocationScreen(),
       // home: MedicalInfoTests(isDonor: isDonor),
     );
   }

@@ -36,7 +36,10 @@ class _MainScreenState extends State<MainScreen> {
               ? ExploreScreen(isDonor: widget.userModel.isDonor)
               : AskToFillMedicalInfoScreen(userModel: widget.userModel),
           NotificationScreen(),
-          ProfileScreen(isDonor: widget.userModel.isDonor),
+          ProfileScreen(
+            isDonor: widget.userModel.isDonor,
+            userModel: widget.userModel,
+          ),
         ][_currentPageIndex],
         bottomNavigationBar: _navBar(),
       ),

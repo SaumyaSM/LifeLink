@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_places_flutter/model/prediction.dart';
 import 'package:life_link/models/user_model.dart';
 import 'package:life_link/screens/main_screen.dart';
+import 'package:life_link/widgets/google_place_autocomplete_widget.dart';
 import 'package:life_link/services/toast_service.dart';
 import 'package:life_link/services/user_service.dart';
 import 'package:life_link/widgets/button_widget.dart';
@@ -10,7 +12,8 @@ import 'package:life_link/widgets/textbox_widget.dart';
 import '../../constants/colors.dart';
 
 class PersonalInfoFormScreen extends StatefulWidget {
-  PersonalInfoFormScreen({super.key, required this.isDonor, required this.userModel});
+  PersonalInfoFormScreen(
+      {super.key, required this.isDonor, required this.userModel});
 
   bool isDonor;
   UserModel userModel;
@@ -26,6 +29,7 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
   TextEditingController nic = TextEditingController();
   TextEditingController contact = TextEditingController();
   TextEditingController address = TextEditingController();
+  TextEditingController city = TextEditingController();
 
   String? selectedDate;
   String? selectedGender;
@@ -40,7 +44,8 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
 
     if (pickedDate != null) {
       setState(() {
-        selectedDate = "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+        selectedDate =
+            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
       });
     }
   }
@@ -73,7 +78,8 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
       return;
     }
     if (!RegExp(r'^[0-9]{10,}$').hasMatch(contact.text)) {
-      _showErrorDialog("Enter a valid Contact number (only digits, at least 10 characters)");
+      _showErrorDialog(
+          "Enter a valid Contact number (only digits, at least 10 characters)");
       return;
     }
     if (address.text == '') {
@@ -116,7 +122,8 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
       );
     }).catchError((error) {
       setState(() => isLoading = false);
-      ToastService.displayErrorMotionToast(context: context, description: 'Something went Wrong!');
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Something went Wrong!');
       return;
     });
   }
@@ -223,13 +230,22 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
               ),
               CustomTextBox(label: 'NIC', controller: nic),
               CustomTextBox(
-                  controller: contact, label: 'Contact', keyboardType: TextInputType.number),
+                  controller: contact,
+                  label: 'Contact',
+                  keyboardType: TextInputType.number),
               CustomTextBox(
                 controller: address,
                 label: 'Address',
               ),
               SizedBox(
                 height: 10,
+              ),
+              GooglePlaceAutoCompleteWidget(
+                controller: city,
+                onPlaceSelected: (Prediction prediction) {
+                  print("Selected place: ${prediction.description}");
+                },
+                label: 'City',
               ),
               ButtonWidget(
                 onTap: () => validateForm(),
@@ -316,7 +332,9 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
             height: 5,
           ),
           Image.asset(
-            widget.isDonor ? 'assets/images/donator.png' : 'assets/images/recipient.png',
+            widget.isDonor
+                ? 'assets/images/donator.png'
+                : 'assets/images/recipient.png',
             height: MediaQuery.of(context).size.width * 0.2,
           ),
         ],

@@ -29,7 +29,12 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
     'Part of Pancrease'
   ];
   String? selectedBloodType; // Selected value
-  final List<String> bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  final List<String> bloodTypes = [
+    'O',
+    'A',
+    'B',
+    'AB',
+  ];
 
   String? _fileName;
 
@@ -44,7 +49,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
 
   void _validateAndProceed() {
     if (selectedBloodType == null) {
-      _showErrorMessage('Please select a blood type.');
+      _showErrorMessage('Please select a blood group.');
       return;
     }
 
@@ -57,7 +62,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
     //   _showErrorMessage('Please enter your current medical conditions.');
     //   return;
     // }
-
+    //
     // if (medications.text.isEmpty) {
     //   _showErrorMessage('Please enter your list of medications.');
     //   return;
@@ -67,11 +72,11 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
     //   _showErrorMessage('Please enter your allergies.');
     //   return;
     // }
-
-    if (_fileName == null) {
-      _showErrorMessage('Please upload a medical report.');
-      return;
-    }
+    //
+    // if (_fileName == null) {
+    //   _showErrorMessage('Please upload a medical report.');
+    //   return;
+    // }
 
     UserModel userModel = UserModel(
       id: widget.userModel.id,
@@ -128,7 +133,10 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                 Text(
                   'Fill in your medical details',
                   textAlign: TextAlign.left,
-                  style: TextStyle(color: kPinkColor, fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: kPinkColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
                 ),
                 SizedBox(
                   height: 20,
@@ -180,7 +188,9 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                   padding: EdgeInsets.only(left: 21),
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    widget.userModel.isDonor ? ' Donating Organ' : ' Organ Needed',
+                    widget.userModel.isDonor
+                        ? ' Donating Organ'
+                        : ' Organ Needed',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -219,8 +229,11 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                CustomTextBox(label: 'Current Medical Conditions', controller: medicalConditions),
-                CustomTextBox(label: 'List of Medications', controller: medications),
+                CustomTextBox(
+                    label: 'Current Medical Conditions',
+                    controller: medicalConditions),
+                CustomTextBox(
+                    label: 'List of Medications', controller: medications),
                 CustomTextBox(label: 'Allergies', controller: allergies),
                 Container(
                   padding: EdgeInsets.only(left: 21),
@@ -248,7 +261,8 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                         Text(
                           _fileName ?? 'Select File',
                           style: TextStyle(
-                            color: _fileName == null ? Colors.grey : Colors.black,
+                            color:
+                                _fileName == null ? Colors.grey : Colors.black,
                           ),
                         ),
                         Icon(Icons.folder_open),
@@ -302,7 +316,9 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
             height: 5,
           ),
           Image.asset(
-            widget.userModel.isDonor ? 'assets/images/donator.png' : 'assets/images/recipient.png',
+            widget.userModel.isDonor
+                ? 'assets/images/donator.png'
+                : 'assets/images/recipient.png',
             height: MediaQuery.of(context).size.width * 0.2,
           ),
         ],

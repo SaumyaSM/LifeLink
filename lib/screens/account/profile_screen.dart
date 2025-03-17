@@ -4,18 +4,25 @@ import 'package:life_link/screens/Account/donation_history.dart';
 import 'package:life_link/screens/Account/donation_status.dart';
 import 'package:life_link/screens/Account/medical_collection.dart';
 import 'package:life_link/screens/Auth/login_screen.dart';
+import 'package:life_link/screens/account/personal_info_form_screen.dart';
 import 'package:life_link/services/auth_service.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
 
+import '../../models/user_model.dart';
+
 class ProfileScreen extends StatefulWidget {
-  ProfileScreen({super.key, required isDonor});
+  ProfileScreen({super.key, required this.isDonor, required this.userModel});
+
+  bool isDonor;
+  UserModel userModel;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String _imageURL = "https://i.pinimg.com/736x/25/1c/e1/251ce139d8c07cbcc9daeca832851719.jpg";
+  String _imageURL =
+      "https://i.pinimg.com/736x/25/1c/e1/251ce139d8c07cbcc9daeca832851719.jpg";
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +34,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _profileImage(),
             _profilePageButton(
               onTap: () {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) => PersonalInfoScreen(
-                //               isDonor: true,
-                //             )));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PersonalInfoFormScreen(
+                            isDonor: widget.isDonor,
+                            userModel: widget.userModel)));
               },
               icon: Icons.person,
               title: 'Personal Info',
@@ -40,21 +47,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _profilePageButton(
               onTap: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => MedicalCollection()));
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MedicalCollection()));
               },
               icon: Icons.medical_information,
               title: 'Medical Info',
             ),
             _profilePageButton(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => DonationStatus()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => DonationStatus()));
               },
               icon: Icons.check_circle,
               title: 'Donation Status',
             ),
             _profilePageButton(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => DonationHistory()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => DonationHistory()));
               },
               icon: Icons.history,
               title: 'Donation History',
@@ -70,7 +81,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.fromLTRB(30, 30, 30, 20),
-                          child: const Text('Do you want to change your password?'),
+                          child: const Text(
+                              'Do you want to change your password?'),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 10),
@@ -79,7 +91,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               TextButton(
                                 onPressed: () {
-                                  AuthService.resetPassword(AuthService.getLoggedUserEmail());
+                                  AuthService.resetPassword(
+                                      AuthService.getLoggedUserEmail());
                                 },
                                 child: const Text('YES'),
                               ),
@@ -121,8 +134,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 TextButton(
                                   onPressed: () {
                                     AuthService.logoutUser().then((value) {
-                                      Navigator.push(context,
-                                          MaterialPageRoute(builder: (context) => LoginScreen()));
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LoginScreen()));
                                     });
                                   },
                                   child: const Text('YES'),
