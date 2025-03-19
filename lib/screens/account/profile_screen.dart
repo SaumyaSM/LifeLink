@@ -7,6 +7,8 @@ import 'package:life_link/screens/Auth/login_screen.dart';
 import 'package:life_link/screens/account/personal_info_form_screen.dart';
 import 'package:life_link/services/auth_service.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 import '../../models/user_model.dart';
 
@@ -21,8 +23,21 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String _imageURL =
+  String? _imageURL =
       "https://i.pinimg.com/736x/25/1c/e1/251ce139d8c07cbcc9daeca832851719.jpg";
+
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageURL = pickedFile.path; // Update with local file path
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,29 +192,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Stack(
         children: [
-          _imageURL != null
-              ? Container(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  height: MediaQuery.of(context).size.width * 0.5,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    image: DecorationImage(
-                      image: NetworkImage(_imageURL!),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                )
-              : Container(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  height: MediaQuery.of(context).size.width * 0.5,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    image: const DecorationImage(
-                      image: AssetImage('assets/images/profile.jpg'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
+          Container(
+            width: MediaQuery.of(context).size.width * 0.5,
+            height: MediaQuery.of(context).size.width * 0.5,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              image: DecorationImage(
+                image: _imageURL != null && _imageURL!.startsWith('http')
+                    ? NetworkImage(_imageURL!) as ImageProvider
+                    : FileImage(File(_imageURL!)),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           Positioned(
             bottom: 10,
             right: 10,
@@ -208,7 +213,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               radius: 20,
               child: IconButton(
                 icon: Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                onPressed: () {},
+                onPressed: _pickImage,
               ),
             ),
           ),
