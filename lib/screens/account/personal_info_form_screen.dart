@@ -86,6 +86,10 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
       _showErrorDialog("Address cannot be empty");
       return;
     }
+    if (city.text == '') {
+      _showErrorDialog("Please select your city");
+      return;
+    }
 
     setPersonalData();
   }
@@ -101,6 +105,7 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
       nic: nic.text.trim(),
       contact: contact.text.trim(),
       address: address.text.trim(),
+      city: city.text.trim(),
       isDonor: widget.isDonor,
       bloodType: '',
       organType: '',

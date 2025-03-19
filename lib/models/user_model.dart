@@ -8,6 +8,7 @@ class UserModel {
   late String nic;
   late String contact;
   late String address;
+  late String city;
   late bool isDonor;
   late String bloodType;
   late String organType;
@@ -27,6 +28,7 @@ class UserModel {
     required this.nic,
     required this.contact,
     required this.address,
+    required this.city,
     required this.isDonor,
     required this.bloodType,
     required this.organType,
@@ -47,13 +49,15 @@ class UserModel {
     nic = documentSnapshot['nic'] ?? '';
     contact = documentSnapshot['contact'] ?? '';
     address = documentSnapshot['address'] ?? '';
+    address = documentSnapshot['city'] ?? '';
     isDonor = documentSnapshot['isDonor'] ?? false;
     bloodType = documentSnapshot['bloodType'] ?? '';
     organType = documentSnapshot['organType'] ?? '';
     medicalConditions = documentSnapshot['medicalConditions'] ?? '';
     medications = documentSnapshot['medications'] ?? '';
     allergies = documentSnapshot['allergies'] ?? '';
-    medicalReports = List<String>.from(documentSnapshot['medicalReports'] ?? []);
+    medicalReports =
+        List<String>.from(documentSnapshot['medicalReports'] ?? []);
     isTestsCompleted = documentSnapshot['isTestsCompleted'] ?? false;
     likes = List<String>.from(documentSnapshot['likes'] ?? []);
     history = List<String>.from(documentSnapshot['history'] ?? []);
@@ -68,6 +72,7 @@ class UserModel {
       'nic': nic,
       'contact': contact,
       'address': address,
+      'city': city,
       'isDonor': isDonor,
       'bloodType': bloodType,
       'organType': organType,

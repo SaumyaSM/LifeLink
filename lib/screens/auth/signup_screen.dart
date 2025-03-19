@@ -31,19 +31,23 @@ class _SignupScreenState extends State<SignupScreen> {
   TextEditingController passwordConfirmTEC = TextEditingController();
 
   void validateForm() {
-    if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+    if (!RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(emailTEC.text.trim())) {
-      ToastService.displayErrorMotionToast(context: context, description: 'Invalid Email!');
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Invalid Email!');
       return;
     }
 
     if (passwordTEC.text.trim().length < 6) {
-      ToastService.displayErrorMotionToast(context: context, description: 'Password is too short!');
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Password is too short!');
       return;
     }
 
     if (passwordTEC.text.trim() != passwordConfirmTEC.text.trim()) {
-      ToastService.displayErrorMotionToast(context: context, description: 'Passwords dont match!');
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Passwords dont match!');
       return;
     }
 
@@ -75,19 +79,25 @@ class _SignupScreenState extends State<SignupScreen> {
         isTestsCompleted: false,
         likes: [],
         history: [],
+        city: '',
       );
 
       await UserService.createUser(userModel).then((value) {
-        ToastService.displaySuccessMotionToast(context: context, description: 'SignUp Successful!');
+        ToastService.displaySuccessMotionToast(
+            context: context, description: 'SignUp Successful!');
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => StartScreen(userModel: userModel)));
+            context,
+            MaterialPageRoute(
+                builder: (context) => StartScreen(userModel: userModel)));
       }).catchError((error) {
         setState(() => isLoading = false);
-        ToastService.displayErrorMotionToast(context: context, description: 'Cannot Create User!');
+        ToastService.displayErrorMotionToast(
+            context: context, description: 'Cannot Create User!');
       });
     }).catchError((error) {
       setState(() => isLoading = false);
-      ToastService.displayErrorMotionToast(context: context, description: 'Cannot Create User!');
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Cannot Create User!');
     });
 
     if (!mounted) return;
@@ -223,7 +233,8 @@ class _SignupScreenState extends State<SignupScreen> {
           SizedBox(height: MediaQuery.of(context).size.height * 0.03),
           GestureDetector(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()));
             },
             child: Column(
               children: [
@@ -232,8 +243,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   style: TextStyle(color: Colors.white),
                 ),
                 GestureDetector(
-                  onTap: () => Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => LoginScreen())),
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => LoginScreen())),
                   child: const Text(
                     'Log In',
                     style: TextStyle(color: Colors.white),

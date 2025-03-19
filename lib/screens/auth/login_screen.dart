@@ -3,6 +3,7 @@ import 'package:life_link/constants/colors.dart';
 import 'package:life_link/screens/Auth/password_reset.dart';
 import 'package:life_link/screens/Auth/loading_screen.dart';
 import 'package:life_link/screens/auth/signup_screen.dart';
+import 'package:life_link/screens/main_screen.dart';
 import 'package:life_link/services/auth_service.dart';
 import 'package:life_link/services/toast_service.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
@@ -12,6 +13,7 @@ import 'package:life_link/widgets/font_types.dart';
 import 'package:life_link/widgets/google_button_widget.dart';
 import 'package:life_link/widgets/loading_widget.dart';
 import 'package:life_link/widgets/text_input_widget.dart';
+import 'package:life_link/models/user_model.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,22 +30,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   onClickLogin() async {
     if (emailTEC.text.trim() == '') {
-      ToastService.displayErrorMotionToast(context: context, description: 'Email is Missing!');
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Email is Missing!');
       return;
     }
 
     if (passwordTEC.text.trim() == '') {
-      ToastService.displayErrorMotionToast(context: context, description: 'Password is Missing!');
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Password is Missing!');
       return;
     }
 
     setState(() => isLoading = true);
 
-    await AuthService.loginUser(email: emailTEC.text.trim(), password: passwordTEC.text.trim())
+    await AuthService.loginUser(
+            email: emailTEC.text.trim(), password: passwordTEC.text.trim())
         .then((value) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => LoadingScreen()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => LoadingScreen()));
     }).catchError((error) {
-      ToastService.displayErrorMotionToast(context: context, description: 'Invalid Login!');
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Invalid Login!');
       return;
     });
   }
@@ -144,7 +151,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         GestureDetector(
                           onTap: () => Navigator.push(
-                              context, MaterialPageRoute(builder: (context) => ForgotPassword())),
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ForgotPassword())),
                           child: const Text('Forgot Password?'),
                         ),
                       ],
@@ -176,7 +185,8 @@ class _LoginScreenState extends State<LoginScreen> {
           SizedBox(height: MediaQuery.of(context).size.height * 0.04),
           GestureDetector(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => SignupScreen()));
             },
             child: Column(
               children: [
@@ -185,8 +195,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(color: Colors.white),
                 ),
                 GestureDetector(
-                  onTap: () => Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => SignupScreen())),
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SignupScreen())),
                   child: const Text(
                     'Sign Up',
                     style: TextStyle(color: Colors.white),

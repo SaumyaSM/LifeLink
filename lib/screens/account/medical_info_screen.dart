@@ -96,6 +96,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
       isTestsCompleted: false,
       likes: [],
       history: [],
+      city: '',
     );
 
     Navigator.push(

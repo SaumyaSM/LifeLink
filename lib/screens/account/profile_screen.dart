@@ -32,6 +32,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             _profileImage(),
+            Text(
+              widget.userModel.fullName, // Directly access from userModel
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             _profilePageButton(
               onTap: () {
                 Navigator.push(
