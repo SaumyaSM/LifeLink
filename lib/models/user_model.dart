@@ -49,7 +49,7 @@ class UserModel {
     nic = documentSnapshot['nic'] ?? '';
     contact = documentSnapshot['contact'] ?? '';
     address = documentSnapshot['address'] ?? '';
-    address = documentSnapshot['city'] ?? '';
+    city = documentSnapshot['city'] ?? '';
     isDonor = documentSnapshot['isDonor'] ?? false;
     bloodType = documentSnapshot['bloodType'] ?? '';
     organType = documentSnapshot['organType'] ?? '';
@@ -84,5 +84,49 @@ class UserModel {
       'likes': likes,
       'history': history,
     };
+  }
+}
+
+extension UserModelCopy on UserModel {
+  UserModel copyWith({
+    String? id,
+    String? fullName,
+    String? dateOfBirth,
+    String? gender,
+    String? nic,
+    String? contact,
+    String? address,
+    String? city,
+    bool? isDonor,
+    String? bloodType,
+    String? organType,
+    String? medicalConditions,
+    String? medications,
+    String? allergies,
+    List<String>? medicalReports,
+    bool? isTestsCompleted,
+    List<String>? likes,
+    List<String>? history,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      fullName: fullName ?? this.fullName,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      gender: gender ?? this.gender,
+      nic: nic ?? this.nic,
+      contact: contact ?? this.contact,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      isDonor: isDonor ?? this.isDonor,
+      bloodType: bloodType ?? this.bloodType,
+      organType: organType ?? this.organType,
+      medicalConditions: medicalConditions ?? this.medicalConditions,
+      medications: medications ?? this.medications,
+      allergies: allergies ?? this.allergies,
+      medicalReports: medicalReports ?? this.medicalReports,
+      isTestsCompleted: isTestsCompleted ?? this.isTestsCompleted,
+      likes: likes ?? this.likes,
+      history: history ?? this.history,
+    );
   }
 }

@@ -4,6 +4,7 @@ import 'package:life_link/screens/Account/donation_history.dart';
 import 'package:life_link/screens/Account/donation_status.dart';
 import 'package:life_link/screens/Account/medical_collection.dart';
 import 'package:life_link/screens/Auth/login_screen.dart';
+import 'package:life_link/screens/account/personal_collection.dart';
 import 'package:life_link/screens/account/personal_info_form_screen.dart';
 import 'package:life_link/services/auth_service.dart';
 import 'package:life_link/widgets/appbar_widget.dart';
@@ -77,7 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             _profileImage(),
             Text(
-              widget.userModel.fullName, // Directly access from userModel
+              widget.userModel.fullName,
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -88,9 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => PersonalInfoFormScreen(
-                            isDonor: widget.isDonor,
-                            userModel: widget.userModel)));
+                        builder: (context) => PersonalCollection()));
               },
               icon: Icons.person,
               title: 'Personal Info',
