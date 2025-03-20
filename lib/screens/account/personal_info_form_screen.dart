@@ -116,6 +116,7 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
       isTestsCompleted: false,
       likes: [],
       history: [],
+      hlaTyping: {},
     );
 
     await UserService.updateUserData(userModel).then((value) {

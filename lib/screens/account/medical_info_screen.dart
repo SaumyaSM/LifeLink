@@ -2,10 +2,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:life_link/models/user_model.dart';
 import 'package:life_link/screens/account/medical_info_tests_screen.dart';
-import 'package:life_link/widgets/loading_widget.dart';
 import '../../constants/colors.dart';
 import '../../widgets/button_widget.dart';
-import '../../widgets/textbox_widget.dart';
 
 class MedicalInfoScreen extends StatefulWidget {
   MedicalInfoScreen({super.key, required this.userModel});
@@ -15,26 +13,21 @@ class MedicalInfoScreen extends StatefulWidget {
   State<MedicalInfoScreen> createState() => _MedicalInfoScreenState();
 }
 
-class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
-  TextEditingController medicalConditions = TextEditingController();
-  TextEditingController medications = TextEditingController();
-  TextEditingController allergies = TextEditingController();
+final TextEditingController _hlaAController = TextEditingController();
+final TextEditingController _hlaBController = TextEditingController();
+final TextEditingController _hlaDRController = TextEditingController();
 
+class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
   String? selectOrganType;
   final List<String> organTypes = [
     'Kidney',
     'Lung',
     'Part of Liver',
     'Part of Intestine',
-    'Part of Pancrease'
+    'Part of Pancreas'
   ];
-  String? selectedBloodType; // Selected value
-  final List<String> bloodTypes = [
-    'O',
-    'A',
-    'B',
-    'AB',
-  ];
+  String? selectedBloodType;
+  final List<String> bloodTypes = ['O', 'A', 'B', 'AB'];
 
   String? _fileName;
 
@@ -57,26 +50,22 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
       _showErrorMessage('Please select an organ type.');
       return;
     }
+    if (selectedBloodType == null) {
+      _showErrorMessage('Please select a blood group.');
+      return;
+    }
 
-    // if (medicalConditions.text.isEmpty) {
-    //   _showErrorMessage('Please enter your current medical conditions.');
-    //   return;
-    // }
-    //
-    // if (medications.text.isEmpty) {
-    //   _showErrorMessage('Please enter your list of medications.');
-    //   return;
-    // }
-    //
-    // if (allergies.text.isEmpty) {
-    //   _showErrorMessage('Please enter your allergies.');
-    //   return;
-    // }
-    //
-    // if (_fileName == null) {
-    //   _showErrorMessage('Please upload a medical report.');
-    //   return;
-    // }
+    if (selectOrganType == null) {
+      _showErrorMessage('Please select an organ type.');
+      return;
+    }
+
+    if (_hlaAController.text.trim().isEmpty ||
+        _hlaBController.text.trim().isEmpty ||
+        _hlaDRController.text.trim().isEmpty) {
+      _showErrorMessage('Please enter HLA typing for all loci.');
+      return;
+    }
 
     UserModel userModel = UserModel(
       id: widget.userModel.id,
@@ -89,9 +78,16 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
       isDonor: widget.userModel.isDonor,
       bloodType: selectedBloodType!,
       organType: selectOrganType!,
-      medicalConditions: medicalConditions.text.trim(),
-      medications: medications.text.trim(),
-      allergies: allergies.text.trim(),
+      hlaTyping: {
+        'A': _hlaAController.text.trim(),
+        'B': _hlaBController.text.trim(),
+        'C': _hlaBController.text.trim(),
+        'DRB1': _hlaDRController.text.trim(),
+        'DQB1': _hlaDRController.text.trim(),
+      },
+      medicalConditions: '', // Removed unnecessary data
+      medications: '',
+      allergies: '',
       medicalReports: [],
       isTestsCompleted: false,
       likes: [],
@@ -119,88 +115,39 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 0,
-      ),
+      appBar: AppBar(toolbarHeight: 0),
       body: SingleChildScrollView(
         child: Column(
           children: [
             _registerBanner(),
             Column(
               children: [
-                SizedBox(
-                  height: 20,
-                ),
+                SizedBox(height: 20),
                 Text(
                   'Fill in your medical details',
-                  textAlign: TextAlign.left,
                   style: TextStyle(
-                      color: kPinkColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Blood Type',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    color: kPinkColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 10),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: DropdownButton<String>(
-                    value: selectedBloodType,
-                    isExpanded: true,
-                    underline: SizedBox(), // Remove the default underline
-                    hint: Text(
-                      'Select Blood Type',
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
-                    icon: Icon(Icons.arrow_drop_down),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedBloodType = value;
-                      });
-                    },
-                    items: bloodTypes.map((type) {
-                      return DropdownMenuItem<String>(
-                        value: type,
-                        child: Text(type),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
+                SizedBox(height: 20),
+
+                // Organ Dropdown
                 Container(
                   padding: EdgeInsets.only(left: 21),
                   alignment: Alignment.centerLeft,
                   child: Text(
                     widget.userModel.isDonor
-                        ? ' Donating Organ'
-                        : ' Organ Needed',
+                        ? 'Donating Organ'
+                        : 'Organ Needed',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ),
                 SizedBox(height: 10),
                 Container(
                   width: MediaQuery.of(context).size.width * 0.9,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(8),
@@ -208,7 +155,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                   child: DropdownButton<String>(
                     value: selectOrganType,
                     isExpanded: true,
-                    underline: SizedBox(), // Remove the default underline
+                    underline: SizedBox(),
                     hint: Text(
                       'Select Organ Type',
                       style: TextStyle(color: Colors.grey.shade600),
@@ -227,15 +174,170 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                     }).toList(),
                   ),
                 ),
-                SizedBox(
-                  height: 10,
+
+                SizedBox(height: 10),
+                // Blood Group Dropdown
+                Container(
+                  padding: EdgeInsets.only(left: 21),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Blood Group',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
                 ),
-                CustomTextBox(
-                    label: 'Current Medical Conditions',
-                    controller: medicalConditions),
-                CustomTextBox(
-                    label: 'List of Medications', controller: medications),
-                CustomTextBox(label: 'Allergies', controller: allergies),
+                SizedBox(height: 10),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButton<String>(
+                    value: selectedBloodType,
+                    isExpanded: true,
+                    underline: SizedBox(),
+                    hint: Text(
+                      'Select Blood Group',
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                    icon: Icon(Icons.arrow_drop_down),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedBloodType = value;
+                      });
+                    },
+                    items: bloodTypes.map((type) {
+                      return DropdownMenuItem<String>(
+                        value: type,
+                        child: Text(type),
+                      );
+                    }).toList(),
+                  ),
+                ),
+
+                SizedBox(height: 10),
+                Container(
+                  padding: EdgeInsets.only(left: 21),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'HLA Typing',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Please Enter your HLA Results according to your Report',
+                  style: TextStyle(fontSize: 14, color: Colors.redAccent),
+                ),
+                SizedBox(height: 15),
+// HLA-A
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextField(
+                    controller: _hlaAController,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'HLA-A ',
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        )),
+                  ),
+                ),
+                SizedBox(height: 10),
+
+// HLA-B
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextField(
+                    controller: _hlaBController,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'HLA-B ',
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        )),
+                  ),
+                ),
+                SizedBox(height: 10),
+
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextField(
+                    controller: _hlaBController,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'HLA-C ',
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        )),
+                  ),
+                ),
+                SizedBox(height: 10),
+
+// HLA-DR
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextField(
+                    controller: _hlaDRController,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'HLA-DRB1 ',
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        )),
+                  ),
+                ),
+
+                SizedBox(height: 10),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextField(
+                    controller: _hlaDRController,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'HLA-DQB1 ',
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        )),
+                  ),
+                ),
+                SizedBox(height: 10),
                 Container(
                   padding: EdgeInsets.only(left: 21),
                   alignment: Alignment.centerLeft,
@@ -244,9 +346,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ),
-                SizedBox(
-                  height: 10,
-                ),
+                SizedBox(height: 10),
                 GestureDetector(
                   onTap: _pickFile,
                   child: Container(
@@ -262,8 +362,11 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                         Text(
                           _fileName ?? 'Select File',
                           style: TextStyle(
-                            color:
-                                _fileName == null ? Colors.grey : Colors.black,
+                            color: _fileName == null
+                                ? Colors.grey.shade600
+                                : Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         Icon(Icons.folder_open),
@@ -271,10 +374,10 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 30,
-                ),
-                ButtonWidget(onTap: () => _validateAndProceed, title: 'Next'),
+
+                SizedBox(height: 20),
+                // Next Button
+                ButtonWidget(onTap: _validateAndProceed, title: 'Next'),
               ],
             )
           ],
@@ -283,6 +386,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
     );
   }
 
+  // Banner Widget
   Container _registerBanner() {
     return Container(
       width: double.infinity,
@@ -298,7 +402,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
             color: Colors.grey,
             spreadRadius: 1,
             blurRadius: 5,
-            offset: Offset(0, 1), // changes position of shadow
+            offset: Offset(0, 1),
           ),
         ],
       ),
@@ -313,9 +417,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(
-            height: 5,
-          ),
+          SizedBox(height: 5),
           Image.asset(
             widget.userModel.isDonor
                 ? 'assets/images/donator.png'

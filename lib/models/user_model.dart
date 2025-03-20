@@ -12,6 +12,7 @@ class UserModel {
   late bool isDonor;
   late String bloodType;
   late String organType;
+  late Map<String, String> hlaTyping;
   late String medicalConditions;
   late String medications;
   late String allergies;
@@ -32,6 +33,7 @@ class UserModel {
     required this.isDonor,
     required this.bloodType,
     required this.organType,
+    required this.hlaTyping,
     required this.medicalConditions,
     required this.medications,
     required this.allergies,
@@ -53,6 +55,7 @@ class UserModel {
     isDonor = documentSnapshot['isDonor'] ?? false;
     bloodType = documentSnapshot['bloodType'] ?? '';
     organType = documentSnapshot['organType'] ?? '';
+    hlaTyping = documentSnapshot['hlaTyping'] ?? '';
     medicalConditions = documentSnapshot['medicalConditions'] ?? '';
     medications = documentSnapshot['medications'] ?? '';
     allergies = documentSnapshot['allergies'] ?? '';
@@ -76,6 +79,7 @@ class UserModel {
       'isDonor': isDonor,
       'bloodType': bloodType,
       'organType': organType,
+      'hlaTyping': hlaTyping,
       'medicalConditions': medicalConditions,
       'medications': medications,
       'allergies': allergies,
@@ -100,6 +104,7 @@ extension UserModelCopy on UserModel {
     bool? isDonor,
     String? bloodType,
     String? organType,
+    Map<String, String>? hlaTyping,
     String? medicalConditions,
     String? medications,
     String? allergies,
@@ -120,6 +125,7 @@ extension UserModelCopy on UserModel {
       isDonor: isDonor ?? this.isDonor,
       bloodType: bloodType ?? this.bloodType,
       organType: organType ?? this.organType,
+      hlaTyping: hlaTyping ?? this.hlaTyping,
       medicalConditions: medicalConditions ?? this.medicalConditions,
       medications: medications ?? this.medications,
       allergies: allergies ?? this.allergies,

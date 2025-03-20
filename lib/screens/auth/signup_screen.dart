@@ -80,6 +80,7 @@ class _SignupScreenState extends State<SignupScreen> {
         likes: [],
         history: [],
         city: '',
+        hlaTyping: {},
       );
 
       await UserService.createUser(userModel).then((value) {
