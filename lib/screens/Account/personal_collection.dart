@@ -106,25 +106,60 @@ class _PersonalCollectionState extends State<PersonalCollection> {
                               ? TextFormField(
                                   controller: _fullNameController,
                                   decoration: const InputDecoration(
-                                      labelText: "Full Name"),
+                                    labelText: "Full Name",
+                                    prefixIcon: Icon(Icons.person),
+                                  ),
                                 )
-                              : _buildInfoTile(
-                                  "Full Name", userModel!.fullName),
+                              : _buildInfoTile("Full Name", userModel!.fullName,
+                                  Icons.person),
                           const Divider(),
-                          _buildEditableTile("Date of Birth", _dobController,
-                              userModel!.dateOfBirth),
                           _buildEditableTile(
-                              "Gender", _genderController, userModel!.gender),
+                            "Date of Birth",
+                            _dobController,
+                            userModel!.dateOfBirth,
+                            Icons.calendar_today,
+                          ),
+                          const Divider(),
                           _buildEditableTile(
-                              "NIC", _nicController, userModel!.nic),
-                          _buildEditableTile("Contact", _contactController,
-                              userModel!.contact),
-                          _buildEditableTile("Address", _addressController,
-                              userModel!.address),
+                            "Gender",
+                            _genderController,
+                            userModel!.gender,
+                            Icons.male, // or Icons.female depending on gender
+                          ),
+                          const Divider(),
                           _buildEditableTile(
-                              "City", _cityController, userModel!.city),
-                          _buildInfoTile("Role",
-                              userModel!.isDonor ? "Donor" : "Recipient"),
+                            "NIC",
+                            _nicController,
+                            userModel!.nic,
+                            Icons.perm_identity,
+                          ),
+                          const Divider(),
+                          _buildEditableTile(
+                            "Contact",
+                            _contactController,
+                            userModel!.contact,
+                            Icons.phone,
+                          ),
+                          const Divider(),
+                          _buildEditableTile(
+                            "Address",
+                            _addressController,
+                            userModel!.address,
+                            Icons.location_on,
+                          ),
+                          const Divider(),
+                          _buildEditableTile(
+                            "City",
+                            _cityController,
+                            userModel!.city,
+                            Icons.location_city,
+                          ),
+                          const Divider(),
+                          _buildInfoTile(
+                            "Role",
+                            userModel!.isDonor ? "Donor" : "Recipient",
+                            Icons.group,
+                          ),
                         ],
                       ),
                     ),
@@ -133,16 +168,24 @@ class _PersonalCollectionState extends State<PersonalCollection> {
     );
   }
 
-  Widget _buildInfoTile(String title, String value) {
+  Widget _buildInfoTile(String title, String value, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          Row(
+            children: [
+              Icon(icon, color: Colors.grey),
+              const SizedBox(width: 8.0),
+              Text(
+                title,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ],
           ),
+          const SizedBox(height: 4.0),
           Text(
             value,
             style: const TextStyle(fontSize: 16, color: Colors.grey),
@@ -152,29 +195,38 @@ class _PersonalCollectionState extends State<PersonalCollection> {
     );
   }
 
-  Widget _buildEditableTile(
-      String title, TextEditingController controller, String value) {
+  Widget _buildEditableTile(String title, TextEditingController controller,
+      String value, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: isEditing
-          ? TextFormField(
-              controller: controller,
-              decoration: InputDecoration(labelText: title),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-                Text(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: Colors.grey),
+              const SizedBox(width: 8.0),
+              Text(
+                title,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4.0),
+          isEditing
+              ? TextFormField(
+                  controller: controller,
+                  decoration: InputDecoration(
+                    labelText: "Enter $title",
+                  ),
+                )
+              : Text(
                   value,
                   style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
-              ],
-            ),
+        ],
+      ),
     );
   }
 }

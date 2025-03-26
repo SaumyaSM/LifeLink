@@ -4,6 +4,8 @@ import 'package:life_link/models/user_model.dart';
 import 'package:life_link/screens/account/personal_info_form_screen.dart';
 import 'package:life_link/widgets/button_widget.dart';
 
+import '../../widgets/font_types.dart';
+
 class StartScreen extends StatefulWidget {
   UserModel userModel;
   StartScreen({super.key, required this.userModel});
@@ -49,12 +51,14 @@ class _StartScreenState extends State<StartScreen> {
                 ),
               ),
               Container(
-                margin: EdgeInsets.only(top: MediaQuery.of(context).size.height / 3),
+                margin: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height / 3),
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(40), topLeft: Radius.circular(40))),
+                        topRight: Radius.circular(40),
+                        topLeft: Radius.circular(40))),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -69,36 +73,71 @@ class _StartScreenState extends State<StartScreen> {
                     ),
                     Text(
                       'You are....',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
                       height: 30,
                     ),
-                    ButtonWidget(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => PersonalInfoFormScreen(
-                                        isDonor: true,
-                                        userModel: widget.userModel,
-                                      )));
-                        },
-                        title: 'Donator'),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PersonalInfoFormScreen(
+                                      isDonor: true,
+                                      userModel: widget.userModel,
+                                    )));
+                      },
+                      style: TextButton.styleFrom(
+                          splashFactory: NoSplash.splashFactory),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.60,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: kOrangeColor,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Donating an Organ',
+                            textAlign: TextAlign.center,
+                            style: FontStyles.semiboldTextFieldStyle(),
+                          ),
+                        ),
+                      ),
+                    ),
                     SizedBox(
                       height: 20,
                     ),
-                    ButtonWidget(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => PersonalInfoFormScreen(
-                                        isDonor: false,
-                                        userModel: widget.userModel,
-                                      )));
-                        },
-                        title: 'Recipient'),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PersonalInfoFormScreen(
+                                      isDonor: true,
+                                      userModel: widget.userModel,
+                                    )));
+                      },
+                      style: TextButton.styleFrom(
+                          splashFactory: NoSplash.splashFactory),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.60,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: kOrangeColor,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Looking for an Organ',
+                            textAlign: TextAlign.center,
+                            style: FontStyles.semiboldTextFieldStyle(),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               )

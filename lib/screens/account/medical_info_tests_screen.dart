@@ -1,5 +1,8 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:life_link/screens/home_screen.dart';
+import 'package:life_link/screens/main_screen.dart';
+import 'package:life_link/screens/matches_screen.dart';
 
 import '../../constants/colors.dart';
 import '../../models/user_model.dart';
@@ -46,7 +49,7 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MedicalInfoTestsScreen(userModel: widget.userModel),
+        builder: (context) => MainScreen(userModel: widget.userModel),
       ),
     );
   }
@@ -84,8 +87,11 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  _buildTestSection('Immunological Tests',
-                      ['ABO Blood Typing', 'Tissue Typing (HLA Antigens)', 'Family Analysis']),
+                  _buildTestSection('Immunological Tests', [
+                    'ABO Blood Typing',
+                    'Tissue Typing (HLA Antigens)',
+                    'Family Analysis'
+                  ]),
                   _buildTestSection('Laboratory Tests', [
                     'Hematological System Assessment',
                     'Clotting Mechanism Assessment',
@@ -179,7 +185,9 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
           ),
           SizedBox(height: 5),
           Image.asset(
-            widget.userModel.isDonor ? 'assets/images/donator.png' : 'assets/images/recipient.png',
+            widget.userModel.isDonor
+                ? 'assets/images/donator.png'
+                : 'assets/images/recipient.png',
             height: MediaQuery.of(context).size.width * 0.2,
           ),
         ],

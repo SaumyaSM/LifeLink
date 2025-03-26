@@ -1,0 +1,84 @@
+import '../models/user_model.dart';
+import 'user_service.dart';
+
+class MatchingService {
+  static Future<List<Map<String, dynamic>>> matchDonorsAndRecipients() async {
+    List<UserModel> donors = await UserService.getDonors();
+    List<UserModel> recipients = await UserService.getRecipients();
+
+    List<Map<String, dynamic>> matches = [];
+
+    for (var donor in donors) {
+      for (var recipient in recipients) {
+        int score = 0;
+
+        //  Blood Group Compatibility
+        if (!isBloodGroupCompatible(donor.bloodType, recipient.bloodType))
+          continue;
+
+        //  HLA Mismatch Calculation
+        int hlaMismatch =
+            calculateHLAMismatch(donor.hlaTyping, recipient.hlaTyping);
+        score -= getMismatchScore(hlaMismatch);
+
+        //  Waiting Time Score
+        score += recipient.waitingTime;
+
+        //  Recipient Age Score
+        score += getAgeScore(recipient.dateOfBirth);
+
+        //  Location Score
+        if (donor.city == recipient.city) score += 200;
+
+        matches.add({'donor': donor, 'recipient': recipient, 'score': score});
+      }
+    }
+
+    matches.sort((a, b) => b['score'].compareTo(a['score']));
+    return matches;
+  }
+
+  static bool isBloodGroupCompatible(String donor, String recipient) {
+    Map<String, List<String>> compatibility = {
+      'O': ['O', 'A', 'B', 'AB'],
+      'A': ['A', 'AB'],
+      'B': ['B', 'AB'],
+      'AB': ['AB'],
+    };
+    return compatibility[donor]?.contains(recipient) ?? false;
+  }
+
+  static int calculateHLAMismatch(
+      Map<String, String> donorHLA, Map<String, String> recipientHLA) {
+    int mismatches = 0;
+
+    for (var key in donorHLA.keys) {
+      List<String> donorAlleles = donorHLA[key]!.split(',');
+      List<String> recipientAlleles = recipientHLA[key]!.split(',');
+
+      // Compare both alleles
+      if (!recipientAlleles.contains(donorAlleles[0])) mismatches++;
+      if (!recipientAlleles.contains(donorAlleles[1])) mismatches++;
+    }
+
+    return mismatches;
+  }
+
+  static int getMismatchScore(int mismatches) {
+    if (mismatches == 0) return 0;
+    if (mismatches <= 2) return 100;
+    if (mismatches <= 5) return 250;
+    if (mismatches <= 8) return 400;
+    return 600;
+  }
+
+  static int getAgeScore(String birthDate) {
+    // Convert birthdate to age and assign scores based on age groups
+    int age = DateTime.now().year - int.parse(birthDate.split('-')[0]);
+    if (age <= 18) return 500;
+    if (age <= 29) return 225;
+    if (age <= 49) return 100;
+    if (age <= 59) return 15;
+    return 0;
+  }
+}

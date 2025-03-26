@@ -11,6 +11,7 @@ import 'package:life_link/screens/account/profile_screen.dart';
 import 'package:life_link/screens/auth/signup_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:life_link/screens/account/start_screen.dart';
+import 'package:life_link/screens/matches_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
       home: LoadingScreen(),
       // home: LocationScreen(),
       // home: MedicalInfoTests(isDonor: isDonor),
+      // home: MatchesScreen(),
     );
   }
 }

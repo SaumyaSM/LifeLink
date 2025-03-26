@@ -72,15 +72,12 @@ class _SignupScreenState extends State<SignupScreen> {
         isDonor: true,
         bloodType: '',
         organType: '',
-        medicalConditions: '',
-        medications: '',
-        allergies: '',
-        medicalReports: [],
         isTestsCompleted: false,
         likes: [],
         history: [],
         city: '',
         hlaTyping: {},
+        waitingTime: 0,
       );
 
       await UserService.createUser(userModel).then((value) {

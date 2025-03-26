@@ -13,13 +13,10 @@ class UserModel {
   late String bloodType;
   late String organType;
   late Map<String, String> hlaTyping;
-  late String medicalConditions;
-  late String medications;
-  late String allergies;
-  late List<String> medicalReports;
   late bool isTestsCompleted;
   late List<String> likes;
   late List<String> history;
+  late int waitingTime;
 
   UserModel({
     required this.id,
@@ -34,36 +31,36 @@ class UserModel {
     required this.bloodType,
     required this.organType,
     required this.hlaTyping,
-    required this.medicalConditions,
-    required this.medications,
-    required this.allergies,
-    required this.medicalReports,
     required this.isTestsCompleted,
     required this.likes,
     required this.history,
+    required this.waitingTime,
   });
 
   UserModel.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) {
-    id = documentSnapshot['id'];
-    fullName = documentSnapshot['fullName'] ?? '';
-    dateOfBirth = documentSnapshot['dateOfBirth'] ?? '';
-    gender = documentSnapshot['gender'] ?? '';
-    nic = documentSnapshot['nic'] ?? '';
-    contact = documentSnapshot['contact'] ?? '';
-    address = documentSnapshot['address'] ?? '';
-    city = documentSnapshot['city'] ?? '';
-    isDonor = documentSnapshot['isDonor'] ?? false;
-    bloodType = documentSnapshot['bloodType'] ?? '';
-    organType = documentSnapshot['organType'] ?? '';
-    hlaTyping = documentSnapshot['hlaTyping'] ?? '';
-    medicalConditions = documentSnapshot['medicalConditions'] ?? '';
-    medications = documentSnapshot['medications'] ?? '';
-    allergies = documentSnapshot['allergies'] ?? '';
-    medicalReports =
-        List<String>.from(documentSnapshot['medicalReports'] ?? []);
-    isTestsCompleted = documentSnapshot['isTestsCompleted'] ?? false;
-    likes = List<String>.from(documentSnapshot['likes'] ?? []);
-    history = List<String>.from(documentSnapshot['history'] ?? []);
+    final data = documentSnapshot.data() as Map<String, dynamic>;
+
+    id = data['id'] ?? '';
+    fullName = data['fullName'] ?? '';
+    dateOfBirth = data['dateOfBirth'] ?? '';
+    gender = data['gender'] ?? '';
+    nic = data['nic'] ?? '';
+    contact = data['contact'] ?? '';
+    address = data['address'] ?? '';
+    city = data['city'] ?? '';
+    isDonor = data['isDonor'] ?? false;
+    bloodType = data['bloodType'] ?? '';
+    organType = data['organType'] ?? '';
+
+    final hlaMap = data['hlaTyping'] as Map<String, dynamic>? ?? {};
+    hlaTyping = hlaMap.map((key, value) => MapEntry(key, value.toString()));
+
+    isTestsCompleted = data['isTestsCompleted'] ?? false;
+    likes = List<String>.from(data['likes'] ?? []);
+    history = List<String>.from(data['history'] ?? []);
+    waitingTime = data['waitingTime'] != null
+        ? int.tryParse(data['waitingTime'].toString()) ?? 0
+        : 0;
   }
 
   Map<String, dynamic> toMap() {
@@ -80,13 +77,10 @@ class UserModel {
       'bloodType': bloodType,
       'organType': organType,
       'hlaTyping': hlaTyping,
-      'medicalConditions': medicalConditions,
-      'medications': medications,
-      'allergies': allergies,
-      'medicalReports': medicalReports,
       'isTestsCompleted': isTestsCompleted,
       'likes': likes,
       'history': history,
+      'waitingTime': waitingTime,
     };
   }
 }
@@ -105,13 +99,10 @@ extension UserModelCopy on UserModel {
     String? bloodType,
     String? organType,
     Map<String, String>? hlaTyping,
-    String? medicalConditions,
-    String? medications,
-    String? allergies,
-    List<String>? medicalReports,
     bool? isTestsCompleted,
     List<String>? likes,
     List<String>? history,
+    int? waitingTime,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -126,13 +117,10 @@ extension UserModelCopy on UserModel {
       bloodType: bloodType ?? this.bloodType,
       organType: organType ?? this.organType,
       hlaTyping: hlaTyping ?? this.hlaTyping,
-      medicalConditions: medicalConditions ?? this.medicalConditions,
-      medications: medications ?? this.medications,
-      allergies: allergies ?? this.allergies,
-      medicalReports: medicalReports ?? this.medicalReports,
       isTestsCompleted: isTestsCompleted ?? this.isTestsCompleted,
       likes: likes ?? this.likes,
       history: history ?? this.history,
+      waitingTime: waitingTime ?? this.waitingTime,
     );
   }
 }

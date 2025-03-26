@@ -73,6 +73,10 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
       _showErrorDialog("Please select a Gender");
       return;
     }
+    if (nic.text == '') {
+      _showErrorDialog("Please enter your nic");
+      return;
+    }
     if (!validateNIC(nic.text)) {
       _showErrorDialog("Invalid NIC format");
       return;
@@ -109,14 +113,11 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
       isDonor: widget.isDonor,
       bloodType: '',
       organType: '',
-      medicalConditions: '',
-      medications: '',
-      allergies: '',
-      medicalReports: [],
       isTestsCompleted: false,
       likes: [],
       history: [],
       hlaTyping: {},
+      waitingTime: 0,
     );
 
     await UserService.updateUserData(userModel).then((value) {
@@ -249,7 +250,11 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
               GooglePlaceAutoCompleteWidget(
                 controller: city,
                 onPlaceSelected: (Prediction prediction) {
-                  print("Selected place: ${prediction.description}");
+                  setState(() {
+                    city.text = prediction.description ?? '';
+                  });
+                  FocusScope.of(context)
+                      .unfocus(); // Remove focus from all fields
                 },
                 label: 'City',
               ),

@@ -30,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
         body: [
           HomeScreen(userModel: widget.userModel),
           widget.userModel.bloodType != ''
-              ? MatchesScreen(isDonor: widget.userModel.isDonor)
+              ? MatchesScreen()
               : AskToFillMedicalInfoScreen(userModel: widget.userModel),
           widget.userModel.bloodType != ''
               ? ExploreScreen(isDonor: widget.userModel.isDonor)

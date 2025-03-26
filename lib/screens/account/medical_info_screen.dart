@@ -1,8 +1,12 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:life_link/models/user_model.dart';
 import 'package:life_link/screens/account/medical_info_tests_screen.dart';
+import 'package:life_link/screens/main_screen.dart';
 import '../../constants/colors.dart';
+import '../../services/toast_service.dart';
+import '../../services/user_service.dart';
 import '../../widgets/button_widget.dart';
 
 class MedicalInfoScreen extends StatefulWidget {
@@ -15,9 +19,13 @@ class MedicalInfoScreen extends StatefulWidget {
 
 final TextEditingController _hlaAController = TextEditingController();
 final TextEditingController _hlaBController = TextEditingController();
-final TextEditingController _hlaDRController = TextEditingController();
+final TextEditingController _hlaCController = TextEditingController();
+final TextEditingController _hlaDRB1Controller = TextEditingController();
+final TextEditingController _hlaDQB1Controller = TextEditingController();
+final TextEditingController waitingTime = TextEditingController();
 
 class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
+  bool isLoading = false;
   String? selectOrganType;
   final List<String> organTypes = [
     'Kidney',
@@ -29,43 +37,35 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
   String? selectedBloodType;
   final List<String> bloodTypes = ['O', 'A', 'B', 'AB'];
 
-  String? _fileName;
-
-  Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      setState(() {
-        _fileName = result.files.single.name;
-      });
-    }
-  }
-
   void _validateAndProceed() {
-    if (selectedBloodType == null) {
-      _showErrorMessage('Please select a blood group.');
-      return;
-    }
-
     if (selectOrganType == null) {
       _showErrorMessage('Please select an organ type.');
       return;
     }
+
     if (selectedBloodType == null) {
       _showErrorMessage('Please select a blood group.');
-      return;
-    }
-
-    if (selectOrganType == null) {
-      _showErrorMessage('Please select an organ type.');
       return;
     }
 
     if (_hlaAController.text.trim().isEmpty ||
         _hlaBController.text.trim().isEmpty ||
-        _hlaDRController.text.trim().isEmpty) {
+        _hlaCController.text.trim().isEmpty ||
+        _hlaDRB1Controller.text.trim().isEmpty ||
+        _hlaDQB1Controller.text.trim().isEmpty) {
       _showErrorMessage('Please enter HLA typing for all loci.');
       return;
     }
+
+    // if (waitingTime.text.trim().isEmpty) {
+    //   _showErrorMessage('Please input waiting time.');
+    //   return;
+    // }
+    setMedicalData();
+  }
+
+  void setMedicalData() async {
+    setState(() => isLoading = true);
 
     UserModel userModel = UserModel(
       id: widget.userModel.id,
@@ -81,26 +81,29 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
       hlaTyping: {
         'A': _hlaAController.text.trim(),
         'B': _hlaBController.text.trim(),
-        'C': _hlaBController.text.trim(),
-        'DRB1': _hlaDRController.text.trim(),
-        'DQB1': _hlaDRController.text.trim(),
+        'C': _hlaCController.text.trim(),
+        'DRB1': _hlaDRB1Controller.text.trim(),
+        'DQB1': _hlaDQB1Controller.text.trim(),
       },
-      medicalConditions: '', // Removed unnecessary data
-      medications: '',
-      allergies: '',
-      medicalReports: [],
       isTestsCompleted: false,
       likes: [],
       history: [],
       city: '',
+      waitingTime: int.tryParse(waitingTime.text.trim()) ?? 0,
     );
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MedicalInfoTestsScreen(userModel: userModel),
-      ),
-    );
+    await UserService.updateUserData(userModel).then((value) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainScreen(userModel: userModel),
+        ),
+      );
+    }).catchError((error) {
+      setState(() => isLoading = false);
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Something went Wrong!');
+      return;
+    });
   }
 
   void _showErrorMessage(String message) {
@@ -283,7 +286,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: TextField(
-                    controller: _hlaBController,
+                    controller: _hlaCController,
                     decoration: InputDecoration(
                         border: InputBorder.none,
                         hintText: 'HLA-C ',
@@ -305,7 +308,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: TextField(
-                    controller: _hlaDRController,
+                    controller: _hlaDRB1Controller,
                     decoration: InputDecoration(
                         border: InputBorder.none,
                         hintText: 'HLA-DRB1 ',
@@ -326,7 +329,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: TextField(
-                    controller: _hlaDRController,
+                    controller: _hlaDQB1Controller,
                     decoration: InputDecoration(
                         border: InputBorder.none,
                         hintText: 'HLA-DQB1 ',
@@ -338,43 +341,49 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                   ),
                 ),
                 SizedBox(height: 10),
-                Container(
-                  padding: EdgeInsets.only(left: 21),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Medical Reports',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                Visibility(
+                  visible: !widget.userModel.isDonor,
+                  child: Container(
+                    padding: EdgeInsets.only(left: 21),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Waiting Time',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
-                SizedBox(height: 10),
-                GestureDetector(
-                  onTap: _pickFile,
+                SizedBox(
+                  height: 10,
+                ),
+                Visibility(
+                  visible: !widget.userModel.isDonor,
                   child: Container(
                     width: MediaQuery.of(context).size.width * 0.9,
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                    padding: EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _fileName ?? 'Select File',
-                          style: TextStyle(
-                            color: _fileName == null
-                                ? Colors.grey.shade600
-                                : Colors.black,
+                    child: TextField(
+                      controller: waitingTime,
+                      keyboardType: TextInputType
+                          .number, // Only allows numbers to be typed
+                      inputFormatters: [
+                        FilteringTextInputFormatter
+                            .digitsOnly, // Ensures only digits are allowed
+                      ],
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Input waiting years',
+                          hintStyle: TextStyle(
+                            color: Colors.grey.shade600,
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Icon(Icons.folder_open),
-                      ],
+                          )),
                     ),
                   ),
                 ),
-
                 SizedBox(height: 20),
                 // Next Button
                 ButtonWidget(onTap: _validateAndProceed, title: 'Next'),
