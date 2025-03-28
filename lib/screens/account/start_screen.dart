@@ -116,7 +116,7 @@ class _StartScreenState extends State<StartScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => PersonalInfoFormScreen(
-                                      isDonor: true,
+                                      isDonor: false,
                                       userModel: widget.userModel,
                                     )));
                       },

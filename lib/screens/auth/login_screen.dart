@@ -49,6 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => LoadingScreen()));
     }).catchError((error) {
+      setState(() => isLoading = false);
       ToastService.displayErrorMotionToast(
           context: context, description: 'Invalid Login!');
       return;

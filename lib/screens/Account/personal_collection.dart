@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:life_link/constants/colors.dart';
 import 'package:life_link/models/user_model.dart';
 import '../../services/user_service.dart';
+import '../../widgets/google_place_autocomplete_widget.dart';
 
 class PersonalCollection extends StatefulWidget {
   const PersonalCollection({super.key});
@@ -71,7 +73,8 @@ class _PersonalCollectionState extends State<PersonalCollection> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("User Profile"),
+        backgroundColor: kPinkColor,
+        title: const Text("Personal Info"),
         actions: [
           if (!isLoading && userModel != null)
             IconButton(
@@ -148,12 +151,23 @@ class _PersonalCollectionState extends State<PersonalCollection> {
                             Icons.location_on,
                           ),
                           const Divider(),
-                          _buildEditableTile(
-                            "City",
-                            _cityController,
-                            userModel!.city,
-                            Icons.location_city,
-                          ),
+                          isEditing
+                              ? GooglePlaceAutoCompleteWidget(
+                                  controller: _cityController,
+                                  onPlaceSelected: (prediction) {
+                                    setState(() {
+                                      _cityController.text =
+                                          prediction.description ?? '';
+                                    });
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  label: 'City',
+                                )
+                              : _buildInfoTile(
+                                  "City",
+                                  userModel!.city,
+                                  Icons.location_city,
+                                ),
                           const Divider(),
                           _buildInfoTile(
                             "Role",
