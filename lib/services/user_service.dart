@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:life_link/models/user_model.dart';
 import 'package:life_link/services/auth_service.dart';
 
 class UserService {
   static final userCollection = 'users';
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   static Future<void> createUser(UserModel user) async {
     await FirebaseFirestore.instance
@@ -50,5 +56,72 @@ class UserService {
     return snapshot.docs
         .map((doc) => UserModel.fromDocumentSnapshot(doc))
         .toList();
+  }
+
+  static Future<List<UserModel>> fetchUsers() async {
+    String? currentUserId = AuthService.getLoggedUserID();
+    if (currentUserId == null) return [];
+
+    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection(userCollection)
+        .doc(currentUserId)
+        .get();
+
+    if (!userSnapshot.exists) return [];
+
+    UserModel currentUserData = UserModel.fromDocumentSnapshot(userSnapshot);
+
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(userCollection)
+        .where('isDonor',
+            isEqualTo: !currentUserData.isDonor) // Match opposite type
+        .where('bloodType',
+            isEqualTo: currentUserData.bloodType) // Blood type match
+        .get();
+
+    return querySnapshot.docs
+        .map((doc) => UserModel.fromDocumentSnapshot(doc))
+        .toList();
+  }
+
+  Future<String?> fetchProfileImage(String userId) async {
+    try {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(userId).get();
+      return userDoc['profileImageUrl'] as String?;
+    } catch (e) {
+      print('Error fetching profile image: $e');
+      return null;
+    }
+  }
+
+  Future<String?> uploadProfileImage(
+      String userId, File imageFile, BuildContext context) async {
+    String fileName = "profile_$userId.jpg";
+    Reference storageRef =
+        FirebaseStorage.instance.ref().child("profile_images/$fileName");
+
+    try {
+      UploadTask uploadTask = storageRef.putFile(imageFile);
+      TaskSnapshot snapshot = await uploadTask;
+      String imageUrl = await snapshot.ref.getDownloadURL();
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .update({'profileImageUrl': imageUrl});
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Profile picture updated successfully!")),
+      );
+
+      return imageUrl;
+    } catch (e) {
+      print("Error uploading image: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to upload image")),
+      );
+      return null;
+    }
   }
 }

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/screens/Account/donation_history.dart';
@@ -12,6 +14,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 import '../../models/user_model.dart';
+import '../../services/user_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({super.key, required this.isDonor, required this.userModel});
@@ -40,13 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: Text('Take a Photo'),
               onTap: () async {
                 Navigator.pop(context);
-                final XFile? pickedFile =
-                    await _picker.pickImage(source: ImageSource.camera);
-                if (pickedFile != null) {
-                  setState(() {
-                    _imageURL = pickedFile.path; // Local file path
-                  });
-                }
+                await _uploadImage(ImageSource.camera);
               },
             ),
             ListTile(
@@ -54,19 +51,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: Text('Choose from Gallery'),
               onTap: () async {
                 Navigator.pop(context);
-                final XFile? pickedFile =
-                    await _picker.pickImage(source: ImageSource.gallery);
-                if (pickedFile != null) {
-                  setState(() {
-                    _imageURL = pickedFile.path; // Local file path
-                  });
-                }
+                await _uploadImage(ImageSource.gallery);
               },
             ),
           ],
         );
       },
     );
+  }
+
+  Future<void> _uploadImage(ImageSource source) async {
+    final XFile? pickedFile = await _picker.pickImage(source: source);
+    if (pickedFile == null) return;
+
+    File imageFile = File(pickedFile.path);
+
+    String? imageUrl = await UserService()
+        .uploadProfileImage(widget.userModel.id, imageFile, context);
+
+    if (imageUrl != null) {
+      setState(() {
+        _imageURL = imageUrl;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileImage();
+  }
+
+  Future<void> _loadProfileImage() async {
+    String? imageUrl =
+        await UserService().fetchProfileImage(widget.userModel.id);
+    if (imageUrl != null && mounted) {
+      setState(() {
+        _imageURL = imageUrl;
+      });
+    }
   }
 
   @override
@@ -226,9 +249,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100),
               image: DecorationImage(
-                image: _imageURL != null && _imageURL!.startsWith('http')
-                    ? NetworkImage(_imageURL!) as ImageProvider
-                    : FileImage(File(_imageURL!)),
+                image: _imageURL != null && _imageURL!.isNotEmpty
+                    ? NetworkImage(_imageURL!)
+                    : AssetImage('assets/default_profile.png') as ImageProvider,
                 fit: BoxFit.cover,
               ),
             ),
