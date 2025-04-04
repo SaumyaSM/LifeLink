@@ -17,6 +17,7 @@ class UserModel {
   late List<String> likes;
   late List<String> history;
   late int waitingTime;
+  late String imageUrl;
 
   UserModel({
     required this.id,
@@ -35,6 +36,7 @@ class UserModel {
     required this.likes,
     required this.history,
     required this.waitingTime,
+    required this.imageUrl,
   });
 
   UserModel.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) {
@@ -61,6 +63,7 @@ class UserModel {
     waitingTime = data['waitingTime'] != null
         ? int.tryParse(data['waitingTime'].toString()) ?? 0
         : 0;
+    imageUrl = data['organType'] ?? '';
   }
 
   Map<String, dynamic> toMap() {
@@ -81,6 +84,7 @@ class UserModel {
       'likes': likes,
       'history': history,
       'waitingTime': waitingTime,
+      'imageUrl': imageUrl,
     };
   }
 }
@@ -103,6 +107,7 @@ extension UserModelCopy on UserModel {
     List<String>? likes,
     List<String>? history,
     int? waitingTime,
+    String? imageUrl,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -121,6 +126,7 @@ extension UserModelCopy on UserModel {
       likes: likes ?? this.likes,
       history: history ?? this.history,
       waitingTime: waitingTime ?? this.waitingTime,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 }

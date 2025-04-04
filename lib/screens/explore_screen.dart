@@ -83,18 +83,35 @@ class _ExploreScreenState extends State<ExploreScreen> {
       elevation: 3,
       child: Column(
         children: [
-          Container(
-            height: 90,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
-            ),
-            child: const Icon(
-              Icons.person,
-              size: 60,
-              color: Colors.grey,
-            ),
+          FutureBuilder<String?>(
+            future:
+                UserService().fetchProfileImage(user.id), // Fetch latest image
+            builder: (context, snapshot) {
+              String? imageUrl = snapshot.data ?? user.imageUrl;
+
+              return Container(
+                height: 90,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(12)),
+                  image: imageUrl != null
+                      ? DecorationImage(
+                          image: NetworkImage(imageUrl),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                child: imageUrl == null
+                    ? const Icon(
+                        Icons.person,
+                        size: 60,
+                        color: Colors.grey,
+                      )
+                    : null,
+              );
+            },
           ),
           Padding(
             padding: const EdgeInsets.all(10.0),
@@ -103,24 +120,25 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 Text(
                   user.fullName,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 10),
                 Text(
                   "Blood Type - ${user.bloodType}",
                   style: const TextStyle(color: Colors.red, fontSize: 14),
                 ),
-                if (user.isDonor) //
+                const SizedBox(height: 10),
+                if (user.isDonor)
                   Text(
-                    "Donating Organ- ${user.organType}",
+                    "Donating Organ - ${user.organType}",
                     style: const TextStyle(color: Colors.green, fontSize: 14),
                   )
                 else
                   Text(
                     "Organ Needed - ${user.organType}",
-                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                    style: const TextStyle(color: Colors.red, fontSize: 12),
                   ),
               ],
             ),

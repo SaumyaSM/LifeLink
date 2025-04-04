@@ -51,14 +51,22 @@ class MatchingService {
   static int calculateHLAMismatch(
       Map<String, String> donorHLA, Map<String, String> recipientHLA) {
     int mismatches = 0;
+    List<String> loci = ["A", "B", "C", "DQB1", "DRB1"];
 
-    for (var key in donorHLA.keys) {
-      List<String> donorAlleles = donorHLA[key]!.split(',');
-      List<String> recipientAlleles = recipientHLA[key]!.split(',');
+    for (var key in loci) {
+      if (!donorHLA.containsKey(key) || !recipientHLA.containsKey(key))
+        continue;
 
-      // Compare both alleles
-      if (!recipientAlleles.contains(donorAlleles[0])) mismatches++;
-      if (!recipientAlleles.contains(donorAlleles[1])) mismatches++;
+      List<String> donorAlleles =
+          donorHLA[key]!.split(',').map((e) => e.trim()).toList();
+      List<String> recipientAlleles =
+          recipientHLA[key]!.split(',').map((e) => e.trim()).toList();
+
+      for (var allele in donorAlleles) {
+        if (!recipientAlleles.contains(allele)) {
+          mismatches++;
+        }
+      }
     }
 
     return mismatches;

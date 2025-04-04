@@ -90,6 +90,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
       history: [],
       city: '',
       waitingTime: int.tryParse(waitingTime.text.trim()) ?? 0,
+      imageUrl: '',
     );
     await UserService.updateUserData(userModel).then((value) {
       Navigator.push(

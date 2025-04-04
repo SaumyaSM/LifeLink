@@ -78,6 +78,7 @@ class _SignupScreenState extends State<SignupScreen> {
         city: '',
         hlaTyping: {},
         waitingTime: 0,
+        imageUrl: '',
       );
 
       await UserService.createUser(userModel).then((value) {

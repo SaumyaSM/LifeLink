@@ -118,6 +118,7 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
       history: [],
       hlaTyping: {},
       waitingTime: 0,
+      imageUrl: '',
     );
 
     await UserService.updateUserData(userModel).then((value) {

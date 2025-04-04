@@ -27,54 +27,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String? _imageURL =
-      "https://i.pinimg.com/736x/25/1c/e1/251ce139d8c07cbcc9daeca832851719.jpg";
-
+  String? _imageURL;
+  bool _isUploading = false;
   final ImagePicker _picker = ImagePicker();
-
-  Future<void> _pickImage() async {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Wrap(
-          children: [
-            ListTile(
-              leading: Icon(Icons.camera),
-              title: Text('Take a Photo'),
-              onTap: () async {
-                Navigator.pop(context);
-                await _uploadImage(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.photo_library),
-              title: Text('Choose from Gallery'),
-              onTap: () async {
-                Navigator.pop(context);
-                await _uploadImage(ImageSource.gallery);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _uploadImage(ImageSource source) async {
-    final XFile? pickedFile = await _picker.pickImage(source: source);
-    if (pickedFile == null) return;
-
-    File imageFile = File(pickedFile.path);
-
-    String? imageUrl = await UserService()
-        .uploadProfileImage(widget.userModel.id, imageFile, context);
-
-    if (imageUrl != null) {
-      setState(() {
-        _imageURL = imageUrl;
-      });
-    }
-  }
 
   @override
   void initState() {
@@ -83,12 +38,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadProfileImage() async {
-    String? imageUrl =
-        await UserService().fetchProfileImage(widget.userModel.id);
-    if (imageUrl != null && mounted) {
+    try {
+      String? imageUrl =
+          await UserService().fetchProfileImage(widget.userModel.id);
+      if (imageUrl != null && mounted) {
+        setState(() {
+          _imageURL = imageUrl;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error loading profile image: $e");
+    }
+  }
+
+  Future<void> _pickImage() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Take a Photo'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _uploadImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Choose from Gallery'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _uploadImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _uploadImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: source);
+      if (pickedFile == null) return;
+
       setState(() {
-        _imageURL = imageUrl;
+        _isUploading = true;
       });
+
+      File imageFile = File(pickedFile.path);
+
+      String? imageUrl = await UserService()
+          .uploadProfileImage(widget.userModel.id, imageFile, context);
+
+      if (imageUrl != null && mounted) {
+        setState(() {
+          _imageURL = imageUrl;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error uploading image: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to upload image. Please try again.")),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 

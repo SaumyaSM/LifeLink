@@ -38,7 +38,6 @@ class UserService {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('isDonor', isEqualTo: true)
-        // .where('isTestsCompleted', isEqualTo: true)
         .get();
 
     return snapshot.docs
@@ -50,7 +49,6 @@ class UserService {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('isDonor', isEqualTo: false)
-        // .where('isTestsCompleted', isEqualTo: true)
         .get();
 
     return snapshot.docs
@@ -73,10 +71,8 @@ class UserService {
 
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(userCollection)
-        .where('isDonor',
-            isEqualTo: !currentUserData.isDonor) // Match opposite type
-        .where('bloodType',
-            isEqualTo: currentUserData.bloodType) // Blood type match
+        .where('isDonor', isEqualTo: !currentUserData.isDonor)
+        .where('bloodType', isEqualTo: currentUserData.bloodType)
         .get();
 
     return querySnapshot.docs
@@ -99,12 +95,30 @@ class UserService {
       String userId, File imageFile, BuildContext context) async {
     String fileName = "profile_$userId.jpg";
     Reference storageRef =
-        FirebaseStorage.instance.ref().child("profile_images/$fileName");
+        FirebaseStorage.instance.ref().child("profile_images").child(fileName);
 
     try {
+      print("Uploading image for user ID: $userId");
+      print("File path: ${imageFile.path}");
+
+      if (!imageFile.existsSync()) {
+        print("Error: File does not exist.");
+        return null;
+      }
+
       UploadTask uploadTask = storageRef.putFile(imageFile);
+
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        print(
+            "Upload progress: ${snapshot.bytesTransferred}/${snapshot.totalBytes}");
+      }, onError: (e) {
+        print("Error during upload: $e");
+      });
+
       TaskSnapshot snapshot = await uploadTask;
       String imageUrl = await snapshot.ref.getDownloadURL();
+
+      print("Upload successful! Image URL: $imageUrl");
 
       await FirebaseFirestore.instance
           .collection('users')
