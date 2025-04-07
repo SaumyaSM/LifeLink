@@ -16,6 +16,8 @@ class MatchingService {
         if (!isBloodGroupCompatible(donor.bloodType, recipient.bloodType))
           continue;
 
+        if (donor.organType != recipient.organType) continue;
+
         //  HLA Mismatch Calculation
         int hlaMismatch =
             calculateHLAMismatch(donor.hlaTyping, recipient.hlaTyping);
@@ -35,6 +37,7 @@ class MatchingService {
     }
 
     matches.sort((a, b) => b['score'].compareTo(a['score']));
+
     return matches;
   }
 
@@ -81,8 +84,16 @@ class MatchingService {
   }
 
   static int getAgeScore(String birthDate) {
-    // Convert birthdate to age and assign scores based on age groups
-    int age = DateTime.now().year - int.parse(birthDate.split('-')[0]);
+    // Assuming birthDate format is dd/MM/yyyy
+    List<String> parts = birthDate.split('/');
+
+    int day = int.parse(parts[0]);
+    int month = int.parse(parts[1]);
+    int year = int.parse(parts[2]);
+
+    DateTime dob = DateTime(year, month, day);
+    int age = DateTime.now().difference(dob).inDays ~/ 365;
+
     if (age <= 18) return 500;
     if (age <= 29) return 225;
     if (age <= 49) return 100;

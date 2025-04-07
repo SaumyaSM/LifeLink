@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import '../models/user_model.dart';
+import '../services/auth_service.dart';
 import '../services/organ_matching_service.dart';
 
 class MatchesScreen extends StatefulWidget {
@@ -21,10 +22,20 @@ class _MatchesScreenState extends State<MatchesScreen> {
   }
 
   Future<void> fetchMatches() async {
+    String currentUserId = AuthService.getLoggedUserID();
+
     List<Map<String, dynamic>> matchedPairs =
         await MatchingService.matchDonorsAndRecipients();
+
+    List<Map<String, dynamic>> userMatches = matchedPairs.where((match) {
+      UserModel donor = match['donor'];
+      UserModel recipient = match['recipient'];
+
+      return donor.id == currentUserId || recipient.id == currentUserId;
+    }).toList();
+
     setState(() {
-      matches = matchedPairs;
+      matches = userMatches;
       isLoading = false;
     });
   }
@@ -56,7 +67,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(12),
                         title: Text(
-                          "${donor.fullName} 🡆 ${recipient.fullName}",
+                          "${donor.fullName} & ${recipient.fullName}",
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Column(

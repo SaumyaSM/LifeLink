@@ -60,6 +60,13 @@ class UserService {
     String? currentUserId = AuthService.getLoggedUserID();
     if (currentUserId == null) return [];
 
+    Map<String, List<String>> bloodCompatibility = {
+      'O': ['O', 'A', 'B', 'AB'],
+      'A': ['A', 'AB'],
+      'B': ['B', 'AB'],
+      'AB': ['AB'],
+    };
+
     DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
         .collection(userCollection)
         .doc(currentUserId)
@@ -69,10 +76,14 @@ class UserService {
 
     UserModel currentUserData = UserModel.fromDocumentSnapshot(userSnapshot);
 
+    List<String> compatibleBloodTypes =
+        bloodCompatibility[currentUserData.bloodType] ?? [];
+
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(userCollection)
         .where('isDonor', isEqualTo: !currentUserData.isDonor)
-        .where('bloodType', isEqualTo: currentUserData.bloodType)
+        .where('bloodType',
+            whereIn: compatibleBloodTypes) // <-- Blood compatibility logic
         .get();
 
     return querySnapshot.docs

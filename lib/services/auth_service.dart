@@ -15,8 +15,10 @@ class AuthService {
     return FirebaseAuth.instance.currentUser!.email!;
   }
 
-  static Future<void> loginUser({required String email, required String password}) async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+  static Future<void> loginUser(
+      {required String email, required String password}) async {
+    await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
   }
 
   static Future<UserCredential> signupUser({
@@ -30,35 +32,30 @@ class AuthService {
   }
 
   static Future<UserCredential> signupUserWithGoogle() async {
-    // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
-    // Create a new credential
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
 
-    // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
   static Future<UserCredential> loginUserWithGoogle() async {
-    // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
 
-    // Create a new credential
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
 
-    // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
