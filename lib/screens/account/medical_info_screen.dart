@@ -348,7 +348,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                     padding: EdgeInsets.only(left: 21),
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Waiting Time',
+                      'Waiting Time (Days)',
                       style:
                           TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
@@ -376,7 +376,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                       ],
                       decoration: InputDecoration(
                           border: InputBorder.none,
-                          hintText: 'Input waiting years',
+                          hintText: 'Input waiting days',
                           hintStyle: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 16,

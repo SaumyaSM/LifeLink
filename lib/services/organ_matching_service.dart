@@ -32,6 +32,10 @@ class MatchingService {
         //  Location Score
         if (donor.city == recipient.city) score += 200;
 
+        // Age Difference Penalty
+        score +=
+            getAgeDifferencePenalty(donor.dateOfBirth, recipient.dateOfBirth);
+
         matches.add({'donor': donor, 'recipient': recipient, 'score': score});
       }
     }
@@ -77,14 +81,14 @@ class MatchingService {
 
   static int getMismatchScore(int mismatches) {
     if (mismatches == 0) return 0;
-    if (mismatches <= 2) return 100;
-    if (mismatches <= 5) return 250;
-    if (mismatches <= 8) return 400;
-    return 600;
+    if (mismatches <= 1) return 100;
+    if (mismatches <= 3) return 150;
+    if (mismatches <= 8) return 250;
+    return 500;
   }
 
   static int getAgeScore(String birthDate) {
-    // Assuming birthDate format is dd/MM/yyyy
+    //birthDate format is dd/MM/yyyy
     List<String> parts = birthDate.split('/');
 
     int day = int.parse(parts[0]);
@@ -99,5 +103,28 @@ class MatchingService {
     if (age <= 49) return 100;
     if (age <= 59) return 15;
     return 0;
+  }
+
+  static int getAgeDifferencePenalty(
+      String donorBirthDate, String recipientBirthDate) {
+    int donorAge = calculateAge(donorBirthDate);
+    int recipientAge = calculateAge(recipientBirthDate);
+
+    int ageDifference = (donorAge - recipientAge).abs();
+
+    return (-0.5 * ageDifference * ageDifference)
+        .toInt(); // Penalty is negative
+  }
+
+  static int calculateAge(String birthDate) {
+    List<String> parts = birthDate.split('/');
+    int day = int.parse(parts[0]);
+    int month = int.parse(parts[1]);
+    int year = int.parse(parts[2]);
+
+    DateTime dob = DateTime(year, month, day);
+    int age = DateTime.now().difference(dob).inDays ~/ 365;
+
+    return age;
   }
 }

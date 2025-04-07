@@ -176,7 +176,7 @@ class _MedicalCollectionState extends State<MedicalCollection> {
                           const Divider(),
                           if (!(userModel?.isDonor ?? false))
                             _buildEditableTile(
-                              "Waiting Time (Years)",
+                              "Waiting Time (Days)",
                               _waitingTimeController,
                               userModel!.waitingTime.toString(),
                               Icons.hourglass_bottom,
