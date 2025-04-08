@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
+import 'package:life_link/screens/view_details_screen.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../services/organ_matching_service.dart';
@@ -379,9 +380,29 @@ class _MatchesScreenState extends State<MatchesScreen> {
                                       ],
                                     ),
                                     const SizedBox(height: 16),
+                                    // In the MatchesScreen class, update the ElevatedButton onPressed in the ListView.builder:
+
                                     ElevatedButton(
                                       onPressed: () {
-                                        // View details action
+                                        // Navigate to view details screen
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ViewDetailsScreen(
+                                              user: donor.id == currentUserId
+                                                  ? recipient
+                                                  : donor,
+                                              currentUser:
+                                                  donor.id == currentUserId
+                                                      ? donor
+                                                      : recipient,
+                                              matchScore: score,
+                                              isUserDonor:
+                                                  donor.id == currentUserId,
+                                            ),
+                                          ),
+                                        );
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: kPinkColor,
@@ -441,48 +462,17 @@ class _MatchesScreenState extends State<MatchesScreen> {
   }
 
   Widget _buildBloodTypeChip(String bloodType) {
-    Color bloodTypeColor;
-
-    switch (bloodType) {
-      case 'A+':
-        bloodTypeColor = Colors.red.shade700;
-        break;
-      case 'A-':
-        bloodTypeColor = Colors.red.shade300;
-        break;
-      case 'B+':
-        bloodTypeColor = Colors.blue.shade700;
-        break;
-      case 'B-':
-        bloodTypeColor = Colors.blue.shade300;
-        break;
-      case 'AB+':
-        bloodTypeColor = Colors.purple.shade700;
-        break;
-      case 'AB-':
-        bloodTypeColor = Colors.purple.shade300;
-        break;
-      case 'O+':
-        bloodTypeColor = Colors.orange.shade700;
-        break;
-      case 'O-':
-        bloodTypeColor = Colors.orange.shade300;
-        break;
-      default:
-        bloodTypeColor = Colors.grey;
-    }
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: bloodTypeColor.withOpacity(0.1),
-        border: Border.all(color: bloodTypeColor.withOpacity(0.5)),
+        color: kRedColor.withOpacity(0.1),
+        border: Border.all(color: kRedColor.withOpacity(0.5)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         bloodType,
         style: TextStyle(
-          color: bloodTypeColor,
+          color: kRedColor,
           fontSize: 12,
           fontWeight: FontWeight.bold,
         ),
