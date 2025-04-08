@@ -14,6 +14,7 @@ class MatchesScreen extends StatefulWidget {
 class _MatchesScreenState extends State<MatchesScreen> {
   List<Map<String, dynamic>> matches = [];
   bool isLoading = true;
+  String currentUserId = '';
 
   @override
   void initState() {
@@ -22,7 +23,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
   }
 
   Future<void> fetchMatches() async {
-    String currentUserId = AuthService.getLoggedUserID();
+    currentUserId = AuthService.getLoggedUserID();
 
     List<Map<String, dynamic>> matchedPairs =
         await MatchingService.matchDonorsAndRecipients();
@@ -44,50 +45,448 @@ class _MatchesScreenState extends State<MatchesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Organ Matches"),
+        title: const Text(
+          "Organ Matches",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        centerTitle: true,
+        elevation: 0,
         backgroundColor: kPinkColor,
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : matches.isEmpty
-              ? const Center(child: Text("No Matches Found"))
-              : ListView.builder(
-                  itemCount: matches.length,
-                  itemBuilder: (context, index) {
-                    UserModel donor = matches[index]['donor'];
-                    UserModel recipient = matches[index]['recipient'];
-                    int score = matches[index]['score'];
-
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(12),
-                        title: Text(
-                          "${donor.fullName} & ${recipient.fullName}",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [kPinkColor.withOpacity(0.1), Colors.white],
+          ),
+        ),
+        child: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: kPinkColor,
+                ),
+              )
+            : matches.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search_off_rounded,
+                          size: 70,
+                          color: Colors.grey.shade400,
                         ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Donor Blood Type: ${donor.bloodType}"),
-                            Text(
-                                "Recipient Blood Type: ${recipient.bloodType}"),
-                            Text("Organ: ${donor.organType}"),
-                            Text("Matching Score: $score"),
+                        const SizedBox(height: 16),
+                        const Text(
+                          "No Matches Found",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Check back later for potential organ matches",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: matches.length,
+                    itemBuilder: (context, index) {
+                      UserModel donor = matches[index]['donor'];
+                      UserModel recipient = matches[index]['recipient'];
+                      int score = matches[index]['score'];
+                      bool isHighScore = score > 00;
+
+                      // Determine which user is the current user and which is the match
+                      UserModel user =
+                          donor.id == currentUserId ? recipient : donor;
+                      bool isUserDonor = donor.id == currentUserId;
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              spreadRadius: 1,
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
                           ],
                         ),
-                        trailing: Icon(
-                          Icons.favorite,
-                          color: score > 500 ? Colors.red : Colors.grey,
+                        child: Card(
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: isHighScore
+                                  ? kPinkColor.withOpacity(0.3)
+                                  : Colors.grey.withOpacity(0.1),
+                              width: 1,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 16,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isHighScore
+                                      ? kPinkColor.withOpacity(0.1)
+                                      : Colors.grey.withOpacity(0.05),
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(16),
+                                    topRight: Radius.circular(16),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: isHighScore
+                                          ? kPinkColor
+                                          : Colors.grey.shade400,
+                                      radius: 20,
+                                      child: Icon(
+                                        isHighScore
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            user.fullName,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                              color: isHighScore
+                                                  ? kPinkColor
+                                                  : Colors.black87,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 3,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: isHighScore
+                                                        ? kPinkColor
+                                                        : Colors.grey.shade400,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                  ),
+                                                  child: Text(
+                                                    "Score: $score",
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 3,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: isHighScore
+                                                        ? Colors.green
+                                                        : Colors.amber,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                  ),
+                                                  child: Text(
+                                                    isHighScore
+                                                        ? "High Match"
+                                                        : "Potential",
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  children: [
+                                    _buildInfoRow(
+                                      "Organ Type: ",
+                                      donor.organType,
+                                      Icons.medical_services_outlined,
+                                    ),
+                                    const Divider(height: 16),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                isUserDonor
+                                                    ? "You (Donor)"
+                                                    : "Donor",
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  const CircleAvatar(
+                                                    radius: 14,
+                                                    backgroundColor:
+                                                        Colors.blue,
+                                                    child: Icon(
+                                                      Icons.person,
+                                                      color: Colors.white,
+                                                      size: 16,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Text(
+                                                      isUserDonor
+                                                          ? "You"
+                                                          : donor.fullName,
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              _buildBloodTypeChip(
+                                                  donor.bloodType),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          height: 60,
+                                          width: 1,
+                                          color: Colors.grey.withOpacity(0.3),
+                                        ),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 16),
+                                                child: Text(
+                                                  isUserDonor
+                                                      ? "Recipient"
+                                                      : "You (Recipient)",
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 16),
+                                                child: Row(
+                                                  children: [
+                                                    const CircleAvatar(
+                                                      radius: 14,
+                                                      backgroundColor:
+                                                          kPinkColor,
+                                                      child: Icon(
+                                                        Icons.person,
+                                                        color: Colors.white,
+                                                        size: 16,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Expanded(
+                                                      child: Text(
+                                                        isUserDonor
+                                                            ? recipient.fullName
+                                                            : "You",
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 16),
+                                                child: _buildBloodTypeChip(
+                                                    recipient.bloodType),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        // View details action
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: kPinkColor,
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        minimumSize:
+                                            const Size(double.infinity, 44),
+                                      ),
+                                      child: const Text("View Details"),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, IconData icon) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 18,
+          color: Colors.grey,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.grey,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBloodTypeChip(String bloodType) {
+    Color bloodTypeColor;
+
+    switch (bloodType) {
+      case 'A+':
+        bloodTypeColor = Colors.red.shade700;
+        break;
+      case 'A-':
+        bloodTypeColor = Colors.red.shade300;
+        break;
+      case 'B+':
+        bloodTypeColor = Colors.blue.shade700;
+        break;
+      case 'B-':
+        bloodTypeColor = Colors.blue.shade300;
+        break;
+      case 'AB+':
+        bloodTypeColor = Colors.purple.shade700;
+        break;
+      case 'AB-':
+        bloodTypeColor = Colors.purple.shade300;
+        break;
+      case 'O+':
+        bloodTypeColor = Colors.orange.shade700;
+        break;
+      case 'O-':
+        bloodTypeColor = Colors.orange.shade300;
+        break;
+      default:
+        bloodTypeColor = Colors.grey;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: bloodTypeColor.withOpacity(0.1),
+        border: Border.all(color: bloodTypeColor.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        bloodType,
+        style: TextStyle(
+          color: bloodTypeColor,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }

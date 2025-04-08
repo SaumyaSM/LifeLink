@@ -18,20 +18,64 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   Future<List<UserModel>>? _usersFuture;
+  List<UserModel> _allUsers = [];
+  List<UserModel> _filteredUsers = [];
+  TextEditingController _searchController = TextEditingController();
+  bool _isLoading = true;
+  String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    _usersFuture = UserService.fetchUsers();
+    _loadUsers();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadUsers() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    try {
+      _allUsers = await UserService.fetchUsers();
+      _filteredUsers = List.from(_allUsers);
+    } catch (e) {
+      _errorMessage = "Error loading users: ${e.toString()}";
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _filterUsers(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredUsers = List.from(_allUsers);
+      } else {
+        _filteredUsers = _allUsers
+            .where((user) =>
+                user.fullName.toLowerCase().contains(query.toLowerCase()) ||
+                user.bloodType.toLowerCase().contains(query.toLowerCase()) ||
+                user.organType.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
-          "Welcome To Explore Page",
+          "Explore",
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -42,35 +86,104 @@ class _ExploreScreenState extends State<ExploreScreen> {
         elevation: 0,
         backgroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: FutureBuilder<List<UserModel>>(
-          future: _usersFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return const Center(child: Text("Error loading users"));
-            }
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text("No users found"));
-            }
+      body: Column(
+        children: [
+          _buildSearchBar(),
+          Expanded(
+            child: _buildUserList(),
+          ),
+        ],
+      ),
+    );
+  }
 
-            List<UserModel> users = snapshot.data!;
+  Widget _buildSearchBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: Colors.white,
+      child: TextField(
+        controller: _searchController,
+        onChanged: _filterUsers,
+        decoration: InputDecoration(
+          hintText: 'Search by name, blood type or organ...',
+          prefixIcon: const Icon(Icons.search, color: kRedColor),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    _filterUsers('');
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: Colors.grey[100],
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
 
-            return GridView.builder(
-              itemCount: users.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.8,
-              ),
-              itemBuilder: (context, index) {
-                return _buildUserCard(users[index]);
-              },
-            );
+  Widget _buildUserList() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator(color: kRedColor));
+    }
+
+    if (_errorMessage.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(_errorMessage, style: const TextStyle(color: Colors.red)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadUsers,
+              style: ElevatedButton.styleFrom(backgroundColor: kRedColor),
+              child: const Text('Retry', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_filteredUsers.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.search_off, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              _allUsers.isEmpty
+                  ? "No users found in the system"
+                  : "No matching results found",
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadUsers,
+      color: kRedColor,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: GridView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: _filteredUsers.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.75,
+          ),
+          itemBuilder: (context, index) {
+            return _buildUserCard(_filteredUsers[index]);
           },
         ),
       ),
@@ -80,9 +193,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget _buildUserCard(UserModel user) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 3,
+      elevation: 2,
+      shadowColor: Colors.black26,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Image Section
           FutureBuilder<String?>(
             future:
                 UserService().fetchProfileImage(user.id), // Fetch latest image
@@ -90,7 +206,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               String? imageUrl = snapshot.data ?? user.imageUrl;
 
               return Container(
-                height: 90,
+                height: 100,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
@@ -113,34 +229,62 @@ class _ExploreScreenState extends State<ExploreScreen> {
               );
             },
           ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                Text(
-                  user.fullName,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Blood Type - ${user.bloodType}",
-                  style: const TextStyle(color: Colors.red, fontSize: 14),
-                ),
-                const SizedBox(height: 10),
-                if (user.isDonor)
+
+          // Info Section
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    "Donating Organ - ${user.organType}",
-                    style: const TextStyle(color: Colors.green, fontSize: 14),
-                  )
-                else
-                  Text(
-                    "Organ Needed - ${user.organType}",
-                    style: const TextStyle(color: Colors.red, fontSize: 12),
+                    user.fullName,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-              ],
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          user.bloodType,
+                          style:
+                              const TextStyle(color: Colors.red, fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    user.isDonor ? "Donating:" : "Needs:",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    user.organType,
+                    style: TextStyle(
+                      color: user.isDonor ? Colors.green : Colors.red,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
