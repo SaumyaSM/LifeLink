@@ -4,6 +4,7 @@ import 'package:life_link/screens/view_details_screen.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../services/organ_matching_service.dart';
+import '../services/user_service.dart';
 
 class MatchesScreen extends StatefulWidget {
   const MatchesScreen({Key? key}) : super(key: key);
@@ -24,17 +25,12 @@ class _MatchesScreenState extends State<MatchesScreen> {
   }
 
   Future<void> fetchMatches() async {
-    currentUserId = AuthService.getLoggedUserID();
+    setState(() {
+      isLoading = true;
+    });
 
-    List<Map<String, dynamic>> matchedPairs =
-        await MatchingService.matchDonorsAndRecipients();
-
-    List<Map<String, dynamic>> userMatches = matchedPairs.where((match) {
-      UserModel donor = match['donor'];
-      UserModel recipient = match['recipient'];
-
-      return donor.id == currentUserId || recipient.id == currentUserId;
-    }).toList();
+    List<Map<String, dynamic>> userMatches =
+        await UserService.fetchUserMatches();
 
     setState(() {
       matches = userMatches;

@@ -102,6 +102,49 @@ class _SignupScreenState extends State<SignupScreen> {
     if (!mounted) return;
   }
 
+  void signupWithGoogle() async {
+    setState(() => isLoading = true);
+
+    await AuthService.signupUserWithGoogle().then((UserCredential user) async {
+      UserModel userModel = UserModel(
+        id: user.user!.uid,
+        fullName: '',
+        dateOfBirth: '',
+        gender: '',
+        nic: '',
+        contact: '',
+        address: '',
+        isDonor: true,
+        bloodType: '',
+        organType: '',
+        isTestsCompleted: false,
+        likes: [],
+        history: [],
+        city: '',
+        hlaTyping: {},
+        waitingTime: 0,
+        imageUrl: '',
+      );
+
+      await UserService.createUser(userModel).then((value) {
+        ToastService.displaySuccessMotionToast(
+            context: context, description: 'SignUp Successful!');
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => StartScreen(userModel: userModel)));
+      }).catchError((error) {
+        setState(() => isLoading = false);
+        ToastService.displayErrorMotionToast(
+            context: context, description: 'Cannot Create User!');
+      });
+    }).catchError((error) {
+      setState(() => isLoading = false);
+      ToastService.displayErrorMotionToast(
+          context: context, description: 'Cannot SignUp with Google!');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -204,26 +247,17 @@ class _SignupScreenState extends State<SignupScreen> {
                       onTap: () => validateForm(),
                       title: 'SIGN UP',
                     ),
-                    // const SizedBox(height: 10),
-                    // const Text(
-                    //   'or continue with',
-                    //   style: TextStyle(
-                    //     color: Colors.grey,
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 10),
-                    // GoogleButtonWidget(
-                    //   onTap: () async {
-                    //     setState(() => isLoading = true);
-                    //     await AuthService.signupUserWithGoogle();
-                    //     Navigator.push(
-                    //         context,
-                    //         MaterialPageRoute(
-                    //             builder: (context) => PersonalInfoScreen(
-                    //                   isDonor: false,
-                    //                 )));
-                    //   },
-                    // ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'or continue with',
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    GoogleButtonWidget(
+                      onTap: () => signupWithGoogle(),
+                    ),
                   ],
                 ),
               ),

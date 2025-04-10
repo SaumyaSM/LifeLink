@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/models/user_model.dart';
+import 'package:life_link/screens/view_details_screen.dart';
 import 'package:life_link/services/auth_service.dart';
 
 import '../services/user_service.dart';
@@ -191,104 +192,161 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   Widget _buildUserCard(UserModel user) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      shadowColor: Colors.black26,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image Section
-          FutureBuilder<String?>(
-            future:
-                UserService().fetchProfileImage(user.id), // Fetch latest image
-            builder: (context, snapshot) {
-              String? imageUrl = snapshot.data ?? user.imageUrl;
+    return GestureDetector(
+      onTap: () => _handleCardTap(user),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 2,
+        shadowColor: Colors.black26,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image Section
+            FutureBuilder<String?>(
+              future: UserService()
+                  .fetchProfileImage(user.id), // Fetch latest image
+              builder: (context, snapshot) {
+                String? imageUrl = snapshot.data ?? user.imageUrl;
 
-              return Container(
-                height: 100,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(12)),
-                  image: imageUrl != null
-                      ? DecorationImage(
-                          image: NetworkImage(imageUrl),
-                          fit: BoxFit.cover,
+                return Container(
+                  height: 100,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(12)),
+                    image: imageUrl != null
+                        ? DecorationImage(
+                            image: NetworkImage(imageUrl),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: imageUrl == null
+                      ? const Icon(
+                          Icons.person,
+                          size: 60,
+                          color: Colors.grey,
                         )
                       : null,
-                ),
-                child: imageUrl == null
-                    ? const Icon(
-                        Icons.person,
-                        size: 60,
-                        color: Colors.grey,
-                      )
-                    : null,
-              );
-            },
-          ),
+                );
+              },
+            ),
 
-          // Info Section
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    user.fullName,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          user.bloodType,
-                          style:
-                              const TextStyle(color: Colors.red, fontSize: 12),
-                        ),
+            // Info Section
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user.fullName,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    user.isDonor ? "Donating:" : "Needs:",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    user.organType,
-                    style: TextStyle(
-                      color: user.isDonor ? Colors.green : Colors.red,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            user.bloodType,
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 12),
+                          ),
+                        ),
+                      ],
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      user.isDonor ? "Donating:" : "Needs:",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      user.organType,
+                      style: TextStyle(
+                        color: user.isDonor ? Colors.green : Colors.red,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  void _handleCardTap(UserModel selectedUser) async {
+    final String currentUserId = AuthService.getLoggedUserID();
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final matches = await UserService.fetchUserMatches();
+
+      final match = matches.firstWhere(
+        (m) {
+          final donor = m['donor'];
+          final recipient = m['recipient'];
+          return donor.id == selectedUser.id || recipient.id == selectedUser.id;
+        },
+        orElse: () => {},
+      );
+
+      Navigator.of(context).pop(); // Close loading dialog
+
+      if (match.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No match found for this user.')),
+        );
+        return;
+      }
+
+      final donor = match['donor'];
+      final recipient = match['recipient'];
+      final score = match['score'] ?? 0;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ViewDetailsScreen(
+            user: donor.id == currentUserId ? recipient : donor,
+            currentUser: donor.id == currentUserId ? donor : recipient,
+            matchScore: score,
+            isUserDonor: donor.id == currentUserId,
+          ),
+        ),
+      );
+    } catch (e) {
+      Navigator.of(context).pop(); // Close loading dialog
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading match details: $e')),
+      );
+    }
   }
 }

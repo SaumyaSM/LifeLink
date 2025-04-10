@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:life_link/models/user_model.dart';
 import 'package:life_link/services/auth_service.dart';
 
+import 'organ_matching_service.dart';
+
 class UserService {
   static final userCollection = 'users';
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -148,5 +150,24 @@ class UserService {
       );
       return null;
     }
+  }
+
+  /// Fetches matches for the current logged-in user
+  static Future<List<Map<String, dynamic>>> fetchUserMatches() async {
+    final String currentUserId = AuthService.getLoggedUserID();
+
+    // Get all matched pairs
+    List<Map<String, dynamic>> matchedPairs =
+        await MatchingService.matchDonorsAndRecipients();
+
+    // Filter only matches relevant to the current user
+    List<Map<String, dynamic>> userMatches = matchedPairs.where((match) {
+      UserModel donor = match['donor'];
+      UserModel recipient = match['recipient'];
+
+      return donor.id == currentUserId || recipient.id == currentUserId;
+    }).toList();
+
+    return userMatches;
   }
 }

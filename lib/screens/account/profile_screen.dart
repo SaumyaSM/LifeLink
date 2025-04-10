@@ -273,7 +273,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               image: DecorationImage(
                 image: _imageURL != null && _imageURL!.isNotEmpty
                     ? NetworkImage(_imageURL!)
-                    : AssetImage('assets/default_profile.png') as ImageProvider,
+                    : AssetImage('assets/images/default_profile.jpeg')
+                        as ImageProvider,
                 fit: BoxFit.cover,
               ),
             ),
