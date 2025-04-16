@@ -29,6 +29,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
       isLoading = true;
     });
 
+    // Get the current user ID first
+    currentUserId = await AuthService.getCurrentUserId();
+
     List<Map<String, dynamic>> userMatches =
         await UserService.fetchUserMatches();
 

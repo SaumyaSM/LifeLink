@@ -35,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
           widget.userModel.bloodType != ''
               ? ExploreScreen(isDonor: widget.userModel.isDonor)
               : AskToFillMedicalInfoScreen(userModel: widget.userModel),
-          NotificationScreen(),
+          NotificationsScreen(currentUser: widget.userModel),
           ProfileScreen(
             isDonor: widget.userModel.isDonor,
             userModel: widget.userModel,

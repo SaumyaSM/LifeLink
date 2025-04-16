@@ -21,6 +21,11 @@ class AuthService {
         .signInWithEmailAndPassword(email: email, password: password);
   }
 
+  static Future<String> getCurrentUserId() async {
+    final user = FirebaseAuth.instance.currentUser;
+    return user?.uid ?? '';
+  }
+
   static Future<UserCredential> signupUser({
     required String email,
     required String password,

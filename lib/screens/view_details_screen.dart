@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
+import '../models/match_notification_model.dart';
 import '../models/user_model.dart';
+import '../services/notification_service.dart';
 
 class ViewDetailsScreen extends StatelessWidget {
   final UserModel user;
@@ -483,7 +485,7 @@ class ViewDetailsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               const Text(
-                "This will notify the medical team and start the verification process. Do you want to proceed?",
+                "This will notify the medical team and the selected user. They will need to review and accept your selection. Do you want to proceed?",
               ),
             ],
           ),
@@ -501,13 +503,14 @@ class ViewDetailsScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                // Process match selection
+                // Process match selection and send notification
+                _sendMatchNotification(context);
                 Navigator.of(context).pop();
                 // Show success message
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text(
-                        "Match selection successful! The medical team will be in touch soon."),
+                        "Match selection sent! The user will be notified to review your selection."),
                     backgroundColor: Colors.green,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -528,5 +531,24 @@ class ViewDetailsScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+// This method handles sending the notification to the selected user
+  void _sendMatchNotification(BuildContext context) {
+    // Create a notification object
+    final notification = MatchNotification(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      senderUserId: currentUser.id,
+      senderName: currentUser.fullName,
+      receiverUserId: user.id,
+      matchScore: matchScore,
+      matchType: isUserDonor ? "donation" : "reception",
+      organType: isUserDonor ? currentUser.organType : user.organType,
+      status: "pending",
+      timestamp: DateTime.now(),
+    );
+
+    // Add the notification to the database
+    NotificationService().sendMatchNotification(notification);
   }
 }
