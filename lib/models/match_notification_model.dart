@@ -38,9 +38,9 @@ class MatchNotification {
   }
 
   // Create from Map (from Firebase)
-  factory MatchNotification.fromMap(Map<String, dynamic> map) {
+  factory MatchNotification.fromMap(Map<String, dynamic> map, String id) {
     return MatchNotification(
-      id: map['id'],
+      id: id, // use the passed-in ID from the doc
       senderUserId: map['senderUserId'],
       senderName: map['senderName'],
       receiverUserId: map['receiverUserId'],

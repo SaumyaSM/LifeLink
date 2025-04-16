@@ -27,7 +27,7 @@ class NotificationService {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs
-          .map((doc) => MatchNotification.fromMap(doc.data()))
+          .map((doc) => MatchNotification.fromMap(doc.data(), doc.id))
           .toList();
     });
   }
@@ -44,5 +44,22 @@ class NotificationService {
       print('Error updating notification status: $e');
       throw e;
     }
+  }
+
+  // Add this method to the NotificationService class
+  Stream<MatchNotification?> getNotificationById(String notificationId) {
+    return FirebaseFirestore.instance
+        .collection('notifications')
+        .doc(notificationId)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.exists && snapshot.data() != null) {
+        return MatchNotification.fromMap(
+          snapshot.data()!,
+          snapshot.id,
+        );
+      }
+      return null;
+    });
   }
 }

@@ -432,6 +432,10 @@ class NotificationsScreen extends StatelessWidget {
             matchScore: notification.matchScore,
             isUserDonor: notification.matchType ==
                 "reception", // If match type is reception, current user is donor
+            isFromNotification:
+                true, // Indicate we're coming from a notification
+            notificationId:
+                notification.id, // Pass the notification ID to track status
           ),
         ),
       );

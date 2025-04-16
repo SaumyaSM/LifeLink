@@ -9,6 +9,8 @@ class ViewDetailsScreen extends StatelessWidget {
   final UserModel currentUser;
   final int matchScore;
   final bool isUserDonor;
+  final bool isFromNotification; // New parameter to track the source
+  final String? notificationId; // Optional notification ID for action tracking
 
   const ViewDetailsScreen({
     Key? key,
@@ -16,6 +18,9 @@ class ViewDetailsScreen extends StatelessWidget {
     required this.currentUser,
     required this.matchScore,
     required this.isUserDonor,
+    this.isFromNotification =
+        false, // Default to false for backward compatibility
+    this.notificationId,
   }) : super(key: key);
 
   String get matchLevel {
@@ -47,9 +52,9 @@ class ViewDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Match Details",
-          style: TextStyle(
+        title: Text(
+          isFromNotification ? "Match Details" : "Select Match",
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -110,43 +115,263 @@ class ViewDetailsScreen extends StatelessWidget {
                           const SizedBox(height: 12),
                           buildMatchScoreDetail(),
                           buildMatchRoleDetail(),
+
+                          // Show notification status if coming from notification
+                          if (isFromNotification && notificationId != null)
+                            buildNotificationStatus(context),
                         ],
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Select action
-                      showConfirmationDialog(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kPinkColor,
-                      foregroundColor: Colors.white,
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+
+                // Only show the action button if not viewing from notification
+                if (!isFromNotification)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Select action
+                        showConfirmationDialog(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kPinkColor,
+                        foregroundColor: Colors.white,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        minimumSize: const Size(double.infinity, 50),
                       ),
-                      minimumSize: const Size(double.infinity, 50),
-                    ),
-                    child: const Text(
-                      "Select This Match",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      child: const Text(
+                        "Select This Match",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
+
+                // Add contact info section when viewing from notifications
+                if (isFromNotification) buildContactInfoSection(context),
+
                 const SizedBox(height: 24),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  // New method to build a notification status section
+  Widget buildNotificationStatus(BuildContext context) {
+    return StreamBuilder<MatchNotification?>(
+      stream: NotificationService().getNotificationById(notificationId!),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+
+        final notification = snapshot.data!;
+
+        // Status information container
+        return Container(
+          margin: const EdgeInsets.only(top: 16),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: getStatusColor(notification.status).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+                color: getStatusColor(notification.status).withOpacity(0.3)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    getStatusIcon(notification.status),
+                    color: getStatusColor(notification.status),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Current Status: ${getStatusText(notification.status)}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: getStatusColor(notification.status),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                getStatusDescription(notification.status),
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Helper methods for notification status
+  Color getStatusColor(String status) {
+    switch (status) {
+      case "accepted":
+        return Colors.green;
+      case "rejected":
+        return Colors.red;
+      default:
+        return Colors.amber;
+    }
+  }
+
+  IconData getStatusIcon(String status) {
+    switch (status) {
+      case "accepted":
+        return Icons.check_circle;
+      case "rejected":
+        return Icons.cancel;
+      default:
+        return Icons.pending;
+    }
+  }
+
+  String getStatusText(String status) {
+    switch (status) {
+      case "accepted":
+        return "Accepted";
+      case "rejected":
+        return "Declined";
+      default:
+        return "Pending Review";
+    }
+  }
+
+  String getStatusDescription(String status) {
+    switch (status) {
+      case "accepted":
+        return "This match has been accepted. The medical team will be in contact with both parties to coordinate next steps.";
+      case "rejected":
+        return "This match was declined. You may consider other potential matches.";
+      default:
+        return "This match is awaiting a response. You'll be notified once a decision is made.";
+    }
+  }
+
+  // New method to build contact info section
+  Widget buildContactInfoSection(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: Colors.grey.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildSectionTitle("Medical Team Contact"),
+              const SizedBox(height: 12),
+              const Text(
+                "If you have any questions about this match or need assistance, please contact our medical team:",
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              buildContactItem(
+                Icons.local_hospital,
+                "Transplant Coordinator",
+                "Dr. Sarah Johnson",
+                "+1 (555) 123-4567",
+              ),
+              const SizedBox(height: 8),
+              buildContactItem(
+                Icons.email,
+                "Medical Support Email",
+                "support@lifelink.org",
+                "",
+              ),
+              const SizedBox(height: 8),
+              buildContactItem(
+                Icons.info_outline,
+                "Patient Support Line",
+                "Available 24/7",
+                "+1 (800) 555-0123",
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildContactItem(
+      IconData icon, String title, String name, String contact) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: kPinkColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            color: kPinkColor,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                name,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (contact.isNotEmpty)
+                Text(
+                  contact,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -533,7 +758,7 @@ class ViewDetailsScreen extends StatelessWidget {
     );
   }
 
-// This method handles sending the notification to the selected user
+  // This method handles sending the notification to the selected user
   void _sendMatchNotification(BuildContext context) {
     // Create a notification object
     final notification = MatchNotification(
