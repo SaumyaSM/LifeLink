@@ -36,6 +36,19 @@ class UserService {
     );
   }
 
+  static Future<UserModel> getUserById(String userId) async {
+    final doc = await FirebaseFirestore.instance
+        .collection(userCollection)
+        .doc(userId)
+        .get();
+
+    if (!doc.exists) {
+      throw Exception("User not found");
+    }
+
+    return UserModel.fromDocumentSnapshot(doc);
+  }
+
   static Future<List<UserModel>> getDonors() async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')

@@ -299,7 +299,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
   void _handleCardTap(UserModel selectedUser) async {
     final String currentUserId = AuthService.getLoggedUserID();
 
-    // Show loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -318,27 +317,33 @@ class _ExploreScreenState extends State<ExploreScreen> {
         orElse: () => {},
       );
 
-      Navigator.of(context).pop(); // Close loading dialog
+      Navigator.of(context).pop();
+
+      UserModel donor;
+      UserModel recipient;
+      int score = 0;
+      bool isUserDonor;
 
       if (match.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No match found for this user.')),
-        );
-        return;
+        final currentUser = await UserService.getUserById(currentUserId);
+        donor = currentUser.isDonor ? currentUser : selectedUser;
+        recipient = currentUser.isDonor ? selectedUser : currentUser;
+        isUserDonor = currentUser.isDonor;
+      } else {
+        donor = match['donor'];
+        recipient = match['recipient'];
+        score = match['score'] ?? 0;
+        isUserDonor = donor.id == currentUserId;
       }
-
-      final donor = match['donor'];
-      final recipient = match['recipient'];
-      final score = match['score'] ?? 0;
 
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ViewDetailsScreen(
-            user: donor.id == currentUserId ? recipient : donor,
-            currentUser: donor.id == currentUserId ? donor : recipient,
+            user: isUserDonor ? recipient : donor,
+            currentUser: isUserDonor ? donor : recipient,
             matchScore: score,
-            isUserDonor: donor.id == currentUserId,
+            isUserDonor: isUserDonor,
           ),
         ),
       );

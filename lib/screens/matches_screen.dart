@@ -38,6 +38,21 @@ class _MatchesScreenState extends State<MatchesScreen> {
     });
   }
 
+  // Get match level based on score - added from ViewDetailsScreen
+  String getMatchLevel(int score) {
+    if (score > 700) return 'Excellent';
+    if (score > 500) return 'Good';
+    if (score > 300) return 'Moderate';
+    return 'Potential';
+  }
+
+  Color getMatchColor(int score) {
+    if (score > 700) return Colors.green;
+    if (score > 500) return Colors.lightGreen;
+    if (score > 300) return Colors.amber;
+    return Colors.orange;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,9 +116,10 @@ class _MatchesScreenState extends State<MatchesScreen> {
                       UserModel donor = matches[index]['donor'];
                       UserModel recipient = matches[index]['recipient'];
                       int score = matches[index]['score'];
-                      bool isHighScore = score > 00;
 
-                      // Determine which user is the current user and which is the match
+                      String matchLevel = getMatchLevel(score);
+                      Color matchColor = getMatchColor(score);
+
                       UserModel user =
                           donor.id == currentUserId ? recipient : donor;
                       bool isUserDonor = donor.id == currentUserId;
@@ -126,9 +142,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: isHighScore
-                                  ? kPinkColor.withOpacity(0.3)
-                                  : Colors.grey.withOpacity(0.1),
+                              color: matchColor.withOpacity(0.3),
                               width: 1,
                             ),
                           ),
@@ -140,9 +154,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                                   horizontal: 16,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: isHighScore
-                                      ? kPinkColor.withOpacity(0.1)
-                                      : Colors.grey.withOpacity(0.05),
+                                  color: matchColor.withOpacity(0.1),
                                   borderRadius: const BorderRadius.only(
                                     topLeft: Radius.circular(16),
                                     topRight: Radius.circular(16),
@@ -151,14 +163,10 @@ class _MatchesScreenState extends State<MatchesScreen> {
                                 child: Row(
                                   children: [
                                     CircleAvatar(
-                                      backgroundColor: isHighScore
-                                          ? kPinkColor
-                                          : Colors.grey.shade400,
+                                      backgroundColor: matchColor,
                                       radius: 20,
-                                      child: Icon(
-                                        isHighScore
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
+                                      child: const Icon(
+                                        Icons.favorite,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -173,9 +181,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 16,
-                                              color: isHighScore
-                                                  ? kPinkColor
-                                                  : Colors.black87,
+                                              color: Colors.black,
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
@@ -192,9 +198,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                                                     vertical: 3,
                                                   ),
                                                   decoration: BoxDecoration(
-                                                    color: isHighScore
-                                                        ? kPinkColor
-                                                        : Colors.grey.shade400,
+                                                    color: matchColor,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             12),
@@ -217,17 +221,13 @@ class _MatchesScreenState extends State<MatchesScreen> {
                                                     vertical: 3,
                                                   ),
                                                   decoration: BoxDecoration(
-                                                    color: isHighScore
-                                                        ? Colors.green
-                                                        : Colors.amber,
+                                                    color: matchColor,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             12),
                                                   ),
                                                   child: Text(
-                                                    isHighScore
-                                                        ? "High Match"
-                                                        : "Potential",
+                                                    "$matchLevel Match",
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12,
@@ -376,8 +376,6 @@ class _MatchesScreenState extends State<MatchesScreen> {
                                       ],
                                     ),
                                     const SizedBox(height: 16),
-                                    // In the MatchesScreen class, update the ElevatedButton onPressed in the ListView.builder:
-
                                     ElevatedButton(
                                       onPressed: () {
                                         // Navigate to view details screen
