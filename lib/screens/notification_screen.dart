@@ -77,26 +77,36 @@ class NotificationsScreen extends StatelessWidget {
     // Determine if this notification is still pending action
     final bool isPending = notification.status == "pending";
 
+    // Check if this is an acceptance notification
+    final bool isAcceptanceNotification =
+        notification.matchType == "acceptance";
+
     // Set colors based on notification status
     Color cardColor;
     IconData statusIcon;
     String statusText;
 
-    switch (notification.status) {
-      case "accepted":
-        cardColor = Colors.green.shade50;
-        statusIcon = Icons.check_circle;
-        statusText = "Accepted";
-        break;
-      case "rejected":
-        cardColor = Colors.red.shade50;
-        statusIcon = Icons.cancel;
-        statusText = "Declined";
-        break;
-      default:
-        cardColor = Colors.amber.shade50;
-        statusIcon = Icons.pending;
-        statusText = "Pending Review";
+    if (isAcceptanceNotification) {
+      cardColor = Colors.green.shade50;
+      statusIcon = Icons.check_circle;
+      statusText = "Match Accepted";
+    } else {
+      switch (notification.status) {
+        case "accepted":
+          cardColor = Colors.green.shade50;
+          statusIcon = Icons.check_circle;
+          statusText = "Accepted";
+          break;
+        case "rejected":
+          cardColor = Colors.red.shade50;
+          statusIcon = Icons.cancel;
+          statusText = "Declined";
+          break;
+        default:
+          cardColor = Colors.amber.shade50;
+          statusIcon = Icons.pending;
+          statusText = "Pending Review";
+      }
     }
 
     return Card(
@@ -121,16 +131,20 @@ class NotificationsScreen extends StatelessWidget {
               title: Row(
                 children: [
                   Icon(
-                    notification.matchType == "donation"
-                        ? Icons.volunteer_activism
-                        : Icons.favorite,
+                    isAcceptanceNotification
+                        ? Icons.celebration
+                        : notification.matchType == "donation"
+                            ? Icons.volunteer_activism
+                            : Icons.favorite,
                     color: kPinkColor,
                     size: 18,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      "Match Request from ${notification.senderName}",
+                      isAcceptanceNotification
+                          ? "Match Request Accepted"
+                          : "Match Request from ${notification.senderName}",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -144,33 +158,36 @@ class NotificationsScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8),
                   Text(
-                    notification.matchType == "donation"
-                        ? "${notification.senderName} would like to donate ${notification.organType} to you"
-                        : "${notification.senderName} would like to receive ${notification.organType} from you",
+                    isAcceptanceNotification
+                        ? "Your ${notification.organType} match request has been accepted!"
+                        : notification.matchType == "donation"
+                            ? "${notification.senderName} would like to donate ${notification.organType} to you"
+                            : "${notification.senderName} would like to receive ${notification.organType} from you",
                     style: const TextStyle(fontSize: 14),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: kPinkColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          "Match Score: ${notification.matchScore}",
-                          style: TextStyle(
-                            color: kPinkColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                      if (!isAcceptanceNotification)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: kPinkColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            "Match Score: ${notification.matchScore}",
+                            style: TextStyle(
+                              color: kPinkColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
+                      if (!isAcceptanceNotification) const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
@@ -186,11 +203,13 @@ class NotificationsScreen extends StatelessWidget {
                             Icon(
                               statusIcon,
                               size: 12,
-                              color: notification.status == "pending"
-                                  ? Colors.amber.shade700
-                                  : notification.status == "accepted"
-                                      ? Colors.green
-                                      : Colors.red,
+                              color: isAcceptanceNotification
+                                  ? Colors.green
+                                  : notification.status == "pending"
+                                      ? Colors.amber.shade700
+                                      : notification.status == "accepted"
+                                          ? Colors.green
+                                          : Colors.red,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -198,11 +217,13 @@ class NotificationsScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: notification.status == "pending"
-                                    ? Colors.amber.shade700
-                                    : notification.status == "accepted"
-                                        ? Colors.green
-                                        : Colors.red,
+                                color: isAcceptanceNotification
+                                    ? Colors.green
+                                    : notification.status == "pending"
+                                        ? Colors.amber.shade700
+                                        : notification.status == "accepted"
+                                            ? Colors.green
+                                            : Colors.red,
                               ),
                             ),
                           ],
@@ -213,25 +234,27 @@ class NotificationsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            // Added a View Details button for both pending and non-pending notifications
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: ElevatedButton(
-                onPressed: () {
-                  // View details of the match
-                  _viewMatchDetails(context, notification);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade200,
-                  foregroundColor: Colors.black87,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+            // Only show View Details for regular match notifications, not for acceptance notifications
+            if (!isAcceptanceNotification)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // View details of the match
+                    _viewMatchDetails(context, notification);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey.shade200,
+                    foregroundColor: Colors.black87,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
+                  child: const Text("View Details"),
                 ),
-                child: const Text("View Details"),
               ),
-            ),
-            if (isPending)
+            // Only show action buttons for pending notifications that are not acceptance notifications
+            if (isPending && !isAcceptanceNotification)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Row(
@@ -270,6 +293,31 @@ class NotificationsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+            // For acceptance notifications, show a Contact button
+            if (isAcceptanceNotification)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // This could navigate to a contact details screen or show contact info
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text("The medical team will contact you shortly."),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kPinkColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text("Contact Medical Team"),
+                ),
+              ),
           ],
         ),
       ),
@@ -299,7 +347,7 @@ class NotificationsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               const Text(
-                "This will notify the medical team and start the validation process. Do you want to proceed?",
+                "The medical team will be notified about this match. Do you want to proceed?",
               ),
             ],
           ),
@@ -320,6 +368,13 @@ class NotificationsScreen extends StatelessWidget {
                 // Update notification status
                 await NotificationService()
                     .updateNotificationStatus(notification.id, "accepted");
+
+                // Send notification back to the original sender
+                await NotificationService().sendAcceptanceNotification(
+                    notification.senderUserId,
+                    currentUser.fullName,
+                    notification.organType);
+
                 Navigator.of(context).pop();
                 // Show success message
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -422,7 +477,6 @@ class NotificationsScreen extends StatelessWidget {
       UserModel sender =
           await UserService.getUserById(notification.senderUserId);
 
-      // Navigate to ViewDetailsScreen with the sender's details
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -430,12 +484,9 @@ class NotificationsScreen extends StatelessWidget {
             user: sender,
             currentUser: currentUser,
             matchScore: notification.matchScore,
-            isUserDonor: notification.matchType ==
-                "reception", // If match type is reception, current user is donor
-            isFromNotification:
-                true, // Indicate we're coming from a notification
-            notificationId:
-                notification.id, // Pass the notification ID to track status
+            isUserDonor: notification.matchType == "reception",
+            isFromNotification: true,
+            notificationId: notification.id,
           ),
         ),
       );

@@ -62,4 +62,47 @@ class NotificationService {
       return null;
     });
   }
+
+  Future<void> sendAcceptanceNotification(
+      String recipientUserId, String acceptorName, String organType) async {
+    try {
+      String notificationId = _firestore.collection('notifications').doc().id;
+
+      MatchNotification notification = MatchNotification(
+        id: notificationId,
+        senderUserId: '',
+        senderName: 'System',
+        receiverUserId: recipientUserId,
+        matchScore: 0,
+        matchType: 'acceptance',
+        organType: organType,
+        status: 'info',
+        timestamp: DateTime.now(),
+      );
+
+      await sendMatchNotification(notification);
+    } catch (e) {
+      print('Error sending acceptance notification: $e');
+      throw e;
+    }
+  }
+
+  Future<bool> hasExistingMatchRequest(
+      String senderUserId, String receiverUserId) async {
+    try {
+      // Query for existing notifications between these users
+      QuerySnapshot query = await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('senderUserId', isEqualTo: senderUserId)
+          .where('receiverUserId', isEqualTo: receiverUserId)
+          .where('status', isEqualTo: 'pending')
+          .get();
+
+      // If any documents exist, a request is already pending
+      return query.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking existing match requests: $e');
+      return false;
+    }
+  }
 }

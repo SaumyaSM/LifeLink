@@ -688,7 +688,7 @@ class ViewDetailsScreen extends StatelessWidget {
   void showConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -717,7 +717,7 @@ class ViewDetailsScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               child: Text(
                 "Cancel",
@@ -728,20 +728,11 @@ class ViewDetailsScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                // Process match selection and send notification
-                _sendMatchNotification(context);
-                Navigator.of(context).pop();
-                // Show success message
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                        "Match selection sent! The user will be notified to review your selection."),
-                    backgroundColor: Colors.green,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-                // Navigate back to matches screen
-                Navigator.of(context).pop();
+                // Close the dialog first
+                Navigator.of(dialogContext).pop();
+
+                // Then send notification and handle navigation
+                _sendMatchNotificationAndNavigate(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: kPinkColor,
@@ -758,9 +749,25 @@ class ViewDetailsScreen extends StatelessWidget {
     );
   }
 
-  // This method handles sending the notification to the selected user
-  void _sendMatchNotification(BuildContext context) {
-    // Create a notification object
+// New method to handle notification and navigation sequence
+  Future<void> _sendMatchNotificationAndNavigate(BuildContext context) async {
+    bool hasExisting = await NotificationService()
+        .hasExistingMatchRequest(currentUser.id, user.id);
+
+    if (hasExisting) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "You've already sent a match request to this person. Please wait for their response.",
+          ),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
     final notification = MatchNotification(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       senderUserId: currentUser.id,
@@ -773,7 +780,24 @@ class ViewDetailsScreen extends StatelessWidget {
       timestamp: DateTime.now(),
     );
 
-    // Add the notification to the database
-    NotificationService().sendMatchNotification(notification);
+    await NotificationService().sendMatchNotification(notification);
+
+    // Show the success SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Match request sent to ${user.fullName} successfully!",
+        ),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 3),
+      ),
+    );
+
+    await Future.delayed(const Duration(milliseconds: 1000));
+
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
   }
 }
