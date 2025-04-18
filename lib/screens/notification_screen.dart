@@ -38,9 +38,7 @@ class NotificationsScreen extends StatelessWidget {
           }
 
           if (snapshot.hasError) {
-            print(
-                'Firestore Stream Error: ${snapshot.error}'); // This will print in your terminal
-
+            print('Firestore Stream Error: ${snapshot.error}');
             return Center(
               child: Text(
                 "Error loading notifications: ${snapshot.error}",
@@ -74,12 +72,15 @@ class NotificationsScreen extends StatelessWidget {
 
   Widget _buildNotificationCard(
       BuildContext context, MatchNotification notification) {
-    // Determine if this notification is still pending action
-    final bool isPending = notification.status == "pending";
-
-    // Check if this is an acceptance notification
+    // Determine notification type and status
     final bool isAcceptanceNotification =
         notification.matchType == "acceptance";
+    final bool isAdmin = notification.matchType == "admin_approval";
+    final bool isPending =
+        notification.status == "pending" || notification.status == "liked";
+    final bool isAdminApproved = notification.status == "admin_approved";
+    final bool isAdminRejected = notification.status == "admin_rejected";
+    final bool isMatched = notification.status == "matched";
 
     // Set colors based on notification status
     Color cardColor;
@@ -90,6 +91,18 @@ class NotificationsScreen extends StatelessWidget {
       cardColor = Colors.green.shade50;
       statusIcon = Icons.check_circle;
       statusText = "Match Accepted";
+    } else if (isAdminApproved) {
+      cardColor = Colors.green.shade50;
+      statusIcon = Icons.check_circle;
+      statusText = "Approved by Medical Team";
+    } else if (isAdminRejected) {
+      cardColor = Colors.red.shade50;
+      statusIcon = Icons.cancel;
+      statusText = "Rejected by Medical Team";
+    } else if (isMatched) {
+      cardColor = Colors.blue.shade50;
+      statusIcon = Icons.handshake;
+      statusText = "Mutual Match (Pending Review)";
     } else {
       switch (notification.status) {
         case "accepted":
@@ -102,10 +115,15 @@ class NotificationsScreen extends StatelessWidget {
           statusIcon = Icons.cancel;
           statusText = "Declined";
           break;
+        case "liked":
+          cardColor = Colors.amber.shade50;
+          statusIcon = Icons.favorite;
+          statusText = "Liked";
+          break;
         default:
           cardColor = Colors.amber.shade50;
           statusIcon = Icons.pending;
-          statusText = "Pending Review";
+          statusText = "Pending";
       }
     }
 
@@ -131,20 +149,14 @@ class NotificationsScreen extends StatelessWidget {
               title: Row(
                 children: [
                   Icon(
-                    isAcceptanceNotification
-                        ? Icons.celebration
-                        : notification.matchType == "donation"
-                            ? Icons.volunteer_activism
-                            : Icons.favorite,
+                    _getNotificationIcon(notification),
                     color: kPinkColor,
                     size: 18,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      isAcceptanceNotification
-                          ? "Match Request Accepted"
-                          : "Match Request from ${notification.senderName}",
+                      _getNotificationTitle(notification),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -158,17 +170,27 @@ class NotificationsScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8),
                   Text(
-                    isAcceptanceNotification
-                        ? "Your ${notification.organType} match request has been accepted!"
-                        : notification.matchType == "donation"
-                            ? "${notification.senderName} would like to donate ${notification.organType} to you"
-                            : "${notification.senderName} would like to receive ${notification.organType} from you",
+                    _getNotificationDescription(notification),
                     style: const TextStyle(fontSize: 14),
                   ),
+                  if (notification.adminFeedback != null &&
+                      notification.adminFeedback!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        "Feedback: ${notification.adminFeedback}",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      if (!isAcceptanceNotification)
+                      if (!isAcceptanceNotification &&
+                          notification.matchScore > 0)
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -187,7 +209,9 @@ class NotificationsScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                      if (!isAcceptanceNotification) const SizedBox(width: 8),
+                      if (!isAcceptanceNotification &&
+                          notification.matchScore > 0)
+                        const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
@@ -203,13 +227,7 @@ class NotificationsScreen extends StatelessWidget {
                             Icon(
                               statusIcon,
                               size: 12,
-                              color: isAcceptanceNotification
-                                  ? Colors.green
-                                  : notification.status == "pending"
-                                      ? Colors.amber.shade700
-                                      : notification.status == "accepted"
-                                          ? Colors.green
-                                          : Colors.red,
+                              color: _getStatusColor(notification),
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -217,13 +235,7 @@ class NotificationsScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: isAcceptanceNotification
-                                    ? Colors.green
-                                    : notification.status == "pending"
-                                        ? Colors.amber.shade700
-                                        : notification.status == "accepted"
-                                            ? Colors.green
-                                            : Colors.red,
+                                color: _getStatusColor(notification),
                               ),
                             ),
                           ],
@@ -234,8 +246,9 @@ class NotificationsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            // Only show View Details for regular match notifications, not for acceptance notifications
-            if (!isAcceptanceNotification)
+            // Only show View Details for matches that aren't just informational
+            if (!isAcceptanceNotification &&
+                notification.senderUserId.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: ElevatedButton(
@@ -253,8 +266,8 @@ class NotificationsScreen extends StatelessWidget {
                   child: const Text("View Details"),
                 ),
               ),
-            // Only show action buttons for pending notifications that are not acceptance notifications
-            if (isPending && !isAcceptanceNotification)
+            // Only show action buttons for pending notifications that need action
+            if (isPending && !isAcceptanceNotification && !isMatched)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Row(
@@ -293,13 +306,36 @@ class NotificationsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            // For acceptance notifications, show a Contact button
-            if (isAcceptanceNotification)
+            // For matched notifications pending admin review
+            if (isMatched && !isAcceptanceNotification)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: ElevatedButton(
                   onPressed: () {
-                    // This could navigate to a contact details screen or show contact info
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                            "Waiting for medical team review. They will contact you soon."),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade400,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text("Awaiting Medical Review"),
+                ),
+              ),
+            // For acceptance notifications and admin approved matches
+            if (isAcceptanceNotification || isAdminApproved)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: ElevatedButton(
+                  onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content:
@@ -322,6 +358,73 @@ class NotificationsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  IconData _getNotificationIcon(MatchNotification notification) {
+    if (notification.matchType == "acceptance") {
+      return Icons.celebration;
+    } else if (notification.matchType == "admin_approval") {
+      return Icons.admin_panel_settings;
+    } else if (notification.status == "matched") {
+      return Icons.handshake;
+    } else if (notification.status == "admin_approved") {
+      return Icons.verified;
+    } else if (notification.status == "admin_rejected") {
+      return Icons.cancel;
+    } else if (notification.senderRole == "donor") {
+      return Icons.volunteer_activism;
+    } else {
+      return Icons.favorite;
+    }
+  }
+
+  String _getNotificationTitle(MatchNotification notification) {
+    if (notification.matchType == "acceptance") {
+      return "Match Request Accepted";
+    } else if (notification.matchType == "admin_approval") {
+      return "Medical Team Review";
+    } else if (notification.status == "matched") {
+      return "Mutual Match with ${notification.senderName}";
+    } else if (notification.status == "admin_approved") {
+      return "Match Approved by Medical Team";
+    } else if (notification.status == "admin_rejected") {
+      return "Match Rejected by Medical Team";
+    } else {
+      return "Match Request from ${notification.senderName}";
+    }
+  }
+
+  String _getNotificationDescription(MatchNotification notification) {
+    if (notification.matchType == "acceptance") {
+      return "Your ${notification.organType} match request has been accepted!";
+    } else if (notification.matchType == "admin_approval") {
+      return "Your match for ${notification.organType} is being reviewed by the medical team.";
+    } else if (notification.status == "matched") {
+      return "You and ${notification.senderName} have both liked each other's ${notification.organType} match. The medical team will review your case.";
+    } else if (notification.status == "admin_approved") {
+      return "Your ${notification.organType} match with ${notification.senderName} has been approved by the medical team.";
+    } else if (notification.status == "admin_rejected") {
+      return "Your ${notification.organType} match with ${notification.senderName} has been rejected by the medical team.";
+    } else if (notification.senderRole == "donor") {
+      return "${notification.senderName} would like to donate ${notification.organType} to you";
+    } else {
+      return "${notification.senderName} would like to receive ${notification.organType} from you";
+    }
+  }
+
+  Color _getStatusColor(MatchNotification notification) {
+    if (notification.matchType == "acceptance" ||
+        notification.status == "accepted" ||
+        notification.status == "admin_approved") {
+      return Colors.green;
+    } else if (notification.status == "rejected" ||
+        notification.status == "admin_rejected") {
+      return Colors.red;
+    } else if (notification.status == "matched") {
+      return Colors.blue;
+    } else {
+      return Colors.amber.shade700;
+    }
   }
 
   void _showAcceptDialog(BuildContext context, MatchNotification notification) {
@@ -347,7 +450,7 @@ class NotificationsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               const Text(
-                "The medical team will be notified about this match. Do you want to proceed?",
+                "If this creates a mutual match, the medical team will be notified for review. Do you want to proceed?",
               ),
             ],
           ),
@@ -365,26 +468,60 @@ class NotificationsScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                // Update notification status
-                await NotificationService()
-                    .updateNotificationStatus(notification.id, "accepted");
+                try {
+                  // Check if there's an existing match from the other direction
+                  MatchNotification? existingMatch = await NotificationService()
+                      .getExistingMatchBetweenUsers(notification.receiverUserId,
+                          notification.senderUserId);
 
-                // Send notification back to the original sender
-                await NotificationService().sendAcceptanceNotification(
-                    notification.senderUserId,
-                    currentUser.fullName,
-                    notification.organType);
+                  if (existingMatch != null &&
+                      existingMatch.status == "liked") {
+                    // This creates a mutual match
+                    await NotificationService().createMatchedNotification(
+                      notification.id,
+                      existingMatch.id,
+                    );
 
-                Navigator.of(context).pop();
-                // Show success message
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                        "Match accepted! The medical team will be in touch soon."),
-                    backgroundColor: Colors.green,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                            "Match accepted! The medical team will review your match soon."),
+                        backgroundColor: Colors.blue,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  } else {
+                    // Just update this notification to "liked"
+                    await NotificationService()
+                        .updateNotificationStatus(notification.id, "liked");
+
+                    // Send notification back to the original sender
+                    await NotificationService().sendAcceptanceNotification(
+                        notification.senderUserId,
+                        currentUser.fullName,
+                        notification.organType);
+
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                            "Match accepted! Other Person will be Notified."),
+                        backgroundColor: Colors.green,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Error accepting match: $e"),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: kPinkColor,
@@ -484,7 +621,8 @@ class NotificationsScreen extends StatelessWidget {
             user: sender,
             currentUser: currentUser,
             matchScore: notification.matchScore,
-            isUserDonor: notification.matchType == "reception",
+            isUserDonor:
+                notification.senderRole == "recipient", // Updated logic
             isFromNotification: true,
             notificationId: notification.id,
           ),

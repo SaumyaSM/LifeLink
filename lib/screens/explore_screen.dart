@@ -6,6 +6,7 @@ import 'package:life_link/models/user_model.dart';
 import 'package:life_link/screens/view_details_screen.dart';
 import 'package:life_link/services/auth_service.dart';
 
+import '../services/organ_matching_service.dart';
 import '../services/user_service.dart';
 
 class ExploreScreen extends StatefulWidget {
@@ -329,11 +330,56 @@ class _ExploreScreenState extends State<ExploreScreen> {
         donor = currentUser.isDonor ? currentUser : selectedUser;
         recipient = currentUser.isDonor ? selectedUser : currentUser;
         isUserDonor = currentUser.isDonor;
+
+        // Print debugging info about users
+        print("Calculating score between:");
+        print(
+            "Donor: ${donor.fullName}, Blood: ${donor.bloodType}, Organ: ${donor.organType}");
+        print(
+            "Recipient: ${recipient.fullName}, Blood: ${recipient.bloodType}, Organ: ${recipient.organType}");
+
+        // Manually calculate score components for debugging
+        bool bloodCompatible = MatchingService.isBloodGroupCompatible(
+            donor.bloodType ?? "", recipient.bloodType ?? "");
+        print("Blood compatible: $bloodCompatible");
+
+        if (donor.organType == recipient.organType && bloodCompatible) {
+          // Start with base score
+          score = 0;
+
+          // Calculate HLA mismatch score
+          int hlaMismatch = MatchingService.calculateHLAMismatch(
+              donor.hlaTyping, recipient.hlaTyping);
+          int mismatchPenalty = MatchingService.getMismatchScore(hlaMismatch);
+          print("HLA mismatch: $hlaMismatch, Penalty: $mismatchPenalty");
+          score -= mismatchPenalty;
+
+          // Add waiting time points
+          int waitingPoints = recipient.waitingTime ?? 0;
+          print("Waiting time points: $waitingPoints");
+          score += waitingPoints;
+
+          // Add location bonus
+          bool sameCity = donor.city != null &&
+              recipient.city != null &&
+              donor.city == recipient.city;
+          print("Same city: $sameCity");
+          if (sameCity) {
+            score += 200;
+          }
+
+          // Other calculations...
+
+          print("Final calculated score: $score");
+        } else {
+          print("Organ type match or blood compatibility failed");
+        }
       } else {
         donor = match['donor'];
         recipient = match['recipient'];
         score = match['score'] ?? 0;
         isUserDonor = donor.id == currentUserId;
+        print("Using existing match score: $score");
       }
 
       Navigator.push(
@@ -349,6 +395,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       );
     } catch (e) {
       Navigator.of(context).pop(); // Close loading dialog
+      print("Error in _handleCardTap: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading match details: $e')),
       );

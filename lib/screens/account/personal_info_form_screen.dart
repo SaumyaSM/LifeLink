@@ -114,7 +114,6 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
       bloodType: '',
       organType: '',
       isTestsCompleted: false,
-      likes: [],
       history: [],
       hlaTyping: {},
       waitingTime: 0,

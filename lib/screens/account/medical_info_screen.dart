@@ -86,7 +86,6 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
         'DQB1': _hlaDQB1Controller.text.trim(),
       },
       isTestsCompleted: false,
-      likes: [],
       history: [],
       city: '',
       waitingTime: int.tryParse(waitingTime.text.trim()) ?? 0,

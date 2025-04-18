@@ -14,7 +14,6 @@ class UserModel {
   late String organType;
   late Map<String, String> hlaTyping;
   late bool isTestsCompleted;
-  late List<String> likes;
   late List<String> history;
   late int waitingTime;
   late String imageUrl;
@@ -33,7 +32,6 @@ class UserModel {
     required this.organType,
     required this.hlaTyping,
     required this.isTestsCompleted,
-    required this.likes,
     required this.history,
     required this.waitingTime,
     required this.imageUrl,
@@ -58,7 +56,6 @@ class UserModel {
     hlaTyping = hlaMap.map((key, value) => MapEntry(key, value.toString()));
 
     isTestsCompleted = data['isTestsCompleted'] ?? false;
-    likes = List<String>.from(data['likes'] ?? []);
     history = List<String>.from(data['history'] ?? []);
     waitingTime = data['waitingTime'] != null
         ? int.tryParse(data['waitingTime'].toString()) ?? 0
@@ -81,7 +78,6 @@ class UserModel {
       'organType': organType,
       'hlaTyping': hlaTyping,
       'isTestsCompleted': isTestsCompleted,
-      'likes': likes,
       'history': history,
       'waitingTime': waitingTime,
       'imageUrl': imageUrl,
@@ -104,7 +100,6 @@ extension UserModelCopy on UserModel {
     String? organType,
     Map<String, String>? hlaTyping,
     bool? isTestsCompleted,
-    List<String>? likes,
     List<String>? history,
     int? waitingTime,
     String? imageUrl,
@@ -123,7 +118,6 @@ extension UserModelCopy on UserModel {
       organType: organType ?? this.organType,
       hlaTyping: hlaTyping ?? this.hlaTyping,
       isTestsCompleted: isTestsCompleted ?? this.isTestsCompleted,
-      likes: likes ?? this.likes,
       history: history ?? this.history,
       waitingTime: waitingTime ?? this.waitingTime,
       imageUrl: imageUrl ?? this.imageUrl,

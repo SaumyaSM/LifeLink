@@ -166,7 +166,9 @@ class ViewDetailsScreen extends StatelessWidget {
     );
   }
 
-  // New method to build a notification status section
+  // Updated notification status to work with the new model
+// Updated buildNotificationStatus method to work with the new model
+
   Widget buildNotificationStatus(BuildContext context) {
     return StreamBuilder<MatchNotification?>(
       stream: NotificationService().getNotificationById(notificationId!),
@@ -182,56 +184,183 @@ class ViewDetailsScreen extends StatelessWidget {
         final notification = snapshot.data!;
 
         // Status information container
-        return Container(
-          margin: const EdgeInsets.only(top: 16),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: getStatusColor(notification.status).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-                color: getStatusColor(notification.status).withOpacity(0.3)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: getStatusColor(notification.status).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color:
+                        getStatusColor(notification.status).withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    getStatusIcon(notification.status),
-                    color: getStatusColor(notification.status),
-                    size: 20,
+                  Row(
+                    children: [
+                      Icon(
+                        getStatusIcon(notification.status),
+                        color: getStatusColor(notification.status),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Current Status: ${getStatusText(notification.status)}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: getStatusColor(notification.status),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    "Current Status: ${getStatusText(notification.status)}",
+                    getStatusDescription(notification.status),
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: getStatusColor(notification.status),
+                      color: Colors.grey.shade700,
+                      fontSize: 14,
+                    ),
+                  ),
+
+                  // Add role information based on the updated model
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          notification.isDonorToRecipient
+                              ? Icons.volunteer_activism
+                              : Icons.favorite_border,
+                          color: notification.isDonorToRecipient
+                              ? Colors.blue.shade700
+                              : kPinkColor,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            notification.isDonorToRecipient
+                                ? "Donor to Recipient"
+                                : "Recipient to Donor",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: notification.isDonorToRecipient
+                                  ? Colors.blue.shade700
+                                  : kPinkColor,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+            ),
+
+            // Add admin review section if the notification has been reviewed
+            if (notification.adminReviewed)
+              buildAdminReviewSection(notification),
+          ],
+        );
+      },
+    );
+  }
+
+  // New method to build admin review section
+  Widget buildAdminReviewSection(MatchNotification notification) {
+    final bool isApproved = notification.status == "admin_approved";
+
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isApproved
+            ? Colors.green.withOpacity(0.1)
+            : Colors.red.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isApproved
+              ? Colors.green.withOpacity(0.3)
+              : Colors.red.withOpacity(0.3),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                isApproved ? Icons.check_circle : Icons.cancel,
+                color: isApproved ? Colors.green : Colors.red,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
               Text(
-                getStatusDescription(notification.status),
+                "Medical Team Review",
                 style: TextStyle(
-                  color: Colors.grey.shade700,
-                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      isApproved ? Colors.green.shade700 : Colors.red.shade700,
                 ),
               ),
             ],
           ),
-        );
-      },
+          const SizedBox(height: 8),
+          if (notification.adminFeedback != null &&
+              notification.adminFeedback!.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Feedback:",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade800,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    notification.adminFeedback!,
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 
   // Helper methods for notification status
   Color getStatusColor(String status) {
     switch (status) {
+      case "liked":
+      case "matched":
       case "accepted":
+      case "admin_approved":
         return Colors.green;
       case "rejected":
+      case "admin_rejected":
         return Colors.red;
       default:
         return Colors.amber;
@@ -240,9 +369,13 @@ class ViewDetailsScreen extends StatelessWidget {
 
   IconData getStatusIcon(String status) {
     switch (status) {
+      case "liked":
+      case "matched":
       case "accepted":
+      case "admin_approved":
         return Icons.check_circle;
       case "rejected":
+      case "admin_rejected":
         return Icons.cancel;
       default:
         return Icons.pending;
@@ -251,10 +384,18 @@ class ViewDetailsScreen extends StatelessWidget {
 
   String getStatusText(String status) {
     switch (status) {
+      case "liked":
+        return "Liked";
+      case "matched":
+        return "Matched";
       case "accepted":
         return "Accepted";
       case "rejected":
         return "Declined";
+      case "admin_approved":
+        return "Approved by Medical Team";
+      case "admin_rejected":
+        return "Declined by Medical Team";
       default:
         return "Pending Review";
     }
@@ -262,10 +403,18 @@ class ViewDetailsScreen extends StatelessWidget {
 
   String getStatusDescription(String status) {
     switch (status) {
+      case "liked":
+        return "This match has been liked. Waiting for confirmation from both parties.";
+      case "matched":
+        return "This match has been confirmed by both parties. The medical team will review this match.";
       case "accepted":
-        return "This match has been accepted. The medical team will be in contact with both parties to coordinate next steps.";
+        return "This match has been accepted. The medical team will review this match before proceeding.";
       case "rejected":
         return "This match was declined. You may consider other potential matches.";
+      case "admin_approved":
+        return "This match has been reviewed and approved by the medical team. The next steps in the transplant process can begin.";
+      case "admin_rejected":
+        return "The medical team has reviewed this match and found it unsuitable. Please see their feedback below.";
       default:
         return "This match is awaiting a response. You'll be notified once a decision is made.";
     }
@@ -749,7 +898,10 @@ class ViewDetailsScreen extends StatelessWidget {
     );
   }
 
-// New method to handle notification and navigation sequence
+  // Updated method to use the new MatchNotification model
+// Updated code for the _sendMatchNotificationAndNavigate method
+// to work with the updated MatchNotification model
+
   Future<void> _sendMatchNotificationAndNavigate(BuildContext context) async {
     bool hasExisting = await NotificationService()
         .hasExistingMatchRequest(currentUser.id, user.id);
@@ -768,19 +920,29 @@ class ViewDetailsScreen extends StatelessWidget {
       return;
     }
 
-    final notification = MatchNotification(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderUserId: currentUser.id,
-      senderName: currentUser.fullName,
-      receiverUserId: user.id,
-      matchScore: matchScore,
-      matchType: isUserDonor ? "donation" : "reception",
-      organType: isUserDonor ? currentUser.organType : user.organType,
-      status: "pending",
-      timestamp: DateTime.now(),
-    );
-
-    await NotificationService().sendMatchNotification(notification);
+    // Use the factory methods from the updated MatchNotification model
+    String notificationId;
+    if (isUserDonor) {
+      // Current user is donor, other user is recipient
+      notificationId =
+          await NotificationService().sendDonorToRecipientNotification(
+        currentUser.id,
+        currentUser.fullName,
+        user.id,
+        matchScore,
+        currentUser.organType,
+      );
+    } else {
+      // Current user is recipient, other user is donor
+      notificationId =
+          await NotificationService().sendRecipientToDonorNotification(
+        currentUser.id,
+        currentUser.fullName,
+        user.id,
+        matchScore,
+        user.organType,
+      );
+    }
 
     // Show the success SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
@@ -790,7 +952,7 @@ class ViewDetailsScreen extends StatelessWidget {
         ),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       ),
     );
 
