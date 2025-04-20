@@ -14,7 +14,7 @@ class MatchesScreen extends StatefulWidget {
 }
 
 class _MatchesScreenState extends State<MatchesScreen> {
-  List<Map<String, dynamic>> matches = [];
+  List<Map<String, dynamic>> excellentMatches = [];
   bool isLoading = true;
   String currentUserId = '';
 
@@ -34,25 +34,19 @@ class _MatchesScreenState extends State<MatchesScreen> {
     List<Map<String, dynamic>> userMatches =
         await UserService.fetchUserMatches();
 
+    // Filter for excellent matches only (score > 700)
+    List<Map<String, dynamic>> filteredMatches =
+        userMatches.where((match) => match['score'] > 700).toList();
+
     setState(() {
-      matches = userMatches;
+      excellentMatches = filteredMatches;
       isLoading = false;
     });
   }
 
-  // Get match level based on score - added from ViewDetailsScreen
-  String getMatchLevel(int score) {
-    if (score > 700) return 'Excellent';
-    if (score > 500) return 'Good';
-    if (score > 300) return 'Moderate';
-    return 'Potential';
-  }
-
-  Color getMatchColor(int score) {
-    if (score > 700) return Colors.green;
-    if (score > 500) return Colors.lightGreen;
-    if (score > 300) return Colors.amber;
-    return Colors.orange;
+  // Simplified match color function that only returns green for excellent matches
+  Color getMatchColor() {
+    return Colors.green;
   }
 
   @override
@@ -60,7 +54,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Organ Matches",
+          "Excellent Matches",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -84,7 +78,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                   color: kPinkColor,
                 ),
               )
-            : matches.isEmpty
+            : excellentMatches.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -96,7 +90,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          "No Matches Found",
+                          "No Excellent Matches Found",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
@@ -105,7 +99,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          "Check back later for potential organ matches",
+                          "Check back later for excellent organ matches",
                           style: TextStyle(color: Colors.grey),
                         ),
                       ],
@@ -113,14 +107,14 @@ class _MatchesScreenState extends State<MatchesScreen> {
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: matches.length,
+                    itemCount: excellentMatches.length,
                     itemBuilder: (context, index) {
-                      UserModel donor = matches[index]['donor'];
-                      UserModel recipient = matches[index]['recipient'];
-                      int score = matches[index]['score'];
+                      UserModel donor = excellentMatches[index]['donor'];
+                      UserModel recipient =
+                          excellentMatches[index]['recipient'];
+                      int score = excellentMatches[index]['score'];
 
-                      String matchLevel = getMatchLevel(score);
-                      Color matchColor = getMatchColor(score);
+                      Color matchColor = getMatchColor();
 
                       UserModel user =
                           donor.id == currentUserId ? recipient : donor;
@@ -228,9 +222,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
                                                         BorderRadius.circular(
                                                             12),
                                                   ),
-                                                  child: Text(
-                                                    "$matchLevel Match",
-                                                    style: const TextStyle(
+                                                  child: const Text(
+                                                    "Excellent Match",
+                                                    style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12,
                                                       fontWeight:

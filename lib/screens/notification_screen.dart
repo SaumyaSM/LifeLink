@@ -102,7 +102,7 @@ class NotificationsScreen extends StatelessWidget {
     } else if (isMatched) {
       cardColor = Colors.blue.shade50;
       statusIcon = Icons.handshake;
-      statusText = "Mutual Match (Pending Review)";
+      statusText = "Mutual Match\n(Pending Review)";
     } else {
       switch (notification.status) {
         case "accepted":
