@@ -37,31 +37,79 @@ class AuthService {
   }
 
   static Future<UserCredential> signupUserWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+      if (googleUser == null) {
+        throw FirebaseAuthException(
+          code: 'user-cancelled',
+          message: 'Sign in process was cancelled by the user',
+        );
+      }
 
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
+        throw FirebaseAuthException(
+          code: 'missing-tokens',
+          message: 'Could not get authentication tokens from Google',
+        );
+      }
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      return await FirebaseAuth.instance.signInWithCredential(credential);
+    } catch (e) {
+      print('Google Sign-In Error: $e');
+      rethrow;
+    }
   }
 
   static Future<UserCredential> loginUserWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+      if (googleUser == null) {
+        throw FirebaseAuthException(
+          code: 'user-cancelled',
+          message: 'Sign in process was cancelled by the user',
+        );
+      }
 
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
+        throw FirebaseAuthException(
+          code: 'missing-tokens',
+          message: 'Could not get authentication tokens from Google',
+        );
+      }
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+
+      if (userCredential.user == null) {
+        throw FirebaseAuthException(
+          code: 'sign-in-failed',
+          message: 'Failed to sign in with Google credential',
+        );
+      }
+
+      return userCredential;
+    } catch (e) {
+      print('Google Sign-In Error: $e');
+      rethrow;
+    }
   }
 
   static Future<void> resetPassword(String email) async {

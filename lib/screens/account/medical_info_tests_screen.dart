@@ -1,8 +1,6 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:life_link/screens/home_screen.dart';
 import 'package:life_link/screens/main_screen.dart';
-import 'package:life_link/screens/matches_screen.dart';
+import 'package:life_link/services/user_service.dart';
 
 import '../../constants/colors.dart';
 import '../../models/user_model.dart';
@@ -21,37 +19,102 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
   final Map<String, String?> uploadedFiles = {};
   final Map<String, bool> testCompletionStatus = {};
 
+  final Map<String, String> uploadedFilesPaths = {}; // Store local file paths
+  bool isUploading = false;
+
   void updateTestStatus(String testName, bool isCompleted) {
     setState(() {
       testCompletionStatus[testName] = isCompleted;
     });
   }
 
-  void updateFileUpload(String testName, String? fileName) {
+  void updateFileUpload(String testName, String? fileName, String? filePath) {
     setState(() {
       uploadedFiles[testName] = fileName;
+      if (filePath != null) {
+        uploadedFilesPaths[testName] = filePath;
+      }
     });
   }
 
-  void handleSubmit() {
+  Future<void> handleSubmit() async {
+    // Validate required documents are uploaded
+    bool canProceed = true;
+    String missingTest = '';
+
     for (var entry in testCompletionStatus.entries) {
       if (entry.value && (uploadedFiles[entry.key] == null)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Please upload document for: ${entry.key}'),
-            backgroundColor: kPinkColor,
-          ),
-        );
-        return;
+        canProceed = false;
+        missingTest = entry.key;
+        break;
       }
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MainScreen(userModel: widget.userModel),
-      ),
-    );
+    if (!canProceed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please upload document for: $missingTest'),
+          backgroundColor: kPinkColor,
+        ),
+      );
+      return;
+    }
+
+    // Begin upload process
+    setState(() {
+      isUploading = true;
+    });
+
+    try {
+      // Upload files to Firebase using the service method
+      Map<String, String> uploadedUrls =
+          await UserService.uploadMedicalDocuments(
+              widget.userModel.id, uploadedFilesPaths);
+
+      // Check if all required tests are completed
+      bool allRequiredTestsCompleted =
+          testCompletionStatus.values.every((status) => status == true);
+
+      // Update the tests completion status
+      await UserService.updateTestCompletionStatus(
+          widget.userModel.id, allRequiredTestsCompleted);
+
+      // Update the local user model
+      Map<String, String> updatedMedicalDocuments = {
+        ...widget.userModel.medicalDocuments
+      };
+      updatedMedicalDocuments.addAll(uploadedUrls);
+
+      widget.userModel = widget.userModel.copyWith(
+          medicalDocuments: updatedMedicalDocuments,
+          isTestsCompleted: allRequiredTestsCompleted);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Medical documents uploaded successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Navigate to the next screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainScreen(userModel: widget.userModel),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error uploading documents: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        isUploading = false;
+      });
+    }
   }
 
   @override
@@ -121,7 +184,10 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
                     'Financial Consultation'
                   ]),
                   SizedBox(height: 10),
-                  ButtonWidget(onTap: handleSubmit, title: 'Submit'),
+                  isUploading
+                      ? CircularProgressIndicator(color: kPinkColor)
+                      : ButtonWidget(onTap: handleSubmit, title: 'Submit'),
+                  SizedBox(height: 20),
                 ],
               ),
             ),
@@ -146,7 +212,12 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
         ...tests.map((test) => MedicalTestsWidget(
               statusLabel: test,
               onStatusChange: updateTestStatus,
-              onFileUpload: updateFileUpload,
+              onFileUpload: (testName, fileName) {
+                updateFileUpload(testName, fileName, null);
+              },
+              onFilePathSelected: (testName, fileName, filePath) {
+                updateFileUpload(testName, fileName, filePath);
+              },
             )),
         SizedBox(height: 20),
       ],
@@ -154,6 +225,7 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
   }
 
   Container _registerBanner() {
+    // Same implementation as before
     return Container(
       width: double.infinity,
       height: 170,

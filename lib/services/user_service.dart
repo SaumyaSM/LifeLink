@@ -169,11 +169,9 @@ class UserService {
   static Future<List<Map<String, dynamic>>> fetchUserMatches() async {
     final String currentUserId = AuthService.getLoggedUserID();
 
-    // Get all matched pairs
     List<Map<String, dynamic>> matchedPairs =
         await MatchingService.matchDonorsAndRecipients();
 
-    // Filter only matches relevant to the current user
     List<Map<String, dynamic>> userMatches = matchedPairs.where((match) {
       UserModel donor = match['donor'];
       UserModel recipient = match['recipient'];
@@ -182,5 +180,72 @@ class UserService {
     }).toList();
 
     return userMatches;
+  }
+
+  static Future<Map<String, String>> uploadMedicalDocuments(
+      String userId, Map<String, String> filePaths) async {
+    final FirebaseStorage _storage = FirebaseStorage.instance;
+    Map<String, String> firebaseUrls = {};
+
+    try {
+      for (var entry in filePaths.entries) {
+        String testName = entry.key;
+        String filePath = entry.value;
+
+        String fileName =
+            "${userId}_${testName.replaceAll(' ', '_').replaceAll('\n', '_')}.pdf";
+        Reference storageRef = _storage
+            .ref()
+            .child("medical_documents")
+            .child(userId)
+            .child(fileName);
+
+        File file = File(filePath);
+        UploadTask uploadTask = storageRef.putFile(file);
+
+        TaskSnapshot snapshot = await uploadTask;
+        String downloadUrl = await snapshot.ref.getDownloadURL();
+
+        firebaseUrls[testName] = downloadUrl;
+      }
+
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection(userCollection)
+          .doc(userId)
+          .get();
+
+      if (userSnapshot.exists) {
+        UserModel user = UserModel.fromDocumentSnapshot(userSnapshot);
+
+        Map<String, String> updatedMedicalDocuments = {
+          ...user.medicalDocuments
+        };
+        updatedMedicalDocuments.addAll(firebaseUrls);
+
+        UserModel updatedUser = user.copyWith(
+          medicalDocuments: updatedMedicalDocuments,
+        );
+
+        await updateUserData(updatedUser);
+      }
+
+      return firebaseUrls;
+    } catch (e) {
+      print("Error uploading medical documents: $e");
+      throw e;
+    }
+  }
+
+  static Future<void> updateTestCompletionStatus(
+      String userId, bool isCompleted) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection(userCollection)
+          .doc(userId)
+          .update({'isTestsCompleted': isCompleted});
+    } catch (e) {
+      print("Error updating test completion status: $e");
+      throw e;
+    }
   }
 }

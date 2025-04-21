@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/models/user_model.dart';
 import 'package:life_link/screens/Auth/login_screen.dart';
-import 'package:life_link/screens/account/personal_info_form_screen.dart';
 import 'package:life_link/screens/account/start_screen.dart';
 import 'package:life_link/services/auth_service.dart';
 import 'package:life_link/services/toast_service.dart';
@@ -104,10 +103,17 @@ class _SignupScreenState extends State<SignupScreen> {
   void signupWithGoogle() async {
     setState(() => isLoading = true);
 
-    await AuthService.signupUserWithGoogle().then((UserCredential user) async {
+    try {
+      final UserCredential userCredential =
+          await AuthService.signupUserWithGoogle();
+
+      if (userCredential.user == null) {
+        throw Exception("Failed to get user information from Google Sign-In");
+      }
+
       UserModel userModel = UserModel(
-        id: user.user!.uid,
-        fullName: '',
+        id: userCredential.user!.uid,
+        fullName: userCredential.user!.displayName ?? '',
         dateOfBirth: '',
         gender: '',
         nic: '',
@@ -121,26 +127,42 @@ class _SignupScreenState extends State<SignupScreen> {
         city: '',
         hlaTyping: {},
         waitingTime: 0,
-        imageUrl: '',
+        imageUrl: userCredential.user!.photoURL ?? '',
       );
 
-      await UserService.createUser(userModel).then((value) {
+      try {
+        await UserService.createUser(userModel);
+
+        if (!mounted) return;
+
         ToastService.displaySuccessMotionToast(
             context: context, description: 'SignUp Successful!');
+
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => StartScreen(userModel: userModel)));
-      }).catchError((error) {
+      } catch (dbError) {
+        print("Database Error: $dbError");
+
+        if (!mounted) return;
+
         setState(() => isLoading = false);
         ToastService.displayErrorMotionToast(
-            context: context, description: 'Cannot Create User!');
-      });
-    }).catchError((error) {
+            context: context,
+            description:
+                'Cannot Create User in Database: ${dbError.toString()}');
+      }
+    } catch (error) {
+      print("Google Sign-In Error: $error");
+
+      if (!mounted) return;
+
       setState(() => isLoading = false);
       ToastService.displayErrorMotionToast(
-          context: context, description: 'Cannot SignUp with Google!');
-    });
+          context: context,
+          description: 'Google Sign-In Failed: ${error.toString()}');
+    }
   }
 
   @override

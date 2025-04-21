@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/screens/Auth/password_reset.dart';
@@ -54,6 +55,36 @@ class _LoginScreenState extends State<LoginScreen> {
           context: context, description: 'Invalid Login!');
       return;
     });
+  }
+
+  void loginWithGoogle() async {
+    setState(() => isLoading = true);
+
+    try {
+      final UserCredential userCredential =
+          await AuthService.loginUserWithGoogle();
+
+      if (userCredential.user == null) {
+        throw Exception("Failed to get user information from Google Sign-In");
+      }
+
+      if (!mounted) return;
+
+      ToastService.displaySuccessMotionToast(
+          context: context, description: 'Login Successful!');
+
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => LoadingScreen()));
+    } catch (error) {
+      print("Google Sign-In Error: $error");
+
+      if (!mounted) return;
+
+      setState(() => isLoading = false);
+      ToastService.displayErrorMotionToast(
+          context: context,
+          description: 'Google Sign-In Failed: ${error.toString()}');
+    }
   }
 
   @override
@@ -164,20 +195,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       onTap: () => onClickLogin(),
                       title: 'LOGIN',
                     ),
-                    // const SizedBox(height: 10),
-                    // const Text(
-                    //   'or continue with',
-                    //   style: TextStyle(
-                    //     color: Colors.grey,
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 10),
-                    // GoogleButtonWidget(
-                    //   onTap: () async {
-                    //     setState(() => isLoading = true);
-                    //     await AuthService.loginUserWithGoogle();
-                    //   },
-                    // ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'or continue with',
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    GoogleButtonWidget(
+                      onTap: () => loginWithGoogle(),
+                    ),
                   ],
                 ),
               ),

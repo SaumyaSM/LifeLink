@@ -4,6 +4,7 @@ import 'package:life_link/models/events_model.dart';
 import 'package:life_link/models/user_model.dart';
 import 'package:life_link/screens/event_screen.dart';
 import 'package:life_link/screens/account/medical_info_screen.dart';
+import 'package:life_link/screens/explore_screen.dart';
 import 'package:life_link/screens/learn_about_organ_donation_screen.dart';
 import 'package:life_link/services/events_service.dart';
 
@@ -121,12 +122,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Banner
                 InkWell(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
+                    if (widget.userModel.hasMedicalInfo()) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
                           builder: (context) =>
-                              MedicalInfoScreen(userModel: widget.userModel)),
-                    );
+                              ExploreScreen(isDonor: widget.userModel.isDonor),
+                        ),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              MedicalInfoScreen(userModel: widget.userModel),
+                        ),
+                      );
+                    }
                   },
                   child: Image.asset(
                     widget.userModel.isDonor

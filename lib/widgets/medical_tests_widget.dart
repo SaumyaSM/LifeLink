@@ -8,12 +8,14 @@ class MedicalTestsWidget extends StatefulWidget {
   final Color buttonColor;
   final Function(String, bool) onStatusChange;
   final Function(String, String?) onFileUpload;
+  final Function(String, String?, String?)? onFilePathSelected;
 
   MedicalTestsWidget({
     Key? key,
     required this.statusLabel,
     required this.onStatusChange,
     required this.onFileUpload,
+    this.onFilePathSelected,
     this.activeColor = kPinkColor,
     this.buttonColor = kOrangeColor,
   }) : super(key: key);
@@ -25,14 +27,21 @@ class MedicalTestsWidget extends StatefulWidget {
 class _MedicalTestsWidgetState extends State<MedicalTestsWidget> {
   bool isCompleted = false;
   String? _fileName;
+  String? _filePath;
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
       setState(() {
         _fileName = result.files.single.name;
+        _filePath = result.files.single.path;
       });
       widget.onFileUpload(widget.statusLabel, _fileName);
+
+      // Also pass the file path if the callback is provided
+      if (widget.onFilePathSelected != null) {
+        widget.onFilePathSelected!(widget.statusLabel, _fileName, _filePath);
+      }
     }
   }
 
@@ -46,9 +55,11 @@ class _MedicalTestsWidgetState extends State<MedicalTestsWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                widget.statusLabel,
-                style: TextStyle(fontSize: 15),
+              Expanded(
+                child: Text(
+                  widget.statusLabel,
+                  style: TextStyle(fontSize: 15),
+                ),
               ),
               Switch(
                 value: isCompleted,
@@ -76,7 +87,7 @@ class _MedicalTestsWidgetState extends State<MedicalTestsWidget> {
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Text(
-                  'File Uploaded: ${_fileName!.split('/').last}',
+                  'File Uploaded: ${_fileName!}',
                   style: TextStyle(fontSize: 14, color: Colors.green),
                 ),
               ),

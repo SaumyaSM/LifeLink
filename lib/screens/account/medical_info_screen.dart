@@ -95,7 +95,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => MainScreen(userModel: userModel),
+          builder: (context) => MedicalInfoTestsScreen(userModel: userModel),
         ),
       );
     }).catchError((error) {

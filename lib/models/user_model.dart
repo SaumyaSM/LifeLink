@@ -17,6 +17,7 @@ class UserModel {
   late List<String> history;
   late int waitingTime;
   late String imageUrl;
+  late Map<String, String> medicalDocuments;
 
   UserModel({
     required this.id,
@@ -35,6 +36,7 @@ class UserModel {
     required this.history,
     required this.waitingTime,
     required this.imageUrl,
+    this.medicalDocuments = const {},
   });
 
   UserModel.fromDocumentSnapshot(DocumentSnapshot documentSnapshot) {
@@ -60,7 +62,11 @@ class UserModel {
     waitingTime = data['waitingTime'] != null
         ? int.tryParse(data['waitingTime'].toString()) ?? 0
         : 0;
-    imageUrl = data['organType'] ?? '';
+    imageUrl = data['imageUrl'] ?? '';
+
+    final docsMap = data['medicalDocuments'] as Map<String, dynamic>? ?? {};
+    medicalDocuments =
+        docsMap.map((key, value) => MapEntry(key, value.toString()));
   }
 
   Map<String, dynamic> toMap() {
@@ -81,6 +87,7 @@ class UserModel {
       'history': history,
       'waitingTime': waitingTime,
       'imageUrl': imageUrl,
+      'medicalDocuments': medicalDocuments,
     };
   }
 }
@@ -103,6 +110,7 @@ extension UserModelCopy on UserModel {
     List<String>? history,
     int? waitingTime,
     String? imageUrl,
+    Map<String, String>? medicalDocuments,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -121,6 +129,13 @@ extension UserModelCopy on UserModel {
       history: history ?? this.history,
       waitingTime: waitingTime ?? this.waitingTime,
       imageUrl: imageUrl ?? this.imageUrl,
+      medicalDocuments: medicalDocuments ?? this.medicalDocuments,
     );
+  }
+}
+
+extension UserModelExtensions on UserModel {
+  bool hasMedicalInfo() {
+    return bloodType.isNotEmpty && organType.isNotEmpty && hlaTyping.isNotEmpty;
   }
 }
