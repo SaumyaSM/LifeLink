@@ -3,6 +3,7 @@ class MatchNotification {
   final String senderUserId;
   final String senderName;
   final String receiverUserId;
+  final String? receiverName; // Added receiverName
   final int matchScore;
   final String
       matchType; // "donation" or "recipient" or "acceptance" or "admin_approval"
@@ -12,16 +13,24 @@ class MatchNotification {
   final DateTime timestamp;
   final bool adminReviewed; // Flag to indicate if admin has reviewed this match
   final String? adminFeedback; // Optional feedback from admin
+  final List<String>? relatedNotifications; // Added relatedNotifications
 
   // Explicit role indicators
   final String senderRole; // "donor" or "recipient"
   final String receiverRole; // "donor" or "recipient"
+
+  // Convenient getters to match service usage
+  String get user1Id => senderUserId;
+  String get user1Name => senderName;
+  String get user2Id => receiverUserId;
+  String get user2Name => receiverName ?? 'Unknown';
 
   MatchNotification({
     required this.id,
     required this.senderUserId,
     required this.senderName,
     required this.receiverUserId,
+    this.receiverName,
     required this.matchScore,
     required this.matchType,
     required this.organType,
@@ -31,6 +40,7 @@ class MatchNotification {
     this.adminFeedback,
     required this.senderRole,
     required this.receiverRole,
+    this.relatedNotifications,
   });
 
   // Convert to Map for Firebase
@@ -40,6 +50,7 @@ class MatchNotification {
       'senderUserId': senderUserId,
       'senderName': senderName,
       'receiverUserId': receiverUserId,
+      'receiverName': receiverName,
       'matchScore': matchScore,
       'matchType': matchType,
       'organType': organType,
@@ -49,6 +60,7 @@ class MatchNotification {
       'adminFeedback': adminFeedback,
       'senderRole': senderRole,
       'receiverRole': receiverRole,
+      'relatedNotifications': relatedNotifications,
     };
   }
 
@@ -59,6 +71,7 @@ class MatchNotification {
       senderUserId: map['senderUserId'],
       senderName: map['senderName'],
       receiverUserId: map['receiverUserId'],
+      receiverName: map['receiverName'],
       matchScore: map['matchScore'],
       matchType: map['matchType'],
       organType: map['organType'],
@@ -68,6 +81,9 @@ class MatchNotification {
       adminFeedback: map['adminFeedback'],
       senderRole: map['senderRole'],
       receiverRole: map['receiverRole'],
+      relatedNotifications: map['relatedNotifications'] != null
+          ? List<String>.from(map['relatedNotifications'])
+          : null,
     );
   }
 
@@ -77,6 +93,7 @@ class MatchNotification {
     String? senderUserId,
     String? senderName,
     String? receiverUserId,
+    String? receiverName,
     int? matchScore,
     String? matchType,
     String? organType,
@@ -86,12 +103,14 @@ class MatchNotification {
     String? adminFeedback,
     String? senderRole,
     String? receiverRole,
+    List<String>? relatedNotifications,
   }) {
     return MatchNotification(
       id: id ?? this.id,
       senderUserId: senderUserId ?? this.senderUserId,
       senderName: senderName ?? this.senderName,
       receiverUserId: receiverUserId ?? this.receiverUserId,
+      receiverName: receiverName ?? this.receiverName,
       matchScore: matchScore ?? this.matchScore,
       matchType: matchType ?? this.matchType,
       organType: organType ?? this.organType,
@@ -101,6 +120,7 @@ class MatchNotification {
       adminFeedback: adminFeedback ?? this.adminFeedback,
       senderRole: senderRole ?? this.senderRole,
       receiverRole: receiverRole ?? this.receiverRole,
+      relatedNotifications: relatedNotifications ?? this.relatedNotifications,
     );
   }
 
@@ -115,7 +135,12 @@ class MatchNotification {
       senderRole == 'donor' ? senderUserId : receiverUserId;
   String get recipientUserId =>
       senderRole == 'recipient' ? senderUserId : receiverUserId;
-  String get donorName => senderRole == 'donor' ? senderName : 'Unknown';
+  String get donorName => senderRole == 'donor'
+      ? senderName
+      : (receiverRole == 'donor' ? receiverName ?? 'Unknown' : 'Unknown');
+  String get recipientName => senderRole == 'recipient'
+      ? senderName
+      : (receiverRole == 'recipient' ? receiverName ?? 'Unknown' : 'Unknown');
 
   // Factory methods for creating common notification types
   static MatchNotification createDonorToRecipientMatch({
@@ -123,16 +148,19 @@ class MatchNotification {
     required String donorUserId,
     required String donorName,
     required String recipientUserId,
+    String? recipientName,
     required int matchScore,
     required String organType,
     String status = 'pending',
     required DateTime timestamp,
+    List<String>? relatedNotifications,
   }) {
     return MatchNotification(
       id: id,
       senderUserId: donorUserId,
       senderName: donorName,
       receiverUserId: recipientUserId,
+      receiverName: recipientName,
       matchScore: matchScore,
       matchType: 'donation',
       organType: organType,
@@ -140,6 +168,7 @@ class MatchNotification {
       timestamp: timestamp,
       senderRole: 'donor',
       receiverRole: 'recipient',
+      relatedNotifications: relatedNotifications,
     );
   }
 
@@ -148,16 +177,19 @@ class MatchNotification {
     required String recipientUserId,
     required String recipientName,
     required String donorUserId,
+    String? donorName,
     required int matchScore,
     required String organType,
     String status = 'pending',
     required DateTime timestamp,
+    List<String>? relatedNotifications,
   }) {
     return MatchNotification(
       id: id,
       senderUserId: recipientUserId,
       senderName: recipientName,
       receiverUserId: donorUserId,
+      receiverName: donorName,
       matchScore: matchScore,
       matchType: 'recipient',
       organType: organType,
@@ -165,6 +197,7 @@ class MatchNotification {
       timestamp: timestamp,
       senderRole: 'recipient',
       receiverRole: 'donor',
+      relatedNotifications: relatedNotifications,
     );
   }
 }

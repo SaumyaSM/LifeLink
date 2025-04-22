@@ -151,8 +151,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             _profilePageButton(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => DonationStatus()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DonationStatusScreen()));
               },
               icon: Icons.check_circle,
               title: 'Donation Status',
