@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
 import 'package:life_link/models/match_notification_model.dart';
@@ -469,18 +470,77 @@ class NotificationsScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 try {
-                  // Check if there's an existing match from the other direction
+                  // First update status to "liked" regardless
+                  await NotificationService()
+                      .updateNotificationStatus(notification.id, "liked");
+
+                  // Print debug info
+                  print('Current user ID: ${currentUser.id}');
+                  print('Notification sender ID: ${notification.senderUserId}');
+
+                  // Check if there's an existing match from the other direction - this is key!
+                  // We want to find a match where the SENDER is the current notification's SENDER
+                  // and the RECEIVER is the current user
                   MatchNotification? existingMatch = await NotificationService()
-                      .getExistingMatchBetweenUsers(notification.receiverUserId,
-                          notification.senderUserId);
+                      .getExistingMatchBetweenUsers(
+                          currentUser
+                              .id, // Current user's ID (who is accepting)
+                          notification
+                              .senderUserId); // The original sender's ID
 
                   if (existingMatch != null &&
-                      existingMatch.status == "liked") {
-                    // This creates a mutual match
-                    await NotificationService().createMatchedNotification(
-                      notification.id,
-                      existingMatch.id,
-                    );
+                      (existingMatch.status == "liked" ||
+                          existingMatch.status == "pending")) {
+                    // This creates a mutual match - now with correct user information
+                    print('Found existing match - creating mutual match');
+
+                    // *** Bug fix: Add check to ensure we're not using the same notification ID twice ***
+                    if (notification.id == existingMatch.id) {
+                      print(
+                          'Warning: Same notification ID detected. Using different approach.');
+
+                      // Instead of trying to match the same notification with itself,
+                      // just update both users' status directly
+                      await NotificationService()
+                          .updateNotificationStatus(notification.id, "matched");
+
+                      // Create a new admin notification manually
+                      String adminNotificationId = FirebaseFirestore.instance
+                          .collection('notifications')
+                          .doc()
+                          .id;
+
+                      // Create the admin notification with the necessary information
+                      await FirebaseFirestore.instance
+                          .collection('notifications')
+                          .doc(adminNotificationId)
+                          .set({
+                        'id': adminNotificationId,
+                        'senderUserId': notification.senderUserId,
+                        'senderName': 'System',
+                        'receiverUserId': 'admin',
+                        'matchScore': notification.matchScore,
+                        'matchType': 'admin_approval',
+                        'organType': notification.organType,
+                        'status': 'pending',
+                        'timestamp': DateTime.now().toIso8601String(),
+                        'adminReviewed': false,
+                        'senderRole': notification.senderRole,
+                        'receiverRole': 'admin',
+                        'relatedNotifications': [notification.id],
+                        'user1Id': notification.senderUserId,
+                        'user1Name': notification.senderName,
+                        'user2Id': currentUser.id,
+                        'user2Name': currentUser.fullName,
+                      });
+                    } else {
+                      // Original code path for two different notifications
+                      await NotificationService().createMatchedNotification(
+                        notification.id, // This notification (being accepted)
+                        existingMatch
+                            .id, // The notification from the other user
+                      );
+                    }
 
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -492,11 +552,8 @@ class NotificationsScreen extends StatelessWidget {
                       ),
                     );
                   } else {
-                    // Just update this notification to "liked"
-                    await NotificationService()
-                        .updateNotificationStatus(notification.id, "liked");
-
-                    // Send notification back to the original sender
+                    // Just keep the "liked" status and send notification
+                    print('No existing match - just accepting this one');
                     await NotificationService().sendAcceptanceNotification(
                         notification.senderUserId,
                         currentUser.fullName,
@@ -513,6 +570,7 @@ class NotificationsScreen extends StatelessWidget {
                     );
                   }
                 } catch (e) {
+                  print('Error in accept process: $e');
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

@@ -82,11 +82,21 @@ class NotificationService {
   }
 
   // Update to "matched" when both users like each other
+// Update to "matched" when both users like each other
+// Update to "matched" when both users like each other
   Future<void> createMatchedNotification(
     String originalNotificationId,
     String otherNotificationId,
   ) async {
     try {
+      print(
+          'Creating matched notification between $originalNotificationId and $otherNotificationId');
+
+      // Verify we're not using the same notification ID twice
+      if (originalNotificationId == otherNotificationId) {
+        throw Exception('Cannot match a notification with itself');
+      }
+
       // Get both notifications
       DocumentSnapshot originalDoc = await _firestore
           .collection('notifications')
@@ -100,6 +110,22 @@ class NotificationService {
 
       if (!originalDoc.exists || !otherDoc.exists) {
         throw Exception('One or more notifications not found');
+      }
+
+      // Extract data from original notifications
+      Map<String, dynamic> originalData =
+          originalDoc.data() as Map<String, dynamic>;
+      Map<String, dynamic> otherData = otherDoc.data() as Map<String, dynamic>;
+
+      // Verify we're not matching the same user with themselves
+      String originalSenderId = originalData['senderUserId'];
+      String otherSenderId = otherData['senderUserId'];
+
+      print('Original sender: $originalSenderId, Other sender: $otherSenderId');
+
+      if (originalSenderId == otherSenderId) {
+        print('ERROR: Attempting to match a user with themselves');
+        throw Exception('Cannot match a user with themselves');
       }
 
       // Update status to "matched" for both notifications
@@ -117,11 +143,6 @@ class NotificationService {
       String adminNotificationId =
           _firestore.collection('notifications').doc().id;
 
-      // Extract data from original notifications
-      Map<String, dynamic> originalData =
-          originalDoc.data() as Map<String, dynamic>;
-      Map<String, dynamic> otherData = otherDoc.data() as Map<String, dynamic>;
-
       // Create admin notification
       MatchNotification adminNotification = MatchNotification(
         id: adminNotificationId,
@@ -134,9 +155,8 @@ class NotificationService {
         status: 'pending',
         timestamp: DateTime.now(),
         adminReviewed: false,
-        senderRole: originalData[
-            'senderRole'], // Pass the sender role from original notification
-        receiverRole: 'admin', // Admin is the receiver role
+        senderRole: originalData['senderRole'],
+        receiverRole: 'admin',
       );
 
       // Add references to the original notifications
@@ -145,6 +165,14 @@ class NotificationService {
         originalNotificationId,
         otherNotificationId
       ];
+
+      // Debug the user information we're about to set
+      print(
+          'Setting user1 to ${originalData['senderName']} (${originalData['senderUserId']})');
+      print(
+          'Setting user2 to ${otherData['senderName']} (${otherData['senderUserId']})');
+
+      // Make sure we set the distinct users for the admin notification
       adminNotificationMap['user1Id'] = originalData['senderUserId'];
       adminNotificationMap['user1Name'] = originalData['senderName'];
       adminNotificationMap['user2Id'] = otherData['senderUserId'];
@@ -154,6 +182,8 @@ class NotificationService {
           .collection('notifications')
           .doc(adminNotificationId)
           .set(adminNotificationMap);
+
+      print('Successfully created admin notification $adminNotificationId');
     } catch (e) {
       print('Error creating matched notification: $e');
       throw e;
@@ -316,32 +346,36 @@ class NotificationService {
   }
 
   // Check if there's an existing match in any state between two users
+// Check if there's an existing match between two users (must be different users)
   Future<MatchNotification?> getExistingMatchBetweenUsers(
       String user1Id, String user2Id) async {
     try {
-      // Query for existing notifications with user1 as sender and user2 as receiver
-      QuerySnapshot query1 = await FirebaseFirestore.instance
-          .collection('notifications')
-          .where('senderUserId', isEqualTo: user1Id)
-          .where('receiverUserId', isEqualTo: user2Id)
-          .get();
+      // Safety check - don't allow matching with self
+      if (user1Id == user2Id) {
+        print(
+            'ERROR: Attempting to find a match between a user and themselves');
+        return null;
+      }
+
+      print('Checking for existing match between $user1Id and $user2Id');
 
       // Query for existing notifications with user2 as sender and user1 as receiver
-      QuerySnapshot query2 = await FirebaseFirestore.instance
+      // This is the reverse direction we need for a mutual match
+      QuerySnapshot query = await FirebaseFirestore.instance
           .collection('notifications')
           .where('senderUserId', isEqualTo: user2Id)
           .where('receiverUserId', isEqualTo: user1Id)
-          .get();
+          .where('status', whereIn: ['pending', 'liked']).get();
 
       // Check if any notifications were found
-      if (query1.docs.isNotEmpty) {
-        return MatchNotification.fromMap(
-            query1.docs.first.data() as Map<String, dynamic>,
-            query1.docs.first.id);
-      } else if (query2.docs.isNotEmpty) {
-        return MatchNotification.fromMap(
-            query2.docs.first.data() as Map<String, dynamic>,
-            query2.docs.first.id);
+      if (query.docs.isNotEmpty) {
+        MatchNotification match = MatchNotification.fromMap(
+            query.docs.first.data() as Map<String, dynamic>,
+            query.docs.first.id);
+
+        print(
+            'Found existing match: ${match.id} from ${match.senderName} to receiver');
+        return match;
       }
 
       return null;
