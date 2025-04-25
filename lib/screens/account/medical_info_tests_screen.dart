@@ -22,6 +22,12 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
   final Map<String, String> uploadedFilesPaths = {}; // Store local file paths
   bool isUploading = false;
 
+  // List of mandatory tests that must be completed
+  final List<String> mandatoryTests = [
+    'ABO Blood Typing',
+    'Tissue Typing (HLA Antigens)',
+  ];
+
   void updateTestStatus(String testName, bool isCompleted) {
     setState(() {
       testCompletionStatus[testName] = isCompleted;
@@ -38,7 +44,24 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
   }
 
   Future<void> handleSubmit() async {
-    // Validate required documents are uploaded
+    // First validate mandatory tests
+    for (String mandatoryTest in mandatoryTests) {
+      // Check if test is either not marked as completed or doesn't have an uploaded file
+      if (!testCompletionStatus.containsKey(mandatoryTest) ||
+          testCompletionStatus[mandatoryTest] != true ||
+          uploadedFiles[mandatoryTest] == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                '$mandatoryTest is mandatory and requires a document upload'),
+            backgroundColor: kPinkColor,
+          ),
+        );
+        return;
+      }
+    }
+
+    // Validate other completed tests have corresponding documents
     bool canProceed = true;
     String missingTest = '';
 
@@ -149,6 +172,17 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
                       style: TextStyle(fontSize: 14, color: Colors.redAccent),
                     ),
                   ),
+                  Container(
+                    padding: EdgeInsets.only(left: 21, top: 8),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Note: ABO Blood Typing and Tissue Typing (HLA Antigens) are mandatory.',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red),
+                    ),
+                  ),
                   SizedBox(height: 20),
                   _buildTestSection('Immunological Tests', [
                     'ABO Blood Typing',
@@ -211,6 +245,7 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
         ),
         ...tests.map((test) => MedicalTestsWidget(
               statusLabel: test,
+              isMandatory: mandatoryTests.contains(test),
               onStatusChange: updateTestStatus,
               onFileUpload: (testName, fileName) {
                 updateFileUpload(testName, fileName, null);
@@ -225,7 +260,6 @@ class _MedicalInfoTestsScreenState extends State<MedicalInfoTestsScreen> {
   }
 
   Container _registerBanner() {
-    // Same implementation as before
     return Container(
       width: double.infinity,
       height: 170,

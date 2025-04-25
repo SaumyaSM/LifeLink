@@ -7,12 +7,14 @@ class GooglePlaceAutoCompleteWidget extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final Function(Prediction) onPlaceSelected;
+  final FocusNode? focusNode; // Add this parameter
 
   const GooglePlaceAutoCompleteWidget({
     Key? key,
     required this.label,
     required this.controller,
     required this.onPlaceSelected,
+    this.focusNode, // Add this parameter
   }) : super(key: key);
 
   @override
@@ -35,41 +37,45 @@ class GooglePlaceAutoCompleteWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             color: Color(0xFFEBEBEB),
           ),
-          child: GooglePlaceAutoCompleteTextField(
-            textEditingController: controller,
-            googleAPIKey: "AIzaSyBjDL2P5Nd50J6KR0qqi6PlrAmsS0MBa7c",
-            inputDecoration: InputDecoration(
-              border: InputBorder.none, // Match `CustomTextBox`
-              contentPadding: EdgeInsets.symmetric(vertical: 15),
+          child: Focus(
+            // Wrap in Focus widget to manage focus manually
+            focusNode: focusNode,
+            child: GooglePlaceAutoCompleteTextField(
+              textEditingController: controller,
+              googleAPIKey: "AIzaSyBjDL2P5Nd50J6KR0qqi6PlrAmsS0MBa7c",
+              inputDecoration: InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(vertical: 15),
+              ),
+              debounceTime: 800,
+              countries: ["lk"],
+              isLatLngRequired: true,
+              getPlaceDetailWithLatLng: (Prediction prediction) {
+                print("Place details: ${prediction.lng}, ${prediction.lat}");
+              },
+              itemClick: (Prediction prediction) {
+                controller.text = prediction.description ?? "";
+                controller.selection = TextSelection.fromPosition(
+                    TextPosition(offset: controller.text.length));
+                onPlaceSelected(prediction);
+              },
+              itemBuilder: (context, index, Prediction prediction) {
+                return Container(
+                  padding: EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      Icon(Icons.location_on),
+                      SizedBox(width: 7),
+                      Expanded(child: Text("${prediction.description ?? ""}")),
+                    ],
+                  ),
+                );
+              },
+              seperatedBuilder: Divider(),
+              isCrossBtnShown: true,
+              containerHorizontalPadding: 10,
+              placeType: PlaceType.geocode,
             ),
-            debounceTime: 800,
-            countries: ["lk"],
-            isLatLngRequired: true,
-            getPlaceDetailWithLatLng: (Prediction prediction) {
-              print("Place details: ${prediction.lng}, ${prediction.lat}");
-            },
-            itemClick: (Prediction prediction) {
-              controller.text = prediction.description ?? "";
-              controller.selection = TextSelection.fromPosition(
-                  TextPosition(offset: controller.text.length));
-              onPlaceSelected(prediction);
-            },
-            itemBuilder: (context, index, Prediction prediction) {
-              return Container(
-                padding: EdgeInsets.all(10),
-                child: Row(
-                  children: [
-                    Icon(Icons.location_on),
-                    SizedBox(width: 7),
-                    Expanded(child: Text("${prediction.description ?? ""}")),
-                  ],
-                ),
-              );
-            },
-            seperatedBuilder: Divider(),
-            isCrossBtnShown: true,
-            containerHorizontalPadding: 10,
-            placeType: PlaceType.geocode,
           ),
         ),
         SizedBox(height: 10),

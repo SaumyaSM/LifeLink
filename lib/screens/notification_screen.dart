@@ -95,11 +95,11 @@ class NotificationsScreen extends StatelessWidget {
     } else if (isAdminApproved) {
       cardColor = Colors.green.shade50;
       statusIcon = Icons.check_circle;
-      statusText = "Approved by Medical Team";
+      statusText = "Approved by\nMedical Team";
     } else if (isAdminRejected) {
       cardColor = Colors.red.shade50;
       statusIcon = Icons.cancel;
-      statusText = "Rejected by Medical Team";
+      statusText = "Rejected by\nMedical Team";
     } else if (isMatched) {
       cardColor = Colors.blue.shade50;
       statusIcon = Icons.handshake;
@@ -451,7 +451,7 @@ class NotificationsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               const Text(
-                "If this creates a mutual match, the medical team will be notified for review. Do you want to proceed?",
+                "The medical team will be notified for review. Do you want to proceed?",
               ),
             ],
           ),
@@ -470,7 +470,6 @@ class NotificationsScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 try {
-                  // First update status to "liked" regardless
                   await NotificationService()
                       .updateNotificationStatus(notification.id, "liked");
 
@@ -478,33 +477,22 @@ class NotificationsScreen extends StatelessWidget {
                   print('Current user ID: ${currentUser.id}');
                   print('Notification sender ID: ${notification.senderUserId}');
 
-                  // Check if there's an existing match from the other direction - this is key!
-                  // We want to find a match where the SENDER is the current notification's SENDER
-                  // and the RECEIVER is the current user
                   MatchNotification? existingMatch = await NotificationService()
                       .getExistingMatchBetweenUsers(
-                          currentUser
-                              .id, // Current user's ID (who is accepting)
-                          notification
-                              .senderUserId); // The original sender's ID
+                          currentUser.id, notification.senderUserId);
 
                   if (existingMatch != null &&
                       (existingMatch.status == "liked" ||
                           existingMatch.status == "pending")) {
-                    // This creates a mutual match - now with correct user information
                     print('Found existing match - creating mutual match');
 
-                    // *** Bug fix: Add check to ensure we're not using the same notification ID twice ***
                     if (notification.id == existingMatch.id) {
                       print(
                           'Warning: Same notification ID detected. Using different approach.');
 
-                      // Instead of trying to match the same notification with itself,
-                      // just update both users' status directly
                       await NotificationService()
                           .updateNotificationStatus(notification.id, "matched");
 
-                      // Create a new admin notification manually
                       String adminNotificationId = FirebaseFirestore.instance
                           .collection('notifications')
                           .doc()
@@ -534,11 +522,9 @@ class NotificationsScreen extends StatelessWidget {
                         'user2Name': currentUser.fullName,
                       });
                     } else {
-                      // Original code path for two different notifications
                       await NotificationService().createMatchedNotification(
-                        notification.id, // This notification (being accepted)
-                        existingMatch
-                            .id, // The notification from the other user
+                        notification.id,
+                        existingMatch.id,
                       );
                     }
 
@@ -552,7 +538,6 @@ class NotificationsScreen extends StatelessWidget {
                       ),
                     );
                   } else {
-                    // Just keep the "liked" status and send notification
                     print('No existing match - just accepting this one');
                     await NotificationService().sendAcceptanceNotification(
                         notification.senderUserId,

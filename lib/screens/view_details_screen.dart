@@ -393,9 +393,9 @@ class ViewDetailsScreen extends StatelessWidget {
       case "rejected":
         return "Declined";
       case "admin_approved":
-        return "Approved by Medical Team";
+        return "Approved by\nMedical Team";
       case "admin_rejected":
-        return "Declined by Medical Team";
+        return "Declined by\nMedical Team";
       default:
         return "Pending Review";
     }

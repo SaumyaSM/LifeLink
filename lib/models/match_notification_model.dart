@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class MatchNotification {
   final String id;
   final String senderUserId;
@@ -76,7 +78,10 @@ class MatchNotification {
       matchType: map['matchType'],
       organType: map['organType'],
       status: map['status'],
-      timestamp: DateTime.parse(map['timestamp']),
+      // Convert Timestamp to DateTime - this is the critical change
+      timestamp: map['timestamp'] is Timestamp
+          ? (map['timestamp'] as Timestamp).toDate()
+          : DateTime.parse(map['timestamp']),
       adminReviewed: map['adminReviewed'] ?? false,
       adminFeedback: map['adminFeedback'],
       senderRole: map['senderRole'],

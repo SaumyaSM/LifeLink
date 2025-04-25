@@ -4,6 +4,7 @@ import 'package:life_link/constants/colors.dart';
 
 class MedicalTestsWidget extends StatefulWidget {
   final String statusLabel;
+  final bool isMandatory;
   final Color activeColor;
   final Color buttonColor;
   final Function(String, bool) onStatusChange;
@@ -13,6 +14,7 @@ class MedicalTestsWidget extends StatefulWidget {
   MedicalTestsWidget({
     Key? key,
     required this.statusLabel,
+    this.isMandatory = false,
     required this.onStatusChange,
     required this.onFileUpload,
     this.onFilePathSelected,
@@ -56,9 +58,30 @@ class _MedicalTestsWidgetState extends State<MedicalTestsWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  widget.statusLabel,
-                  style: TextStyle(fontSize: 15),
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: widget.statusLabel,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: widget.isMandatory ? Colors.red : Colors.black,
+                          fontWeight: widget.isMandatory
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                      if (widget.isMandatory)
+                        TextSpan(
+                          text: ' *',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
               Switch(

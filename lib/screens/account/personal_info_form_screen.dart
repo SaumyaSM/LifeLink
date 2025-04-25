@@ -31,6 +31,9 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
   TextEditingController address = TextEditingController();
   TextEditingController city = TextEditingController();
 
+  final FocusNode addressFocusNode = FocusNode();
+  final FocusNode cityFocusNode = FocusNode();
+
   String? selectedDate;
   String? selectedGender;
 
@@ -243,12 +246,14 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
               CustomTextBox(
                 controller: address,
                 label: 'Address',
+                focusNode: addressFocusNode, // Pass the focus node
               ),
               SizedBox(
                 height: 10,
               ),
               GooglePlaceAutoCompleteWidget(
                 controller: city,
+                focusNode: cityFocusNode, // Pass the focus node
                 onPlaceSelected: (Prediction prediction) {
                   setState(() {
                     city.text = prediction.description ?? '';
