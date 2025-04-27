@@ -1,0 +1,2 @@
+/Users/saumya/Desktop/NSBM/Final Project/SourceCode/LifeLinkTest/android/app/.cxx/RelWithDebInfo/672m6l6o/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/saumya/Desktop/NSBM/Final Project/SourceCode/LifeLinkTest/android/app/.cxx/RelWithDebInfo/672m6l6o/arm64-v8a/CMakeFiles/rebuild_cache.dir

@@ -8,6 +8,8 @@ import 'package:life_link/screens/explore_screen.dart';
 import 'package:life_link/screens/learn_about_organ_donation_screen.dart';
 import 'package:life_link/services/events_service.dart';
 
+import 'Account/donation_status.dart';
+
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key, required this.userModel});
 
@@ -50,40 +52,59 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _homeDetailsCard(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              widget.userModel.isDonor
-                                  ? 'You saved'
-                                  : 'You received',
-                              style: _homeDetailsCardTextStyle(),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DonationStatusScreen(),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  widget.userModel.history.length.toString(),
-                                  style: const TextStyle(
-                                    color: kRedColor,
-                                    fontSize: 20,
+                          );
+                        },
+                        child: _homeDetailsCard(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Donation Status',
+                                style: TextStyle(
+                                  color: kRedColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                widget.userModel.isDonor
+                                    ? 'Track your donation'
+                                    : 'Track your request',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              Image.asset(
+                                'assets/images/heart.png',
+                                height:
+                                    MediaQuery.of(context).size.height * 0.07,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(Icons.timeline,
+                                      color: kRedColor, size: 14),
+                                  SizedBox(width: 2),
+                                  Text(
+                                    'View Progress',
+                                    style: TextStyle(
+                                      color: kRedColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 11,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  widget.userModel.isDonor
-                                      ? ' lives'
-                                      : ' organs',
-                                  style: _homeDetailsCardTextStyle(),
-                                ),
-                              ],
-                            ),
-                            Image.asset(
-                              'assets/images/heart.png',
-                              height: MediaQuery.of(context).size.height * 0.1,
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       GestureDetector(

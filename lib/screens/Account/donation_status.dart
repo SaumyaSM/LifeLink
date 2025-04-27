@@ -34,14 +34,10 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
     });
 
     try {
-      // STEP 1: Get current user ID - Log this
       _currentUserId = await AuthService.getCurrentUserId();
       print('DEBUG - Current user ID: $_currentUserId');
-
-      // STEP 2: Check if we have a donation ID
       print('DEBUG - Donation ID from widget: ${widget.donationId}');
 
-      // STEP 3: Load donation status
       if (widget.donationId != null) {
         print(
             'DEBUG - Loading specific donation with ID: ${widget.donationId}');
@@ -62,7 +58,6 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
         print('DEBUG - No donation ID provided, searching for user donations');
 
         try {
-          // Get all user statuses
           List<DonationStatus> userStatuses = [];
           try {
             userStatuses = await _donationStatusService
@@ -72,7 +67,6 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
             print('DEBUG - Error getting user donation statuses: $e');
           }
 
-          // Print all retrieved statuses
           if (userStatuses.isNotEmpty) {
             print('DEBUG - Listing all retrieved statuses:');
             for (var i = 0; i < userStatuses.length; i++) {
@@ -81,7 +75,6 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
                   'DEBUG - Status $i: ID=${status.id}, DonorID=${status.donorId}, RecipientID=${status.recipientId}, StatusIndex=${status.statusIndex}');
             }
 
-            // Try to find an active status
             print('DEBUG - Checking for active donations');
             userStatuses
                 .sort((a, b) => b.statusTimestamp.compareTo(a.statusTimestamp));
@@ -96,7 +89,6 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
         }
       }
 
-      // STEP 4: Check user involvement
       if (_donationStatus != null && _currentUserId != null) {
         _isUserInvolved = _donationStatus!.donorId == _currentUserId ||
             _donationStatus!.recipientId == _currentUserId;
@@ -122,9 +114,11 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Donation Status'),
+        elevation: 0,
         actions: [
           if (_donationStatus != null)
             IconButton(
@@ -156,26 +150,154 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.medical_services_outlined,
+              size: 56,
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No Active Donation',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'You are not currently part of an active donation process',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey.shade700,
+                  ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _loadData,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Refresh'),
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusHeader() {
+    final statusInfo = _donationStatus!.getStatusInfo();
+    final bool isRecipient = _currentUserId == _donationStatus!.recipientId;
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: primaryColor.withOpacity(0.1),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(16),
+          bottomRight: Radius.circular(16),
+        ),
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.medical_services_outlined,
-              size: 72, color: Colors.grey),
-          const SizedBox(height: 16),
-          const Text(
-            'No active donation process found',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: primaryColor.withOpacity(0.2),
+                radius: 20,
+                child: Text(
+                  statusInfo['emoji'],
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isRecipient
+                          ? 'Receiving ${_donationStatus!.organType} from ${_donationStatus!.donorName}'
+                          : 'Donating ${_donationStatus!.organType} to ${_donationStatus!.recipientName}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Current status: ${statusInfo['title']}',
+                      style: TextStyle(
+                        color: primaryColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Stack(
+            children: [
+              Container(
+                height: 6,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+              FractionallySizedBox(
+                widthFactor: (_donationStatus!.statusIndex + 1) /
+                    DonationStatusType.values.length,
+                child: Container(
+                  height: 6,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [primaryColor, primaryColor.withOpacity(0.7)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
-          const Text(
-            'You are not currently part of an active donation process',
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _loadData,
-            child: const Text('Refresh'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Step ${_donationStatus!.statusIndex + 1} of ${DonationStatusType.values.length}',
+                style: TextStyle(
+                  color: primaryColor,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 12,
+                ),
+              ),
+              Text(
+                'Updated: ${_formatDateTime(_donationStatus!.statusTimestamp)}',
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -185,14 +307,17 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
   Widget _buildTimelineView() {
     final List<DonationStatusType> allStatuses = DonationStatusType.values;
     final currentStatusIndex = _donationStatus!.statusIndex;
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Column(
       children: [
         _buildStatusHeader(),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
             child: ListView.builder(
+              padding: const EdgeInsets.only(top: 12),
               itemCount: allStatuses.length,
               itemBuilder: (context, index) {
                 final statusType = allStatuses[index];
@@ -201,119 +326,143 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
                     .getStatusInfo();
                 final bool isCompleted = index <= currentStatusIndex;
                 final bool isCurrent = index == currentStatusIndex;
-
-                // Check if this status is in the history
                 final String statusKey = statusType.toString().split('.').last;
                 final DateTime? completedDate =
                     _donationStatus!.statusHistory[statusKey];
 
-                return Card(
-                  elevation: isCurrent ? 3 : 1,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  color: isCurrent ? Colors.blue.shade50 : null,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: isCurrent
-                        ? BorderSide(
-                            color: Theme.of(context).primaryColor, width: 2)
-                        : BorderSide.none,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Status indicator
-                        Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 24,
-                              backgroundColor: isCompleted
-                                  ? Colors.green
-                                  : index == currentStatusIndex + 1
-                                      ? Colors.orange
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Card(
+                    elevation: isCurrent ? 2 : 1,
+                    surfaceTintColor: Colors.white,
+                    margin: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: isCurrent
+                          ? BorderSide(color: primaryColor, width: 1.5)
+                          : BorderSide.none,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundColor: isCompleted
+                                    ? Colors.green
+                                    : index == currentStatusIndex + 1
+                                        ? Colors.orange
+                                        : Colors.grey.shade300,
+                                child: isCompleted
+                                    ? const Icon(Icons.check,
+                                        color: Colors.white, size: 16)
+                                    : Text(
+                                        (index + 1).toString(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                              ),
+                              if (index < allStatuses.length - 1)
+                                Container(
+                                  width: 2,
+                                  height: 30,
+                                  color: isCompleted
+                                      ? Colors.green
                                       : Colors.grey.shade300,
-                              child: isCompleted
-                                  ? const Icon(Icons.check,
-                                      color: Colors.white, size: 28)
-                                  : Text(
-                                      (index + 1).toString(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                ),
+                            ],
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      statusInfo['emoji'],
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        statusInfo['title'],
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: isCurrent
+                                              ? FontWeight.bold
+                                              : FontWeight.w500,
+                                        ),
                                       ),
                                     ),
-                            ),
-                            if (index < allStatuses.length - 1)
-                              Container(
-                                width: 2,
-                                height: 40,
-                                color: isCompleted
-                                    ? Colors.green
-                                    : Colors.grey.shade300,
-                              ),
-                          ],
-                        ),
-                        const SizedBox(width: 16),
-                        // Status content
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    statusInfo['emoji'],
-                                    style: const TextStyle(fontSize: 24),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  statusInfo['description'],
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: isCurrent
+                                        ? Colors.black87
+                                        : Colors.grey.shade700,
                                   ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      statusInfo['title'],
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: isCurrent
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
+                                ),
+                                if (completedDate != null) ...[
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.check_circle,
+                                          color: Colors.green, size: 12),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Completed: ${_formatDateTime(completedDate)}',
+                                        style: const TextStyle(
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 12,
+                                        ),
                                       ),
+                                    ],
+                                  ),
+                                ],
+                                if (isCurrent) ...[
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: primaryColor.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.hourglass_top,
+                                            size: 12, color: primaryColor),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Current Status',
+                                          style: TextStyle(
+                                            color: primaryColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                statusInfo['description'],
-                                style: TextStyle(
-                                  color: isCurrent
-                                      ? Colors.black87
-                                      : Colors.grey.shade700,
-                                ),
-                              ),
-                              if (completedDate != null) ...[
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Completed on: ${_formatDateTime(completedDate)}',
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
                               ],
-                              if (isCurrent) ...[
-                                const SizedBox(height: 16),
-                                const Text(
-                                  'Current Status',
-                                  style: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -325,236 +474,199 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
     );
   }
 
-  Widget _buildStatusHeader() {
-    final statusInfo = _donationStatus!.getStatusInfo();
-    final bool isRecipient = _currentUserId == _donationStatus!.recipientId;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
-      color: Colors.blue.shade50,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                backgroundColor:
-                    Theme.of(context).primaryColor.withOpacity(0.2),
-                radius: 24,
-                child: Text(
-                  statusInfo['emoji'],
-                  style: const TextStyle(fontSize: 24),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isRecipient
-                          ? 'Receiving ${_donationStatus!.organType} from ${_donationStatus!.donorName}'
-                          : 'Donating ${_donationStatus!.organType} to ${_donationStatus!.recipientName}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Current status: ${statusInfo['title']}',
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          LinearProgressIndicator(
-            value: (_donationStatus!.statusIndex + 1) /
-                DonationStatusType.values.length,
-            backgroundColor: Colors.grey.shade200,
-            color: Theme.of(context).primaryColor,
-            minHeight: 8,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Last updated: ${_formatDateTime(_donationStatus!.statusTimestamp)}',
-            style: TextStyle(
-              color: Colors.grey.shade700,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildDetailsView() {
     final statusInfo = _donationStatus!.getStatusInfo();
     final bool isRecipient = _currentUserId == _donationStatus!.recipientId;
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            elevation: 3,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor:
-                            Theme.of(context).primaryColor.withOpacity(0.2),
-                        radius: 24,
-                        child: Text(
-                          statusInfo['emoji'],
-                          style: const TextStyle(fontSize: 24),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+          _buildStatusHeader(),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  surfaceTintColor: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Text(
-                              statusInfo['title'],
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                            CircleAvatar(
+                              backgroundColor: primaryColor.withOpacity(0.2),
+                              radius: 18,
+                              child: Text(
+                                statusInfo['emoji'],
+                                style: const TextStyle(fontSize: 18),
                               ),
                             ),
-                            Text(
-                              'Updated: ${_formatDateTime(_donationStatus!.statusTimestamp)}',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 12,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    statusInfo['title'],
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Updated: ${_formatDateTime(_donationStatus!.statusTimestamp)}',
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 12),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        Text(
+                          statusInfo['description'],
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
                   ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Donation Details',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Card(
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  surfaceTintColor: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      children: [
+                        _buildDetailRow('Organ', _donationStatus!.organType),
+                        const Divider(height: 16),
+                        _buildDetailRow(
+                          isRecipient ? 'Donor' : 'Recipient',
+                          isRecipient
+                              ? _donationStatus!.donorName
+                              : _donationStatus!.recipientName,
+                        ),
+                        const Divider(height: 16),
+                        _buildDetailRow(
+                          'Progress',
+                          '${_donationStatus!.statusIndex + 1} of ${DonationStatusType.values.length} steps',
+                        ),
+                        const SizedBox(height: 8),
+                        Stack(
+                          children: [
+                            Container(
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            FractionallySizedBox(
+                              widthFactor: (_donationStatus!.statusIndex + 1) /
+                                  DonationStatusType.values.length,
+                              child: Container(
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      primaryColor,
+                                      primaryColor.withOpacity(0.7)
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Status History',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Card(
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  surfaceTintColor: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: _buildStatusHistory(),
+                  ),
+                ),
+                if (_donationStatus!.adminNotes != null &&
+                    _donationStatus!.adminNotes!.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Text(
-                    statusInfo['description'],
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Donation Details',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Card(
-            elevation: 2,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _buildDetailRow('Organ', _donationStatus!.organType),
-                  const Divider(),
-                  _buildDetailRow(
-                    isRecipient ? 'Donor' : 'You are donating to',
-                    isRecipient
-                        ? _donationStatus!.donorName
-                        : _donationStatus!.recipientName,
-                  ),
-                  const Divider(),
-                  _buildDetailRow(
-                    'Progress',
-                    '${_donationStatus!.statusIndex + 1} of ${DonationStatusType.values.length} steps',
+                    'Notes',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: (_donationStatus!.statusIndex + 1) /
-                        DonationStatusType.values.length,
-                    backgroundColor: Colors.grey.shade200,
-                    color: Theme.of(context).primaryColor,
-                    minHeight: 8,
-                    borderRadius: BorderRadius.circular(4),
+                  Card(
+                    elevation: 1,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    surfaceTintColor: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(_donationStatus!.adminNotes!,
+                              style: const TextStyle(fontSize: 14)),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Status History',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Card(
-            elevation: 2,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: _buildStatusHistory(),
-            ),
-          ),
-          const SizedBox(height: 24),
-          if (_donationStatus!.adminNotes != null &&
-              _donationStatus!.adminNotes!.isNotEmpty) ...[
-            const Text(
-              'Notes',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(_donationStatus!.adminNotes!),
-                  ],
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _loadData,
+                    icon: const Icon(Icons.refresh, size: 16),
+                    label: const Text('Refresh Status'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ],
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _loadData,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Refresh Status'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
+                const SizedBox(height: 16),
+              ],
             ),
           ),
         ],
@@ -564,7 +676,7 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -575,6 +687,7 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 color: Colors.grey.shade700,
+                fontSize: 13,
               ),
             ),
           ),
@@ -584,6 +697,7 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
               value,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
+                fontSize: 13,
               ),
             ),
           ),
@@ -593,15 +707,23 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
   }
 
   Widget _buildStatusHistory() {
-    // Sort status history by dates
     final sortedHistory = _donationStatus!.statusHistory.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     if (sortedHistory.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text('No status history available'),
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            children: [
+              Icon(Icons.history, size: 32, color: Colors.grey.shade400),
+              const SizedBox(height: 8),
+              Text(
+                'No status history available',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -610,40 +732,55 @@ class _DonationStatusScreenState extends State<DonationStatusScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: sortedHistory.length,
-      separatorBuilder: (context, index) => const Divider(),
+      separatorBuilder: (context, index) =>
+          Divider(height: 16, color: Colors.grey.shade300),
       itemBuilder: (context, index) {
         final entry = sortedHistory[index];
         final statusKey = entry.key;
         final timestamp = entry.value;
 
-        // Convert status key to status type
         final statusType = DonationStatusType.values.firstWhere(
           (type) => type.toString().split('.').last == statusKey,
           orElse: () => DonationStatusType.matched,
         );
 
-        // Get status info
         final statusInfo =
             _donationStatus!.copyWith(status: statusType).getStatusInfo();
 
         return Row(
           children: [
-            Text(
-              statusInfo['emoji'],
-              style: const TextStyle(fontSize: 18),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                statusInfo['emoji'],
+                style: const TextStyle(fontSize: 14),
+              ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     statusInfo['title'],
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 13),
                   ),
-                  Text(
-                    _formatDateTime(timestamp),
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  Row(
+                    children: [
+                      Icon(Icons.access_time,
+                          size: 12, color: Colors.grey.shade600),
+                      const SizedBox(width: 4),
+                      Text(
+                        _formatDateTime(timestamp),
+                        style: TextStyle(
+                            color: Colors.grey.shade600, fontSize: 11),
+                      ),
+                    ],
                   ),
                 ],
               ),

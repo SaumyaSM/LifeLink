@@ -3,14 +3,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 enum DonationStatusType {
   matched,
   adminApproved,
+  notifyUser,
+  medicalTestingPhase,
   compatibilityVerified,
-  recipientNotified,
+  consentAndClearance,
   organProcurement,
-  organInTransit,
   transplantInProgress,
   postOpRecovery,
   immunosuppressionInitiated,
-  followUpPhase,
+  followUpCare,
 }
 
 class DonationStatus {
@@ -140,60 +141,68 @@ class DonationStatus {
           'description':
               'Admin has reviewed and approved the match. Pre-transplant procedures to begin.',
         };
-      case DonationStatusType.compatibilityVerified:
+      case DonationStatusType.notifyUser:
         return {
-          'emoji': '🟡',
-          'title': 'Compatibility Verified',
+          'emoji': '📞',
+          'title': 'Notifies User via Call',
           'description':
-              'Final crossmatch and medical compatibility confirmed. Both parties medically cleared.',
+              'Both donor and recipient are contacted by hospital staff via phone. They are informed about the match and invited for further medical evaluation and testing.',
         };
-      case DonationStatusType.recipientNotified:
+      case DonationStatusType.medicalTestingPhase:
         return {
           'emoji': '🟠',
-          'title': 'Recipient Notified',
+          'title': 'Medical Testing Phase',
           'description':
-              'Recipient contacted and admitted to hospital. Preparing for transplant.',
+              'Both donor and recipient undergo hospital-based lab tests (e.g., HLA typing, tissue typing, infectious disease screening).',
+        };
+      case DonationStatusType.compatibilityVerified:
+        return {
+          'emoji': '🟣',
+          'title': 'Compatibility Verified',
+          'description':
+              'All required tests confirm high compatibility between donor and recipient.',
+        };
+      case DonationStatusType.consentAndClearance:
+        return {
+          'emoji': '🟤',
+          'title': 'Consent & Clearance',
+          'description':
+              'Donor and recipient provide final informed consent. Psychological evaluations and legal paperwork are completed.',
         };
       case DonationStatusType.organProcurement:
         return {
-          'emoji': '🔵',
+          'emoji': '🟢',
           'title': 'Organ Procurement',
           'description':
-              'Donor organ is being surgically retrieved. Organ preservation started.',
-        };
-      case DonationStatusType.organInTransit:
-        return {
-          'emoji': '🟣',
-          'title': 'Organ In Transit',
-          'description':
-              'Organ is securely transported to transplant center. Time-critical monitoring active.',
+              'The donor organ is surgically retrieved and preserved for transplant.',
         };
       case DonationStatusType.transplantInProgress:
         return {
-          'emoji': '🟢',
+          'emoji': '🔴',
           'title': 'Transplant in Progress',
-          'description': 'Recipient in surgery. Organ being implanted.',
+          'description':
+              'Recipient undergoes transplant surgery. Surgical team handles implantation.',
         };
       case DonationStatusType.postOpRecovery:
         return {
           'emoji': '🟩',
           'title': 'Post-Op Recovery',
           'description':
-              'Patient in ICU or transplant unit. Immediate function and rejection monitoring.',
+              'Patient is monitored in ICU or transplant unit for immediate recovery and rejection signs.',
         };
       case DonationStatusType.immunosuppressionInitiated:
         return {
           'emoji': '🔵',
           'title': 'Immunosuppression Initiated',
           'description':
-              'Medication protocol for rejection prevention started. Adjusted based on early response.',
+              'Recipient begins medication to prevent organ rejection. Dosage adjusted based on early response.',
         };
-      case DonationStatusType.followUpPhase:
+      case DonationStatusType.followUpCare:
         return {
           'emoji': '✅',
-          'title': 'Follow-Up Phase',
+          'title': 'Follow-Up Care',
           'description':
-              'Transition to outpatient follow-up. Regular monitoring for long-term care.',
+              'Long-term follow-up phase including outpatient visits, medication management, and psychological support.',
         };
     }
   }
@@ -205,24 +214,26 @@ class DonationStatus {
         return DonationStatusType.matched;
       case 'adminApproved':
         return DonationStatusType.adminApproved;
+      case 'notifyUser':
+        return DonationStatusType.notifyUser;
+      case 'medicalTestingPhase':
+        return DonationStatusType.medicalTestingPhase;
       case 'compatibilityVerified':
         return DonationStatusType.compatibilityVerified;
-      case 'recipientNotified':
-        return DonationStatusType.recipientNotified;
+      case 'consentAndClearance':
+        return DonationStatusType.consentAndClearance;
       case 'organProcurement':
         return DonationStatusType.organProcurement;
-      case 'organInTransit':
-        return DonationStatusType.organInTransit;
       case 'transplantInProgress':
         return DonationStatusType.transplantInProgress;
       case 'postOpRecovery':
         return DonationStatusType.postOpRecovery;
       case 'immunosuppressionInitiated':
         return DonationStatusType.immunosuppressionInitiated;
-      case 'followUpPhase':
-        return DonationStatusType.followUpPhase;
+      case 'followUpCare':
+        return DonationStatusType.followUpCare;
       default:
-        return DonationStatusType.matched; // Default to matched
+        return DonationStatusType.matched;
     }
   }
 
