@@ -12,11 +12,12 @@ import 'package:life_link/widgets/textbox_widget.dart';
 import '../../constants/colors.dart';
 
 class PersonalInfoFormScreen extends StatefulWidget {
-  PersonalInfoFormScreen(
-      {super.key, required this.isDonor, required this.userModel});
+  const PersonalInfoFormScreen(
+      {Key? key, required this.isDonor, required this.userModel})
+      : super(key: key);
 
-  bool isDonor;
-  UserModel userModel;
+  final bool isDonor;
+  final UserModel userModel;
 
   @override
   State<PersonalInfoFormScreen> createState() => _PersonalInfoFormScreenState();
@@ -25,11 +26,11 @@ class PersonalInfoFormScreen extends StatefulWidget {
 class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
   bool isLoading = false;
 
-  TextEditingController fullName = TextEditingController();
-  TextEditingController nic = TextEditingController();
-  TextEditingController contact = TextEditingController();
-  TextEditingController address = TextEditingController();
-  TextEditingController city = TextEditingController();
+  final TextEditingController fullName = TextEditingController();
+  final TextEditingController nic = TextEditingController();
+  final TextEditingController contact = TextEditingController();
+  final TextEditingController address = TextEditingController();
+  final TextEditingController city = TextEditingController();
 
   final FocusNode addressFocusNode = FocusNode();
   final FocusNode cityFocusNode = FocusNode();
@@ -64,7 +65,7 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
   }
 
   void validateForm() {
-    if (fullName.text == '') {
+    if (fullName.text.isEmpty) {
       _showErrorDialog("Full Name cannot be empty");
       return;
     }
@@ -76,8 +77,8 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
       _showErrorDialog("Please select a Gender");
       return;
     }
-    if (nic.text == '') {
-      _showErrorDialog("Please enter your nic");
+    if (nic.text.isEmpty) {
+      _showErrorDialog("Please enter your NIC");
       return;
     }
     if (!validateNIC(nic.text)) {
@@ -89,11 +90,11 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
           "Enter a valid Contact number (only digits, at least 10 characters)");
       return;
     }
-    if (address.text == '') {
+    if (address.text.isEmpty) {
       _showErrorDialog("Address cannot be empty");
       return;
     }
-    if (city.text == '') {
+    if (city.text.isEmpty) {
       _showErrorDialog("Please select your city");
       return;
     }
@@ -134,7 +135,6 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
       setState(() => isLoading = false);
       ToastService.displayErrorMotionToast(
           context: context, description: 'Something went Wrong!');
-      return;
     });
   }
 
@@ -142,7 +142,7 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
         backgroundColor: kRedColor,
       ),
     );
@@ -150,124 +150,165 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get available screen height
+    final screenHeight = MediaQuery.of(context).size.height;
+    final safeAreaPadding = MediaQuery.of(context).padding;
+
+    // Adjust banner height based on available space
+    final bannerHeight = screenHeight * 0.15; // Use percentage of screen height
+
     return LoadingWidget(
       inAsyncCall: isLoading,
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 0,
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              _registerBanner(),
-              SizedBox(
-                height: 20,
-              ),
-              Text(
-                'Fill in your personal details',
-                textAlign: TextAlign.left,
-                style: TextStyle(color: kPinkColor, fontSize: 20),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              CustomTextBox(
-                controller: fullName,
-                label: 'Full Name',
-              ),
-              Container(
-                padding: EdgeInsets.only(left: 21),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Date of Birth',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              GestureDetector(
-                onTap: _pickDate,
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: Color(0xFFEBEBEB),
-                    borderRadius: BorderRadius.circular(8),
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.calendar_today, color: Colors.grey),
-                      SizedBox(width: 12),
-                      Text(
-                        selectedDate ?? 'Select Date',
-                        style: TextStyle(color: Colors.grey),
+                      _registerBanner(height: bannerHeight),
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'Fill in your personal details',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(color: kPinkColor, fontSize: 20),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Form fields with padding
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomTextBox(
+                              controller: fullName,
+                              label: 'Full Name',
+                            ),
+
+                            Container(
+                              padding: const EdgeInsets.only(left: 5),
+                              alignment: Alignment.centerLeft,
+                              child: const Text(
+                                'Date of Birth',
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+
+                            GestureDetector(
+                              onTap: _pickDate,
+                              child: Container(
+                                width: double.infinity,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEBEBEB),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.calendar_today,
+                                        color: Colors.grey),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      selectedDate ?? 'Select Date',
+                                      style:
+                                          const TextStyle(color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+
+                            Container(
+                              padding: const EdgeInsets.only(left: 5),
+                              alignment: Alignment.centerLeft,
+                              child: const Text(
+                                'Gender',
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+
+                            // Gender selection row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _genderButton(
+                                  gender: 'Female',
+                                  icon: Icons.female,
+                                ),
+                                _genderButton(
+                                  gender: 'Male',
+                                  icon: Icons.male,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+
+                            // Remaining form fields
+                            CustomTextBox(label: 'NIC', controller: nic),
+                            CustomTextBox(
+                                controller: contact,
+                                label: 'Contact',
+                                keyboardType: TextInputType.number),
+                            CustomTextBox(
+                              controller: address,
+                              label: 'Address',
+                              focusNode: addressFocusNode,
+                            ),
+                            const SizedBox(height: 10),
+
+                            GooglePlaceAutoCompleteWidget(
+                              controller: city,
+                              focusNode: cityFocusNode,
+                              onPlaceSelected: (Prediction prediction) {
+                                setState(() {
+                                  city.text = prediction.description ?? '';
+                                });
+                                FocusScope.of(context).unfocus();
+                              },
+                              label: 'City',
+                            ),
+
+                            // Add some padding at the bottom
+                            const SizedBox(height: 20),
+
+                            // Register button with key for testing
+                            Center(
+                              child: ButtonWidget(
+                                key: const Key('registerButton'),
+                                onTap: validateForm,
+                                title: 'Register',
+                              ),
+                            ),
+
+                            // Add extra padding at the bottom
+                            const SizedBox(height: 20),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                padding: EdgeInsets.only(left: 21),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Gender',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _genderButton(
-                    gender: 'Female',
-                    icon: Icons.female,
-                  ),
-                  _genderButton(
-                    gender: 'Male',
-                    icon: Icons.male,
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              CustomTextBox(label: 'NIC', controller: nic),
-              CustomTextBox(
-                  controller: contact,
-                  label: 'Contact',
-                  keyboardType: TextInputType.number),
-              CustomTextBox(
-                controller: address,
-                label: 'Address',
-                focusNode: addressFocusNode, // Pass the focus node
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              GooglePlaceAutoCompleteWidget(
-                controller: city,
-                focusNode: cityFocusNode, // Pass the focus node
-                onPlaceSelected: (Prediction prediction) {
-                  setState(() {
-                    city.text = prediction.description ?? '';
-                  });
-                  FocusScope.of(context)
-                      .unfocus(); // Remove focus from all fields
-                },
-                label: 'City',
-              ),
-              ButtonWidget(
-                onTap: () => validateForm(),
-                title: 'Register',
-              )
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -276,6 +317,9 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
 
   Widget _genderButton({required String gender, required IconData icon}) {
     final bool isSelected = selectedGender == gender;
+    final width =
+        (MediaQuery.of(context).size.width - 48) / 2; // Account for padding
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -283,10 +327,10 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
         });
       },
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.43,
-        padding: EdgeInsets.symmetric(vertical: 15),
+        width: width,
+        padding: const EdgeInsets.symmetric(vertical: 15),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue.shade100 : Color(0xFFEBEBEB),
+          color: isSelected ? Colors.blue.shade100 : const Color(0xFFEBEBEB),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected ? Colors.blue : Colors.grey.shade300,
@@ -299,12 +343,13 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
             Icon(
               icon,
               color: isSelected ? Colors.blue : Colors.black,
-              size: 30,
+              size: 28, // Slightly reduced size
             ),
+            const SizedBox(width: 4),
             Text(
               gender,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 15, // Slightly reduced size
                 color: isSelected ? Colors.blue : Colors.black,
               ),
             ),
@@ -314,10 +359,10 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
     );
   }
 
-  Container _registerBanner() {
+  Widget _registerBanner({required double height}) {
     return Container(
       width: double.infinity,
-      height: 170,
+      height: height,
       decoration: const BoxDecoration(
         gradient: kGradientRegister,
         borderRadius: BorderRadius.only(
@@ -329,7 +374,7 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
             color: Colors.grey,
             spreadRadius: 1,
             blurRadius: 5,
-            offset: Offset(0, 1), // changes position of shadow
+            offset: Offset(0, 1),
           ),
         ],
       ),
@@ -344,14 +389,13 @@ class _PersonalInfoFormScreenState extends State<PersonalInfoFormScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(
-            height: 5,
-          ),
+          const SizedBox(height: 5),
           Image.asset(
             widget.isDonor
                 ? 'assets/images/donator.png'
                 : 'assets/images/recipient.png',
-            height: MediaQuery.of(context).size.width * 0.2,
+            height:
+                height * 0.5, // Dynamically size image based on banner height
           ),
         ],
       ),
