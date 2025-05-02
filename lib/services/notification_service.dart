@@ -393,7 +393,13 @@ class NotificationService {
           .collection('notifications')
           .where('senderUserId', isEqualTo: senderId)
           .where('receiverUserId', isEqualTo: receiverId)
-          .where('status', whereIn: ['pending', 'liked'])
+          .where('status', whereIn: [
+            'pending',
+            'liked',
+            'matched',
+            'accepted',
+            'admin_approved'
+          ])
           .limit(1)
           .get();
 
@@ -402,6 +408,63 @@ class NotificationService {
     } catch (e) {
       print('Error checking for existing match request: $e');
       return false;
+    }
+  }
+
+  // New method to get the actual notification object
+  Future<MatchNotification?> getExistingMatchRequestNotification(
+      String senderId, String receiverId) async {
+    try {
+      // Query for existing notification from sender to receiver
+      QuerySnapshot query = await _firestore
+          .collection('notifications')
+          .where('senderUserId', isEqualTo: senderId)
+          .where('receiverUserId', isEqualTo: receiverId)
+          .where('status', whereIn: ['pending', 'liked', 'matched'])
+          .limit(1)
+          .get();
+
+      // Return the notification if found
+      if (query.docs.isNotEmpty) {
+        return MatchNotification.fromMap(
+            query.docs.first.data() as Map<String, dynamic>,
+            query.docs.first.id);
+      }
+
+      return null;
+    } catch (e) {
+      print('Error retrieving existing match request: $e');
+      return null;
+    }
+  }
+
+  // Method to check if a user is already matched (either as sender or receiver)
+  Future<bool> isUserAlreadyMatched(String userId) async {
+    try {
+      // Check if user is a sender in any matched or approved notification
+      QuerySnapshot senderQuery = await _firestore
+          .collection('notifications')
+          .where('senderUserId', isEqualTo: userId)
+          .where('status', whereIn: ['matched', 'accepted', 'admin_approved'])
+          .limit(1)
+          .get();
+
+      if (senderQuery.docs.isNotEmpty) {
+        return true;
+      }
+
+      // Check if user is a receiver in any matched or approved notification
+      QuerySnapshot receiverQuery = await _firestore
+          .collection('notifications')
+          .where('receiverUserId', isEqualTo: userId)
+          .where('status', whereIn: ['matched', 'accepted', 'admin_approved'])
+          .limit(1)
+          .get();
+
+      return receiverQuery.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking if user is already matched: $e');
+      return false; // Default to false in case of error
     }
   }
 

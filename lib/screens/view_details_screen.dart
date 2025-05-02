@@ -3,8 +3,9 @@ import 'package:life_link/constants/colors.dart';
 import '../models/match_notification_model.dart';
 import '../models/user_model.dart';
 import '../services/notification_service.dart';
+import '../services/user_service.dart';
 
-class ViewDetailsScreen extends StatelessWidget {
+class ViewDetailsScreen extends StatefulWidget {
   final UserModel user;
   final UserModel currentUser;
   final int matchScore;
@@ -23,17 +24,43 @@ class ViewDetailsScreen extends StatelessWidget {
     this.notificationId,
   }) : super(key: key);
 
+  @override
+  State<ViewDetailsScreen> createState() => _ViewDetailsScreenState();
+}
+
+class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
+  String? _imageURL;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileImage();
+  }
+
+  Future<void> _loadProfileImage() async {
+    try {
+      String? imageUrl = await UserService().fetchProfileImage(widget.user.id);
+      if (imageUrl != null && mounted) {
+        setState(() {
+          _imageURL = imageUrl;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error loading profile image: $e");
+    }
+  }
+
   String get matchLevel {
-    if (matchScore > 700) return 'Excellent';
-    if (matchScore > 500) return 'Good';
-    if (matchScore > 300) return 'Moderate';
+    if (widget.matchScore > 700) return 'Excellent';
+    if (widget.matchScore > 500) return 'Good';
+    if (widget.matchScore > 300) return 'Moderate';
     return 'Potential';
   }
 
   Color get matchColor {
-    if (matchScore > 700) return Colors.green;
-    if (matchScore > 500) return Colors.lightGreen;
-    if (matchScore > 300) return Colors.amber;
+    if (widget.matchScore > 700) return Colors.green;
+    if (widget.matchScore > 500) return Colors.lightGreen;
+    if (widget.matchScore > 300) return Colors.amber;
     return Colors.orange;
   }
 
@@ -53,7 +80,7 @@ class ViewDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          isFromNotification ? "Match Details" : "Select Match",
+          widget.isFromNotification ? "Match Details" : "Select Match",
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -98,16 +125,17 @@ class ViewDetailsScreen extends StatelessWidget {
                           buildSectionTitle("Personal Information"),
                           const SizedBox(height: 12),
                           buildDetailRow(
-                              "Full Name", user.fullName, Icons.person),
-                          buildDetailRow("Gender", user.gender, Icons.people),
+                              "Full Name", widget.user.fullName, Icons.person),
                           buildDetailRow(
-                              "City", user.city, Icons.location_city),
+                              "Gender", widget.user.gender, Icons.people),
+                          buildDetailRow(
+                              "City", widget.user.city, Icons.location_city),
                           const Divider(height: 24),
                           buildSectionTitle("Medical Information"),
                           const SizedBox(height: 12),
-                          buildDetailRow(
-                              "Blood Group", user.bloodType, Icons.bloodtype),
-                          buildDetailRow("Organ Type", user.organType,
+                          buildDetailRow("Blood Group", widget.user.bloodType,
+                              Icons.bloodtype),
+                          buildDetailRow("Organ Type", widget.user.organType,
                               Icons.medical_services),
                           buildExpandableHlaTyping(),
                           const Divider(height: 24),
@@ -117,7 +145,8 @@ class ViewDetailsScreen extends StatelessWidget {
                           buildMatchRoleDetail(),
 
                           // Show notification status if coming from notification
-                          if (isFromNotification && notificationId != null)
+                          if (widget.isFromNotification &&
+                              widget.notificationId != null)
                             buildNotificationStatus(context),
                         ],
                       ),
@@ -127,7 +156,7 @@ class ViewDetailsScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // Only show the action button if not viewing from notification
-                if (!isFromNotification)
+                if (!widget.isFromNotification)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: ElevatedButton(
@@ -155,7 +184,7 @@ class ViewDetailsScreen extends StatelessWidget {
                   ),
 
                 // Add contact info section when viewing from notifications
-                if (isFromNotification) buildContactInfoSection(context),
+                if (widget.isFromNotification) buildContactInfoSection(context),
 
                 const SizedBox(height: 24),
               ],
@@ -167,11 +196,9 @@ class ViewDetailsScreen extends StatelessWidget {
   }
 
   // Updated notification status to work with the new model
-// Updated buildNotificationStatus method to work with the new model
-
   Widget buildNotificationStatus(BuildContext context) {
     return StreamBuilder<MatchNotification?>(
-      stream: NotificationService().getNotificationById(notificationId!),
+      stream: NotificationService().getNotificationById(widget.notificationId!),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -541,18 +568,24 @@ class ViewDetailsScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: kPinkColor.withOpacity(0.1),
-            child: Icon(
-              Icons.person,
-              size: 40,
-              color: kPinkColor,
-            ),
-          ),
+          _imageURL != null && _imageURL!.isNotEmpty
+              ? CircleAvatar(
+                  radius: 40,
+                  backgroundImage: NetworkImage(_imageURL!),
+                  backgroundColor: kPinkColor.withOpacity(0.1),
+                )
+              : CircleAvatar(
+                  radius: 40,
+                  backgroundColor: kPinkColor.withOpacity(0.1),
+                  child: Icon(
+                    Icons.person,
+                    size: 40,
+                    color: kPinkColor,
+                  ),
+                ),
           const SizedBox(height: 16),
           Text(
-            user.fullName,
+            widget.user.fullName,
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -604,7 +637,7 @@ class ViewDetailsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  "Score: $matchScore",
+                  "Score: ${widget.matchScore}",
                   style: TextStyle(
                     color: Colors.grey.shade700,
                     fontWeight: FontWeight.bold,
@@ -713,7 +746,7 @@ class ViewDetailsScreen extends StatelessWidget {
               const EdgeInsets.only(left: 40, top: 4, bottom: 12, right: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: user.hlaTyping.entries.map((entry) {
+            children: widget.user.hlaTyping.entries.map((entry) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Row(
@@ -767,7 +800,7 @@ class ViewDetailsScreen extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                "Match Score: $matchScore",
+                "Match Score: ${widget.matchScore}",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: matchColor,
@@ -779,7 +812,7 @@ class ViewDetailsScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
-              value: matchScore / 1000,
+              value: widget.matchScore / 1000,
               backgroundColor: Colors.grey.shade200,
               color: matchColor,
               minHeight: 8,
@@ -803,29 +836,34 @@ class ViewDetailsScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isUserDonor ? Colors.blue.shade50 : kPinkColor.withOpacity(0.05),
+        color: widget.isUserDonor
+            ? Colors.blue.shade50
+            : kPinkColor.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color:
-              isUserDonor ? Colors.blue.shade200 : kPinkColor.withOpacity(0.3),
+          color: widget.isUserDonor
+              ? Colors.blue.shade200
+              : kPinkColor.withOpacity(0.3),
         ),
       ),
       child: Row(
         children: [
           Icon(
-            isUserDonor ? Icons.volunteer_activism : Icons.favorite_border,
-            color: isUserDonor ? Colors.blue.shade700 : kPinkColor,
+            widget.isUserDonor
+                ? Icons.volunteer_activism
+                : Icons.favorite_border,
+            color: widget.isUserDonor ? Colors.blue.shade700 : kPinkColor,
             size: 20,
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              isUserDonor
-                  ? "You will be donating ${currentUser.organType} to ${user.fullName}"
-                  : "${user.fullName} will be donating ${user.organType} to you",
+              widget.isUserDonor
+                  ? "You will be donating ${widget.currentUser.organType} to ${widget.user.fullName}"
+                  : "${widget.user.fullName} will be donating ${widget.user.organType} to you",
               style: TextStyle(
                 fontWeight: FontWeight.w500,
-                color: isUserDonor ? Colors.blue.shade700 : kPinkColor,
+                color: widget.isUserDonor ? Colors.blue.shade700 : kPinkColor,
               ),
             ),
           ),
@@ -853,9 +891,9 @@ class ViewDetailsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                isUserDonor
-                    ? "You are about to select ${user.fullName} as your recipient for ${currentUser.organType} donation."
-                    : "You are about to select ${user.fullName} as your donor for ${user.organType} donation.",
+                widget.isUserDonor
+                    ? "You are about to select ${widget.user.fullName} as your recipient for ${widget.currentUser.organType} donation."
+                    : "You are about to select ${widget.user.fullName} as your donor for ${widget.user.organType} donation.",
               ),
               const SizedBox(height: 12),
               const Text(
@@ -899,14 +937,52 @@ class ViewDetailsScreen extends StatelessWidget {
   }
 
   // Updated method to use the new MatchNotification model
-// Updated code for the _sendMatchNotificationAndNavigate method
-// to work with the updated MatchNotification model
-
   Future<void> _sendMatchNotificationAndNavigate(BuildContext context) async {
-    bool hasExisting = await NotificationService()
-        .hasExistingMatchRequest(currentUser.id, user.id);
+    // Check for existing requests in either direction
+    bool hasSentRequest = await NotificationService()
+        .hasExistingMatchRequest(widget.currentUser.id, widget.user.id);
+    bool hasReceivedRequest = await NotificationService()
+        .hasExistingMatchRequest(widget.user.id, widget.currentUser.id);
 
-    if (hasExisting) {
+    // Check if the user is already matched (with anybody)
+    bool isUserAlreadyMatched =
+        await NotificationService().isUserAlreadyMatched(widget.user.id);
+
+    if (isUserAlreadyMatched) {
+      // Show warning that user is already matched
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "${widget.user.fullName} is already matched with another person. Please select someone else.",
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+      return;
+    }
+
+    // Check if the current user is already matched (with anybody else)
+    bool isCurrentUserAlreadyMatched =
+        await NotificationService().isUserAlreadyMatched(widget.currentUser.id);
+
+    if (isCurrentUserAlreadyMatched) {
+      // Show warning that current user is already matched
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "You are already matched with another person. You cannot initiate new matches.",
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 4),
+        ),
+      );
+      return;
+    }
+
+    if (hasSentRequest) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -920,46 +996,35 @@ class ViewDetailsScreen extends StatelessWidget {
       return;
     }
 
-    // Use the factory methods from the updated MatchNotification model
-    String notificationId;
-    if (isUserDonor) {
-      // Current user is donor, other user is recipient
-      notificationId =
-          await NotificationService().sendDonorToRecipientNotification(
-        currentUser.id,
-        currentUser.fullName,
-        user.id,
-        matchScore,
-        currentUser.organType,
-      );
-    } else {
-      // Current user is recipient, other user is donor
-      notificationId =
-          await NotificationService().sendRecipientToDonorNotification(
-        currentUser.id,
-        currentUser.fullName,
-        user.id,
-        matchScore,
-        user.organType,
-      );
-    }
+    if (hasReceivedRequest) {
+      // If we received a request, we should respond to it instead of creating a new one
+      MatchNotification? existingNotification = await NotificationService()
+          .getExistingMatchRequestNotification(
+              widget.user.id, widget.currentUser.id);
 
-    // Show the success SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "Match request sent to ${user.fullName} successfully!",
-        ),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 3),
-      ),
-    );
-
-    await Future.delayed(const Duration(milliseconds: 1000));
-
-    if (context.mounted) {
-      Navigator.of(context).pop();
+      if (existingNotification != null) {
+        // Show different message and navigate to notifications
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "You already have a pending request from ${widget.user.fullName}. Please respond to it in your notifications.",
+            ),
+            backgroundColor: Colors.blue,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'VIEW',
+              onPressed: () {
+                // Navigate to notifications screen
+                Navigator.pop(context);
+                // You would add navigation to notifications here
+                // Navigator.pushNamed(context, '/notifications');
+              },
+            ),
+          ),
+        );
+        return;
+      }
     }
   }
 }
