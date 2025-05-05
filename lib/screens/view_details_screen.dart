@@ -936,20 +936,16 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
     );
   }
 
-  // Updated method to use the new MatchNotification model
   Future<void> _sendMatchNotificationAndNavigate(BuildContext context) async {
-    // Check for existing requests in either direction
     bool hasSentRequest = await NotificationService()
         .hasExistingMatchRequest(widget.currentUser.id, widget.user.id);
     bool hasReceivedRequest = await NotificationService()
         .hasExistingMatchRequest(widget.user.id, widget.currentUser.id);
 
-    // Check if the user is already matched (with anybody)
     bool isUserAlreadyMatched =
         await NotificationService().isUserAlreadyMatched(widget.user.id);
 
     if (isUserAlreadyMatched) {
-      // Show warning that user is already matched
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -963,12 +959,10 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
       return;
     }
 
-    // Check if the current user is already matched (with anybody else)
     bool isCurrentUserAlreadyMatched =
         await NotificationService().isUserAlreadyMatched(widget.currentUser.id);
 
     if (isCurrentUserAlreadyMatched) {
-      // Show warning that current user is already matched
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -997,7 +991,6 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
     }
 
     if (hasReceivedRequest) {
-      // If we received a request, we should respond to it instead of creating a new one
       MatchNotification? existingNotification = await NotificationService()
           .getExistingMatchRequestNotification(
               widget.user.id, widget.currentUser.id);
@@ -1017,7 +1010,6 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
               onPressed: () {
                 // Navigate to notifications screen
                 Navigator.pop(context);
-                // You would add navigation to notifications here
                 // Navigator.pushNamed(context, '/notifications');
               },
             ),

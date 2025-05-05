@@ -39,14 +39,6 @@ class EventScreen extends StatelessWidget {
           icon: Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.share_rounded),
-            onPressed: () {
-              // Implement share functionality
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(

@@ -87,7 +87,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
       },
       isTestsCompleted: false,
       history: [],
-      city: '',
+      city: widget.userModel.city,
       waitingTime: int.tryParse(waitingTime.text.trim()) ?? 0,
       imageUrl: '',
     );
