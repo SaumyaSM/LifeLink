@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:life_link/constants/colors.dart';
-import 'package:life_link/screens/Account/donation_history.dart';
 import 'package:life_link/screens/Account/donation_status.dart';
 import 'package:life_link/screens/Account/medical_collection.dart';
 import 'package:life_link/screens/Auth/login_screen.dart';
+import 'package:life_link/screens/account/donation_history.dart';
 import 'package:life_link/screens/account/personal_collection.dart';
 import 'package:life_link/screens/account/personal_info_form_screen.dart';
 import 'package:life_link/services/auth_service.dart';
@@ -161,8 +161,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             _profilePageButton(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => DonationHistory()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DonationHistoryScreen()));
               },
               icon: Icons.history,
               title: 'Donation History',
