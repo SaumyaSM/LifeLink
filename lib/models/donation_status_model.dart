@@ -41,9 +41,7 @@ class DonationStatus {
     required this.statusHistory,
   });
 
-  // Factory constructor to create DonationStatus from Firestore document
   factory DonationStatus.fromMap(Map<String, dynamic> data, String id) {
-    // Convert statusHistory from map of timestamps to map of DateTimes
     Map<String, DateTime> statusHistory = {};
     if (data['statusHistory'] != null) {
       final Map<String, dynamic> historyData = Map<String, dynamic>.from(
@@ -73,9 +71,7 @@ class DonationStatus {
     );
   }
 
-  // Convert DonationStatus to Map for Firestore
   Map<String, dynamic> toMap() {
-    // Convert statusHistory from map of DateTimes to map of Timestamps
     Map<String, Timestamp> firestoreStatusHistory = {};
     statusHistory.forEach((key, value) {
       firestoreStatusHistory[key] = Timestamp.fromDate(value);
@@ -95,7 +91,6 @@ class DonationStatus {
     };
   }
 
-  // Create a copy of this DonationStatus with modified fields
   DonationStatus copyWith({
     String? id,
     String? matchId,
