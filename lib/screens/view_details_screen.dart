@@ -137,7 +137,8 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
                               Icons.bloodtype),
                           buildDetailRow("Organ Type", widget.user.organType,
                               Icons.medical_services),
-                          buildExpandableHlaTyping(),
+                          if (widget.isFromNotification)
+                            buildExpandableHlaTyping(),
                           const Divider(height: 24),
                           buildSectionTitle("Match Information"),
                           const SizedBox(height: 12),
@@ -713,6 +714,79 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
   }
 
   Widget buildExpandableHlaTyping() {
+    // Don't show HLA typing at all if not from notification or not admin approved
+    if (widget.isFromNotification) {
+      // Use StreamBuilder to get the notification status for conditional rendering
+      return StreamBuilder<MatchNotification?>(
+        stream: widget.notificationId != null
+            ? NotificationService().getNotificationById(widget.notificationId!)
+            : Stream.value(null),
+        builder: (context, snapshot) {
+          // Show loading indicator while fetching notification data
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // Only show HLA typing if status is admin_approved
+          final notification = snapshot.data;
+          if (notification != null && notification.status == "admin_approved") {
+            return _buildHlaTypingContent();
+          } else {
+            // Either return an empty widget or a message that HLA is hidden
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: kPinkColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.science,
+                      color: kPinkColor,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "HLA Typing",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "HLA details will be visible after medical team approval",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      );
+    } else {
+      // Not from notification, so don't show HLA typing at all
+      return const SizedBox.shrink(); // Hidden completely
+    }
+  }
+
+  Widget _buildHlaTypingContent() {
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       childrenPadding: EdgeInsets.zero,
