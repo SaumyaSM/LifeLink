@@ -63,6 +63,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
         centerTitle: true,
         elevation: 0,
         backgroundColor: kPinkColor,
+        automaticallyImplyLeading: false,
       ),
       body: Container(
         decoration: BoxDecoration(

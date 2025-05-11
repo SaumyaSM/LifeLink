@@ -29,6 +29,7 @@ class NotificationsScreen extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
         backgroundColor: kPinkColor,
+        automaticallyImplyLeading: false,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: StreamBuilder<List<MatchNotification>>(
