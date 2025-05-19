@@ -44,17 +44,41 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => isLoading = true);
 
-    await AuthService.loginUser(
-            email: emailTEC.text.trim(), password: passwordTEC.text.trim())
-        .then((value) {
+    try {
+      await AuthService.loginUser(
+          email: emailTEC.text.trim(), password: passwordTEC.text.trim());
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => LoadingScreen()));
-    }).catchError((error) {
+    } on FirebaseAuthException catch (error) {
+      setState(() => isLoading = false);
+
+      // Show specific error messages based on the Firebase error code
+      switch (error.code) {
+        case 'user-not-found':
+          ToastService.displayErrorMotionToast(
+              context: context, description: 'Email not registered!');
+          break;
+        case 'wrong-password':
+          ToastService.displayErrorMotionToast(
+              context: context, description: 'Incorrect password!');
+          break;
+        case 'invalid-email':
+          ToastService.displayErrorMotionToast(
+              context: context, description: 'Invalid email format!');
+          break;
+        case 'user-disabled':
+          ToastService.displayErrorMotionToast(
+              context: context, description: 'This account has been disabled!');
+          break;
+        default:
+          ToastService.displayErrorMotionToast(
+              context: context, description: 'Login failed: ${error.message}');
+      }
+    } catch (error) {
       setState(() => isLoading = false);
       ToastService.displayErrorMotionToast(
-          context: context, description: 'Invalid Login!');
-      return;
-    });
+          context: context, description: 'Login failed: ${error.toString()}');
+    }
   }
 
   void loginWithGoogle() async {
