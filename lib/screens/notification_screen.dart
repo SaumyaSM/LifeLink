@@ -340,8 +340,8 @@ class NotificationsScreen extends StatelessWidget {
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content:
-                            Text("The medical team will contact you shortly."),
+                        content: Text(
+                            "Please wait for the medical team to contact you."), // Changed message
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
@@ -353,7 +353,10 @@ class NotificationsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text("Contact Medical Team"),
+                  // Change button text based on notification type
+                  child: Text(isAdminApproved
+                      ? "Medical Team Will Contact You"
+                      : "Awaiting Medical Review"),
                 ),
               ),
           ],
@@ -382,7 +385,10 @@ class NotificationsScreen extends StatelessWidget {
 
   String _getNotificationTitle(MatchNotification notification) {
     if (notification.matchType == "acceptance") {
-      return "Match Request Accepted";
+      if (notification.senderName == "Medical Team") {
+        return "Match Approved by Medical Team";
+      }
+      return "Match Request Liked";
     } else if (notification.matchType == "admin_approval") {
       return "Medical Team Review";
     } else if (notification.status == "matched") {
@@ -398,7 +404,10 @@ class NotificationsScreen extends StatelessWidget {
 
   String _getNotificationDescription(MatchNotification notification) {
     if (notification.matchType == "acceptance") {
-      return "Your ${notification.organType} match request has been accepted!";
+      if (notification.senderName == "Medical Team") {
+        return "Your ${notification.organType} match has been approved by the medical team. They will contact you soon.";
+      }
+      return "Your potential ${notification.organType} match has expressed interest!";
     } else if (notification.matchType == "admin_approval") {
       return "Your match for ${notification.organType} is being reviewed by the medical team.";
     } else if (notification.status == "matched") {
