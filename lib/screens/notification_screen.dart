@@ -478,6 +478,13 @@ class NotificationsScreen extends StatelessWidget {
                   print('Current user ID: ${currentUser.id}');
                   print('Notification sender ID: ${notification.senderUserId}');
 
+                  // IMPORTANT: Send acceptance notification to the original sender
+                  // This ensures the sender always gets notified when their request is accepted
+                  await NotificationService().sendAcceptanceNotification(
+                      notification.senderUserId,
+                      currentUser.fullName,
+                      notification.organType);
+
                   MatchNotification? existingMatch = await NotificationService()
                       .getExistingMatchBetweenUsers(
                           currentUser.id, notification.senderUserId);
@@ -540,16 +547,13 @@ class NotificationsScreen extends StatelessWidget {
                     );
                   } else {
                     print('No existing match - just accepting this one');
-                    await NotificationService().sendAcceptanceNotification(
-                        notification.senderUserId,
-                        currentUser.fullName,
-                        notification.organType);
+                    // We already sent the acceptance notification above, so no need to do it again here
 
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                            "Match accepted! Other Person will be Notified."),
+                            "Match accepted! The sender has been notified."),
                         backgroundColor: Colors.green,
                         behavior: SnackBarBehavior.floating,
                       ),

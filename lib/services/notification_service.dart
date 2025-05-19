@@ -82,8 +82,6 @@ class NotificationService {
   }
 
   // Update to "matched" when both users like each other
-// Update to "matched" when both users like each other
-// Update to "matched" when both users like each other
   Future<void> createMatchedNotification(
     String originalNotificationId,
     String otherNotificationId,
@@ -159,7 +157,6 @@ class NotificationService {
         receiverRole: 'admin',
       );
 
-      // Add references to the original notifications
       Map<String, dynamic> adminNotificationMap = adminNotification.toMap();
       adminNotificationMap['relatedNotifications'] = [
         originalNotificationId,

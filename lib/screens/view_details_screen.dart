@@ -1011,11 +1011,15 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
   }
 
   Future<void> _sendMatchNotificationAndNavigate(BuildContext context) async {
+    // Check if the current user has already sent a request to this user
     bool hasSentRequest = await NotificationService()
         .hasExistingMatchRequest(widget.currentUser.id, widget.user.id);
+
+    // Check if the current user has received a request from this user
     bool hasReceivedRequest = await NotificationService()
         .hasExistingMatchRequest(widget.user.id, widget.currentUser.id);
 
+    // Check if the selected user is already matched with someone
     bool isUserAlreadyMatched =
         await NotificationService().isUserAlreadyMatched(widget.user.id);
 
@@ -1033,6 +1037,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
       return;
     }
 
+    // Check if the current user is already matched with someone
     bool isCurrentUserAlreadyMatched =
         await NotificationService().isUserAlreadyMatched(widget.currentUser.id);
 
@@ -1091,6 +1096,64 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
         );
         return;
       }
+    }
+
+    // If we've passed all the checks, send the match notification
+    try {
+      String notificationId;
+
+      // Determine the type of match based on user roles
+      if (widget.isUserDonor) {
+        // Current user is the donor
+        notificationId =
+            await NotificationService().sendDonorToRecipientNotification(
+          widget.currentUser.id,
+          widget.currentUser.fullName,
+          widget.user.id,
+          widget.matchScore,
+          widget.currentUser.organType,
+        );
+      } else {
+        // Current user is the recipient
+        notificationId =
+            await NotificationService().sendRecipientToDonorNotification(
+          widget.currentUser.id,
+          widget.currentUser.fullName,
+          widget.user.id,
+          widget.matchScore,
+          widget.user.organType,
+        );
+      }
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Match request sent to ${widget.user.fullName}. You'll be notified when they respond.",
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+
+      // Navigate back to the previous screen
+      Navigator.pop(context);
+
+      // Optionally navigate to notifications screen
+      // Navigator.pushNamed(context, '/notifications');
+    } catch (e) {
+      // Show error message if something goes wrong
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Error sending match request: ${e.toString()}",
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+        ),
+      );
     }
   }
 }
