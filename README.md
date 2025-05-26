@@ -21,18 +21,6 @@
   - `http`, `image_picker`, `flutter_pdfview`
   - `google_fonts`, `loading_animation_widget`, `modal_progress_hud_nsn`
 
-## 📁 Project Structure
-
-/lib/
-├── main.dart
-├── firebase_options.dart
-├── constants/
-├── models/
-├── screens/
-├── services/
-├── utils/
-└── widgets/
-
 ## 🧪 Setup & Run
 
 1. Extract the ZIP folder containing the project.
