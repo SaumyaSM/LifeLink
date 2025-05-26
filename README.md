@@ -1,16 +1,67 @@
-# life_link
+# Lifelink – Mobile App (Flutter)
 
-A new Flutter project.
+**Lifelink** is a cross-platform mobile application that connects organ donors and recipients through a secure, structured, and medically guided platform. It combines user-centered design, a smart organ matching algorithm, and Firebase backend services to improve transplant matching processes.
 
-## Getting Started
+## 🚀 Features
 
-This project is a starting point for a Flutter application.
+- Donor and recipient registration
+- Secure storage of medical information (e.g., HLA markers, blood type)
+- Matching algorithm with real-time compatibility scoring
+- Educational resources and organ donation event updates
+- Notifications and profile management
+- Intuitive navigation and user experience
 
-A few resources to get you started if this is your first Flutter project:
+## 🧠 Matching Algorithm
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+The organ matching system ranks candidates based on:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Blood Group Compatibility**
+- **HLA Mismatch Scoring** (A, B, C, DRB1, DQB1)
+- **Waiting Time Priority**
+- **Age Difference Penalty**:  
+  `Score -= 0.5 × (donor age − recipient age)²`
+- **Regional Proximity Bonus**
+
+Top-scoring recipients are shortlisted, and a probabilistic selection simulates real-world acceptance behavior.
+
+## 🛠️ Technologies Used
+
+- **Framework**: Flutter (Dart)
+- **Backend**: Firebase (Firestore, Auth, Storage)
+- **Packages**:
+  - `firebase_auth`, `cloud_firestore`, `firebase_storage`
+  - `google_places_flutter`, `geolocator`
+  - `http`, `image_picker`, `flutter_pdfview`
+  - `google_fonts`, `loading_animation_widget`, `modal_progress_hud_nsn`
+
+## 📁 Project Structure
+/lib/
+├── main.dart
+├── firebase_options.dart
+├── constants/
+├── models/
+├── screens/
+├── services/
+├── utils/
+└── widgets/
+
+## 🧪 Setup & Run
+
+1. Extract the ZIP folder containing the project.
+2. Open the project in Android Studio or VS Code.
+3. Run `flutter pub get`.
+4. Add Firebase config files:
+   - `google-services.json` → `/android/app`
+   - `GoogleService-Info.plist` → `/ios/Runner`
+5. Launch the app using:
+6. flutter run
+
+7. ## 📱 Testing
+
+Manually tested on:
+- Android Emulator (Pixel series)
+- Xcode iOS Simulator (iPhone)
+
+## 📄 License
+
+This application is for educational and academic purposes only. It is not approved for clinical or production use without regulatory clearance.
