@@ -11,19 +11,6 @@
 - Notifications and profile management
 - Intuitive navigation and user experience
 
-## 🧠 Matching Algorithm
-
-The organ matching system ranks candidates based on:
-
-- **Blood Group Compatibility**
-- **HLA Mismatch Scoring** (A, B, C, DRB1, DQB1)
-- **Waiting Time Priority**
-- **Age Difference Penalty**:  
-  `Score -= 0.5 × (donor age − recipient age)²`
-- **Regional Proximity Bonus**
-
-Top-scoring recipients are shortlisted, and a probabilistic selection simulates real-world acceptance behavior.
-
 ## 🛠️ Technologies Used
 
 - **Framework**: Flutter (Dart)
