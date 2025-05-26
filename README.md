@@ -35,6 +35,7 @@ Top-scoring recipients are shortlisted, and a probabilistic selection simulates 
   - `google_fonts`, `loading_animation_widget`, `modal_progress_hud_nsn`
 
 ## 📁 Project Structure
+
 /lib/
 ├── main.dart
 ├── firebase_options.dart
@@ -56,7 +57,7 @@ Top-scoring recipients are shortlisted, and a probabilistic selection simulates 
 5. Launch the app using:
 6. flutter run
 
-7. ## 📱 Testing
+## 📱 Testing
 
 Manually tested on:
 - Android Emulator (Pixel series)
